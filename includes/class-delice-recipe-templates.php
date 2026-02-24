@@ -102,6 +102,30 @@ class Delice_Recipe_Templates {
                 );
             }
 
+            // Load template-specific stylesheet
+            $selected_template = $this->get_selected_template();
+            if ( $selected_template === 'modern' ) {
+                $modern_css = DELICE_RECIPE_PLUGIN_DIR . 'public/css/delice-modern.css';
+                if ( file_exists( $modern_css ) ) {
+                    wp_enqueue_style(
+                        'delice-recipe-modern-template',
+                        DELICE_RECIPE_PLUGIN_URL . 'public/css/delice-modern.css',
+                        array(),
+                        DELICE_RECIPE_VERSION
+                    );
+                }
+            } elseif ( $selected_template === 'elegant' ) {
+                $elegant_css = DELICE_RECIPE_PLUGIN_DIR . 'public/css/delice-elegant.css';
+                if ( file_exists( $elegant_css ) ) {
+                    wp_enqueue_style(
+                        'delice-recipe-elegant-template',
+                        DELICE_RECIPE_PLUGIN_URL . 'public/css/delice-elegant.css',
+                        array(),
+                        DELICE_RECIPE_VERSION
+                    );
+                }
+            }
+
             $action_buttons_js = DELICE_RECIPE_PLUGIN_DIR . 'public/js/delice-recipe-action-buttons.js';
             if (file_exists($action_buttons_js)) {
                 wp_enqueue_script(

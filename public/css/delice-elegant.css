@@ -1,0 +1,1070 @@
+/**
+ * Elegant Recipe Template — "Artisan Magazine"
+ * Design: Warm cream background, forest green headings, gold accents, serif feel
+ * Palette: #166534 (forest green) · #b45309 (amber/gold) · #faf7f2 (warm cream)
+ */
+
+/* ─── Reset & wrapper ──────────────────────────────────────────────────────── */
+.delice-elegant {
+    --e-green:       #166534;
+    --e-green-light: #15803d;
+    --e-green-pale:  #dcfce7;
+    --e-amber:       #b45309;
+    --e-amber-light: #d97706;
+    --e-amber-pale:  #fef3c7;
+    --e-cream:       #faf7f2;
+    --e-cream-2:     #f4f0e8;
+    --e-white:       #ffffff;
+    --e-dark:        #1c1917;
+    --e-text:        #292524;
+    --e-muted:       #78716c;
+    --e-border:      #e7e5e4;
+    --e-border-warm: #d6d0c4;
+    --e-radius:      14px;
+    --e-radius-sm:   8px;
+    --e-shadow:      0 2px 8px rgba(28,25,23,.07), 0 1px 2px rgba(28,25,23,.05);
+    --e-shadow-lg:   0 8px 40px rgba(28,25,23,.12);
+
+    font-family: Georgia, "Times New Roman", "Palatino Linotype", serif;
+    background: var(--e-cream);
+    color: var(--e-text);
+    max-width: 860px;
+    margin: 0 auto;
+    border-radius: var(--e-radius);
+    overflow: hidden;
+    box-shadow: var(--e-shadow-lg);
+    border: 1px solid var(--e-border-warm);
+}
+
+/* ─── Header ───────────────────────────────────────────────────────────────── */
+.delice-elegant-header {
+    padding: 40px 48px 0;
+    text-align: center;
+    background: var(--e-cream);
+}
+
+.delice-elegant-tagline {
+    font-size: .875rem;
+    font-style: italic;
+    color: var(--e-muted);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin: 0 0 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 500;
+}
+
+.delice-elegant-title {
+    font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+    font-weight: 700;
+    color: var(--e-green);
+    line-height: 1.2;
+    margin: 0 0 16px;
+    letter-spacing: -.015em;
+}
+
+/* ─── Byline ────────────────────────────────────────────────────────────────── */
+.delice-elegant-byline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-byline-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: .825rem;
+    color: var(--e-muted);
+}
+
+.delice-elegant-byline-item svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--e-amber);
+    flex-shrink: 0;
+}
+
+.delice-elegant-byline-item strong {
+    color: var(--e-text);
+    font-weight: 600;
+}
+
+.delice-elegant-byline-item a {
+    color: var(--e-green);
+    text-decoration: none;
+}
+
+.delice-elegant-byline-item a:hover {
+    text-decoration: underline;
+}
+
+.delice-elegant-byline-sep {
+    color: var(--e-border-warm);
+    font-size: 1rem;
+}
+
+/* ─── Hero Image ────────────────────────────────────────────────────────────── */
+.delice-elegant-hero-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--e-radius-sm);
+    margin: 0 0 0;
+    line-height: 0;
+}
+
+.delice-elegant-img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: var(--e-radius-sm);
+    transition: transform .6s ease;
+}
+
+.delice-elegant:hover .delice-elegant-img {
+    transform: scale(1.015);
+}
+
+.delice-elegant-difficulty-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    backdrop-filter: blur(4px);
+}
+
+.delice-elegant-difficulty-badge--easy {
+    background: rgba(22,101,52,.85);
+    color: #fff;
+}
+
+.delice-elegant-difficulty-badge--medium {
+    background: rgba(180,83,9,.85);
+    color: #fff;
+}
+
+.delice-elegant-difficulty-badge--hard {
+    background: rgba(185,28,28,.85);
+    color: #fff;
+}
+
+/* ─── Meta bar ──────────────────────────────────────────────────────────────── */
+.delice-elegant-meta {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: var(--e-white);
+    border-top: 3px solid var(--e-amber);
+    border-bottom: 1px solid var(--e-border);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 24px;
+    border-right: 1px solid var(--e-border);
+    flex: 1;
+    min-width: 100px;
+    text-align: left;
+}
+
+.delice-elegant-meta-item:last-child {
+    border-right: none;
+}
+
+.delice-elegant-meta-item svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--e-amber);
+    flex-shrink: 0;
+}
+
+.delice-elegant-meta-item > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.delice-elegant-meta-label {
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--e-muted);
+    font-weight: 600;
+}
+
+.delice-elegant-meta-value {
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--e-dark);
+}
+
+.delice-elegant-meta-item--total {
+    background: var(--e-amber-pale);
+}
+
+.delice-elegant-meta-item--total svg {
+    stroke: var(--e-amber-light);
+}
+
+.delice-elegant-meta-item--total .delice-elegant-meta-value {
+    color: var(--e-amber);
+}
+
+/* ─── Action buttons ────────────────────────────────────────────────────────── */
+.delice-elegant-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 20px 24px;
+    background: var(--e-cream-2);
+    border-bottom: 1px solid var(--e-border-warm);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border: 1.5px solid var(--e-border-warm);
+    border-radius: 24px;
+    background: var(--e-white);
+    color: var(--e-text);
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .02em;
+    white-space: nowrap;
+}
+
+.delice-elegant-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+.delice-elegant-btn:hover {
+    border-color: var(--e-green);
+    color: var(--e-green);
+    background: var(--e-green-pale);
+}
+
+.delice-elegant-btn--rate {
+    background: var(--e-amber);
+    border-color: var(--e-amber);
+    color: #fff;
+}
+
+.delice-elegant-btn--rate:hover {
+    background: var(--e-amber-light);
+    border-color: var(--e-amber-light);
+    color: #fff;
+}
+
+/* Share dropdown */
+.delice-elegant-share-wrap {
+    position: relative;
+}
+
+.delice-elegant-share-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 160px;
+    background: var(--e-white);
+    border-radius: var(--e-radius-sm);
+    border: 1px solid var(--e-border);
+    box-shadow: var(--e-shadow-lg);
+    overflow: hidden;
+    z-index: 100;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-recipe-share-dropdown.open .delice-elegant-share-menu {
+    display: block;
+}
+
+.delice-elegant-share-menu .delice-recipe-share-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--e-muted);
+    font-size: .85rem;
+    text-decoration: none;
+    transition: background .15s;
+}
+
+.delice-elegant-share-menu .delice-recipe-share-item:hover {
+    background: var(--e-cream);
+    color: var(--e-green);
+}
+
+.delice-elegant-share-menu .delice-recipe-share-item-icon {
+    width: 15px;
+    height: 15px;
+}
+
+/* ─── Dividers ──────────────────────────────────────────────────────────────── */
+.delice-elegant-divider {
+    border: none;
+    border-top: 1px solid var(--e-border-warm);
+    margin: 0;
+}
+
+.delice-elegant-divider--ornamental {
+    position: relative;
+    text-align: center;
+    margin: 28px 48px;
+    border-top-color: var(--e-amber);
+    opacity: .35;
+}
+
+/* ─── Body layout ────────────────────────────────────────────────────────────── */
+.delice-elegant-body {
+    padding: 36px 48px;
+    background: var(--e-cream);
+}
+
+/* ─── Section titles ─────────────────────────────────────────────────────────── */
+.delice-elegant-section {
+    margin-bottom: 36px;
+}
+
+.delice-elegant-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--e-green);
+    text-align: center;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin: 0 0 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-section-ornament {
+    color: var(--e-amber);
+    font-size: .8em;
+    flex-shrink: 0;
+}
+
+/* ─── Ingredients ────────────────────────────────────────────────────────────── */
+.delice-elegant-ingredients-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    background: var(--e-white);
+    border: 1px solid var(--e-border);
+    border-radius: var(--e-radius-sm);
+    overflow: hidden;
+}
+
+.delice-elegant-ingredient {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--e-border);
+    gap: 10px;
+    transition: background .15s;
+}
+
+.delice-elegant-ingredient:hover {
+    background: var(--e-cream);
+}
+
+/* Remove right border from right-column items */
+.delice-elegant-ingredient:nth-child(2n) {
+    border-left: 1px solid var(--e-border);
+}
+
+.delice-elegant-ingredient-inner {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Custom checkbox */
+.delice-elegant-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.delice-elegant-check-icon {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 1.5px solid var(--e-border-warm);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    background: var(--e-cream);
+}
+
+.delice-elegant-check-icon svg {
+    width: 11px;
+    height: 11px;
+    stroke: transparent;
+    transition: stroke .2s;
+}
+
+.delice-elegant-checkbox:checked ~ .delice-elegant-check-icon {
+    background: var(--e-green);
+    border-color: var(--e-green);
+}
+
+.delice-elegant-checkbox:checked ~ .delice-elegant-check-icon svg {
+    stroke: #fff;
+}
+
+.delice-elegant-ingredient-name {
+    font-size: .875rem;
+    color: var(--e-text);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-checkbox:checked ~ .delice-elegant-check-icon + .delice-elegant-ingredient-name {
+    color: var(--e-muted);
+    text-decoration: line-through;
+}
+
+.delice-elegant-ingredient-qty {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--e-amber);
+    background: var(--e-amber-pale);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    border: 1px solid rgba(180,83,9,.15);
+}
+
+/* ─── Instructions ───────────────────────────────────────────────────────────── */
+.delice-elegant-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.delice-elegant-step {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.delice-elegant-step-num {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border: 2px solid var(--e-green);
+    color: var(--e-green);
+    border-radius: 50%;
+    font-size: .875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--e-green-pale);
+    transition: background .2s, color .2s;
+}
+
+.delice-elegant-step:hover .delice-elegant-step-num {
+    background: var(--e-green);
+    color: #fff;
+}
+
+.delice-elegant-step-text {
+    margin: 0;
+    font-size: .925rem;
+    line-height: 1.8;
+    color: var(--e-text);
+    font-family: Georgia, "Times New Roman", serif;
+    padding-top: 8px;
+}
+
+/* ─── Notes ─────────────────────────────────────────────────────────────────── */
+.delice-elegant-notes {
+    padding: 0 48px;
+}
+
+.delice-elegant-notes-text {
+    font-size: .9rem;
+    line-height: 1.8;
+    color: var(--e-muted);
+    font-style: italic;
+    background: var(--e-amber-pale);
+    border-left: 3px solid var(--e-amber);
+    padding: 16px 20px;
+    border-radius: 0 var(--e-radius-sm) var(--e-radius-sm) 0;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+/* ─── Nutrition ─────────────────────────────────────────────────────────────── */
+.delice-elegant-nutrition {
+    padding: 0 48px;
+}
+
+.delice-elegant-nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 1px;
+    background: var(--e-border);
+    border: 1px solid var(--e-border);
+    border-radius: var(--e-radius-sm);
+    overflow: hidden;
+}
+
+.delice-elegant-nutrient {
+    background: var(--e-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 12px;
+    text-align: center;
+    gap: 4px;
+    transition: background .2s;
+}
+
+.delice-elegant-nutrient:hover {
+    background: var(--e-cream);
+}
+
+.delice-elegant-nutrient-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--e-green);
+    line-height: 1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-nutrient-value small {
+    font-size: .6em;
+    color: var(--e-muted);
+    font-weight: 400;
+}
+
+.delice-elegant-nutrient-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--e-muted);
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ─── FAQs ──────────────────────────────────────────────────────────────────── */
+.delice-elegant-faqs {
+    padding: 0 48px;
+}
+
+.delice-elegant-faq-list {
+    border: 1px solid var(--e-border);
+    border-radius: var(--e-radius-sm);
+    overflow: hidden;
+    background: var(--e-white);
+}
+
+.delice-elegant-faq-item + .delice-elegant-faq-item {
+    border-top: 1px solid var(--e-border);
+}
+
+.delice-elegant-faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    gap: 14px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: .925rem;
+    font-weight: 700;
+    color: var(--e-text);
+    transition: color .2s, background .2s;
+}
+
+.delice-elegant-faq-question:hover {
+    color: var(--e-green);
+    background: var(--e-cream);
+}
+
+.delice-elegant-faq-toggle {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border: 1.5px solid var(--e-border-warm);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .25s;
+    background: var(--e-cream);
+}
+
+.delice-elegant-faq-toggle svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--e-muted);
+    transition: stroke .2s, transform .25s;
+}
+
+.delice-recipe-modern-faq-item.faq-open .delice-elegant-faq-toggle {
+    background: var(--e-green);
+    border-color: var(--e-green);
+    transform: rotate(180deg);
+}
+
+.delice-recipe-modern-faq-item.faq-open .delice-elegant-faq-toggle svg {
+    stroke: #fff;
+}
+
+.delice-elegant-faq-answer {
+    display: none;
+    padding: 0 20px 18px;
+}
+
+.delice-recipe-modern-faq-item.faq-open .delice-elegant-faq-answer {
+    display: block;
+}
+
+.delice-elegant-faq-answer p {
+    margin: 0;
+    font-size: .9rem;
+    line-height: 1.8;
+    color: var(--e-muted);
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+/* ─── Reviews ────────────────────────────────────────────────────────────────── */
+.delice-elegant-reviews {
+    margin: 0;
+    padding: 36px 48px;
+    background: var(--e-cream-2);
+    border-top: 1px solid var(--e-border-warm);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-reviews-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.delice-elegant-reviews-header h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--e-green);
+    margin: 0 0 8px;
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: -.01em;
+}
+
+.delice-elegant-reviews-header p {
+    font-size: .875rem;
+    color: var(--e-muted);
+    margin: 0;
+    font-style: italic;
+}
+
+.delice-elegant-reviews .delice-recipe-rating-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.delice-elegant-reviews .delice-recipe-rating-label {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--e-text);
+}
+
+.delice-elegant-reviews .delice-rating-star {
+    font-size: 1.8rem;
+    color: var(--e-border);
+    cursor: pointer;
+    transition: color .15s, transform .15s;
+    display: inline-block;
+}
+
+.delice-elegant-reviews .delice-rating-star:hover,
+.delice-elegant-reviews .delice-rating-star.active {
+    color: var(--e-amber-light);
+    transform: scale(1.15);
+}
+
+.delice-elegant-reviews .delice-recipe-rating-text {
+    font-size: .8rem;
+    color: var(--e-muted);
+    font-style: italic;
+}
+
+.delice-elegant-review-form {
+    background: var(--e-white);
+    border: 1px solid var(--e-border);
+    border-radius: var(--e-radius);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.delice-elegant-review-form .delice-recipe-review-comment label,
+.delice-elegant-review-form .delice-recipe-review-image label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--e-green);
+    margin-bottom: 7px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+.delice-elegant-review-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--e-border);
+    border-radius: var(--e-radius-sm);
+    font-size: .9rem;
+    line-height: 1.7;
+    color: var(--e-text);
+    background: var(--e-cream);
+    resize: vertical;
+    transition: border-color .2s, box-shadow .2s;
+    box-sizing: border-box;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.delice-elegant-review-form textarea:focus {
+    outline: none;
+    border-color: var(--e-green);
+    box-shadow: 0 0 0 3px rgba(22,101,52,.1);
+    background: var(--e-white);
+}
+
+.delice-elegant-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 32px;
+    background: var(--e-green);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-size: .875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(22,101,52,.25);
+    align-self: center;
+}
+
+.delice-elegant-submit-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: #fff;
+}
+
+.delice-elegant-submit-btn:hover {
+    background: var(--e-green-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(22,101,52,.35);
+}
+
+.delice-elegant-submit-btn:active {
+    transform: none;
+}
+
+.delice-elegant-reviews .delice-recipe-review-success {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--e-green-pale);
+    border: 1px solid rgba(22,101,52,.2);
+    border-radius: var(--e-radius-sm);
+    color: var(--e-green);
+    margin-top: 16px;
+}
+
+.delice-elegant-reviews .delice-recipe-review-success svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--e-green);
+    flex-shrink: 0;
+}
+
+.delice-elegant-reviews .delice-recipe-review-success p {
+    margin: 0;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.delice-elegant-reviews-display {
+    margin-top: 28px;
+}
+
+/* ─── Selected rating display ──────────────────────────────────────────────── */
+.delice-elegant-reviews .delice-selected-rating-display {
+    display: none;
+    background: var(--e-amber-pale);
+    border: 1px solid rgba(180,83,9,.15);
+    border-radius: var(--e-radius-sm);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+}
+
+.delice-elegant-reviews .delice-rating-selected-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.delice-elegant-reviews .delice-display-star {
+    font-size: 1.3rem;
+    color: var(--e-border);
+}
+
+.delice-elegant-reviews .delice-display-star.active {
+    color: var(--e-amber-light);
+}
+
+/* ─── File upload ──────────────────────────────────────────────────────────── */
+.delice-elegant-review-form .delice-recipe-file-upload-wrapper {
+    position: relative;
+    border: 2px dashed var(--e-border-warm);
+    border-radius: var(--e-radius-sm);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: var(--e-cream);
+}
+
+.delice-elegant-review-form .delice-recipe-file-upload-wrapper:hover {
+    border-color: var(--e-green);
+    background: var(--e-green-pale);
+}
+
+.delice-elegant-review-form .delice-recipe-file-upload-wrapper input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.delice-elegant-review-form .delice-recipe-file-upload-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.delice-elegant-review-form .delice-recipe-file-upload-text svg {
+    width: 26px;
+    height: 26px;
+    stroke: var(--e-muted);
+}
+
+.delice-elegant-review-form .delice-recipe-file-upload-text span {
+    font-size: .825rem;
+    color: var(--e-muted);
+    font-style: italic;
+}
+
+/* ─── Footer ────────────────────────────────────────────────────────────────── */
+.delice-elegant-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 18px 24px;
+    background: var(--e-green);
+    border-top: none;
+}
+
+.delice-elegant-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    background: rgba(255,255,255,.15);
+    color: rgba(255,255,255,.9);
+    border: 1px solid rgba(255,255,255,.2);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.delice-elegant-tag--dietary {
+    background: rgba(180,83,9,.3);
+    border-color: rgba(180,83,9,.5);
+    color: #fff;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+    .delice-elegant-header {
+        padding: 28px 24px 0;
+    }
+
+    .delice-elegant-body {
+        padding: 24px;
+    }
+
+    .delice-elegant-notes,
+    .delice-elegant-nutrition,
+    .delice-elegant-faqs {
+        padding: 0 24px;
+    }
+
+    .delice-elegant-reviews {
+        padding: 28px 24px;
+    }
+
+    .delice-elegant-ingredients-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* In single col, remove nth-child border-left */
+    .delice-elegant-ingredient:nth-child(2n) {
+        border-left: none;
+    }
+
+    .delice-elegant-meta {
+        flex-wrap: wrap;
+    }
+
+    .delice-elegant-meta-item {
+        flex: 1 0 calc(50% - 1px);
+        border-bottom: 1px solid var(--e-border);
+    }
+
+    .delice-elegant-meta-item:nth-child(2n) {
+        border-right: none;
+    }
+
+    .delice-elegant-divider--ornamental {
+        margin: 20px 24px;
+    }
+
+    .delice-elegant-actions {
+        padding: 14px 16px;
+    }
+
+    .delice-elegant-btn span {
+        display: none;
+    }
+
+    .delice-elegant-btn {
+        padding: 10px 14px;
+    }
+
+    .delice-elegant-btn--rate span {
+        display: inline;
+    }
+}
+
+@media (max-width: 480px) {
+    .delice-elegant-title {
+        font-size: 1.6rem;
+    }
+
+    .delice-elegant-meta-item {
+        flex: 1 0 100%;
+        border-right: none;
+    }
+
+    .delice-elegant-step-num {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+    }
+
+    .delice-elegant-nutrient-value {
+        font-size: 1.15rem;
+    }
+}
+
+/* ─── Print ──────────────────────────────────────────────────────────────────── */
+@media print {
+    .delice-elegant {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        max-width: 100%;
+        background: #fff;
+    }
+
+    .delice-elegant-actions,
+    .delice-elegant-reviews,
+    .delice-elegant-reviews-display,
+    .delice-elegant-footer {
+        display: none !important;
+    }
+
+    .delice-elegant-ingredients-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

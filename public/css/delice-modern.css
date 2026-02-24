@@ -1,0 +1,1088 @@
+/**
+ * Modern Recipe Template — "Editorial Bold"
+ * Design: Dark hero, vibrant orange accents, clean two-column layout
+ * Palette: #f97316 (orange) · #0f172a (dark) · #1e293b (card-dark) · #f8fafc (bg)
+ */
+
+/* ─── Reset & wrapper ──────────────────────────────────────────────────────── */
+.delice-modern {
+    --m-orange:      #f97316;
+    --m-orange-dark: #ea580c;
+    --m-dark:        #0f172a;
+    --m-dark-2:      #1e293b;
+    --m-dark-3:      #334155;
+    --m-slate:       #475569;
+    --m-slate-light: #94a3b8;
+    --m-bg:          #f8fafc;
+    --m-white:       #ffffff;
+    --m-border:      #e2e8f0;
+    --m-radius:      12px;
+    --m-radius-sm:   8px;
+    --m-shadow:      0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    --m-shadow-lg:   0 8px 32px rgba(0,0,0,.12);
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--m-bg);
+    color: var(--m-dark);
+    max-width: 960px;
+    margin: 0 auto;
+    border-radius: var(--m-radius);
+    overflow: hidden;
+    box-shadow: var(--m-shadow-lg);
+}
+
+/* ─── Hero ─────────────────────────────────────────────────────────────────── */
+.delice-modern-hero {
+    position: relative;
+    min-height: 280px;
+    background: var(--m-dark);
+    display: flex;
+    align-items: flex-end;
+}
+
+.delice-modern-hero--has-image {
+    min-height: 440px;
+}
+
+.delice-modern-hero-image {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.delice-modern-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform .6s ease;
+}
+
+.delice-modern:hover .delice-modern-img {
+    transform: scale(1.02);
+}
+
+.delice-modern-hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(15,23,42,.15)  0%,
+        rgba(15,23,42,.25) 30%,
+        rgba(15,23,42,.75) 70%,
+        rgba(15,23,42,.95) 100%
+    );
+}
+
+.delice-modern-hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 32px 36px 28px;
+}
+
+.delice-modern-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.15;
+    margin: 0 0 20px;
+    letter-spacing: -.02em;
+    text-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+
+/* ─── Meta badges (in hero) ────────────────────────────────────────────────── */
+.delice-modern-meta-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.delice-modern-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255,255,255,.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    min-width: 80px;
+    text-align: center;
+    gap: 3px;
+    transition: background .2s;
+}
+
+.delice-modern-badge:hover {
+    background: rgba(255,255,255,.2);
+}
+
+.delice-modern-badge svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--m-orange);
+    margin-bottom: 2px;
+}
+
+.delice-modern-badge-label {
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255,255,255,.7);
+    font-weight: 600;
+}
+
+.delice-modern-badge-value {
+    font-size: .875rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.delice-modern-badge--difficulty[data-difficulty="easy"]   { border-color: rgba(34,197,94,.5); }
+.delice-modern-badge--difficulty[data-difficulty="medium"] { border-color: rgba(245,158,11,.5); }
+.delice-modern-badge--difficulty[data-difficulty="hard"]   { border-color: rgba(239,68,68,.5); }
+
+.delice-modern-badge--total {
+    background: rgba(249,115,22,.2);
+    border-color: rgba(249,115,22,.4);
+}
+
+/* ─── Toolbar (attribution + action buttons) ───────────────────────────────── */
+.delice-modern-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 24px;
+    background: var(--m-white);
+    border-bottom: 1px solid var(--m-border);
+    flex-wrap: wrap;
+}
+
+.delice-modern-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.delice-modern-author-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--m-orange);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.delice-modern-author-avatar svg {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+}
+
+.delice-modern-author-avatar--verified {
+    background: #22c55e;
+}
+
+.delice-modern-author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.delice-modern-author-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--m-slate-light);
+    font-weight: 600;
+}
+
+.delice-modern-author-name {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--m-dark);
+}
+
+.delice-modern-author-link {
+    color: var(--m-orange);
+    text-decoration: none;
+}
+.delice-modern-author-link:hover {
+    text-decoration: underline;
+}
+
+.delice-modern-author-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--m-border);
+    margin: 0 4px;
+}
+
+/* ─── Action buttons ───────────────────────────────────────────────────────── */
+.delice-modern-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.delice-modern-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--m-radius-sm);
+    border: 1.5px solid var(--m-border);
+    background: transparent;
+    color: var(--m-slate);
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+    letter-spacing: .02em;
+}
+
+.delice-modern-action-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+.delice-modern-action-btn:hover {
+    border-color: var(--m-orange);
+    color: var(--m-orange);
+    background: rgba(249,115,22,.05);
+}
+
+.delice-modern-action-btn--rate {
+    background: var(--m-orange);
+    border-color: var(--m-orange);
+    color: #fff;
+}
+.delice-modern-action-btn--rate:hover {
+    background: var(--m-orange-dark);
+    border-color: var(--m-orange-dark);
+    color: #fff;
+}
+
+/* Share dropdown */
+.delice-modern-share-wrap {
+    position: relative;
+}
+
+.delice-modern-share-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 160px;
+    background: var(--m-white);
+    border-radius: var(--m-radius-sm);
+    border: 1px solid var(--m-border);
+    box-shadow: var(--m-shadow-lg);
+    overflow: hidden;
+    z-index: 100;
+}
+
+.delice-recipe-share-dropdown.open .delice-modern-share-menu {
+    display: block;
+}
+
+.delice-modern-share-menu .delice-recipe-share-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--m-slate);
+    font-size: .85rem;
+    text-decoration: none;
+    transition: background .15s;
+}
+
+.delice-modern-share-menu .delice-recipe-share-item:hover {
+    background: var(--m-bg);
+    color: var(--m-dark);
+}
+
+.delice-modern-share-menu .delice-recipe-share-item-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* ─── Body (two-column layout) ─────────────────────────────────────────────── */
+.delice-modern-body {
+    padding: 28px 24px;
+    background: var(--m-bg);
+}
+
+.delice-modern-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* ─── Sections ─────────────────────────────────────────────────────────────── */
+.delice-modern-section {
+    background: var(--m-white);
+    border-radius: var(--m-radius);
+    border: 1px solid var(--m-border);
+    overflow: hidden;
+    box-shadow: var(--m-shadow);
+    margin-bottom: 20px;
+}
+
+.delice-modern-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--m-bg);
+}
+
+.delice-modern-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--m-dark);
+    margin: 0;
+    padding: 18px 20px 14px;
+    border-bottom: 2px solid var(--m-bg);
+    letter-spacing: -.01em;
+}
+
+.delice-modern-section-header .delice-modern-section-title {
+    padding: 0;
+    border-bottom: none;
+    margin: 0;
+}
+
+.delice-modern-section-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(249,115,22,.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.delice-modern-section-icon svg {
+    width: 17px;
+    height: 17px;
+    stroke: var(--m-orange);
+}
+
+/* ─── Copy button ──────────────────────────────────────────────────────────── */
+.delice-modern-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--m-orange);
+    background: rgba(249,115,22,.08);
+    border: 1.5px solid rgba(249,115,22,.25);
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+}
+
+.delice-modern-copy-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+}
+
+.delice-modern-copy-btn:hover {
+    background: var(--m-orange);
+    border-color: var(--m-orange);
+    color: #fff;
+}
+
+/* ─── Ingredients list ─────────────────────────────────────────────────────── */
+.delice-modern-ingredients-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 12px;
+}
+
+.delice-modern-ingredient {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 20px;
+    gap: 12px;
+    border-bottom: 1px solid var(--m-bg);
+    transition: background .15s;
+}
+
+.delice-modern-ingredient:last-child {
+    border-bottom: none;
+}
+
+.delice-modern-ingredient:hover {
+    background: rgba(249,115,22,.04);
+}
+
+.delice-modern-ingredient-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Custom checkbox */
+.delice-modern-ingredient-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.delice-modern-checkbox-mark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--m-border);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all .2s;
+    background: var(--m-white);
+}
+
+.delice-modern-ingredient-label input:checked ~ .delice-modern-checkbox-mark {
+    background: var(--m-orange);
+    border-color: var(--m-orange);
+}
+
+.delice-modern-ingredient-label input:checked ~ .delice-modern-checkbox-mark::after {
+    content: "";
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+}
+
+.delice-modern-ingredient-name {
+    font-size: .875rem;
+    color: var(--m-dark);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.delice-modern-ingredient-label input:checked ~ .delice-modern-checkbox-mark + .delice-modern-ingredient-name,
+.delice-modern-ingredient-label input:checked ~ * .delice-modern-ingredient-name {
+    color: var(--m-slate-light);
+    text-decoration: line-through;
+}
+
+.delice-modern-ingredient-qty {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--m-white);
+    background: var(--m-orange);
+    padding: 3px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ─── Instruction steps ────────────────────────────────────────────────────── */
+.delice-modern-steps {
+    list-style: none;
+    margin: 0;
+    padding: 12px 20px 20px;
+    counter-reset: step-counter;
+}
+
+.delice-modern-step {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--m-bg);
+    align-items: flex-start;
+}
+
+.delice-modern-step:last-child {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.delice-modern-step-num {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    background: var(--m-dark);
+    color: #fff;
+    border-radius: 50%;
+    font-size: .85rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    letter-spacing: -.01em;
+    box-shadow: 0 2px 6px rgba(15,23,42,.3);
+}
+
+.delice-modern-step-body {
+    flex: 1;
+}
+
+.delice-modern-step-text {
+    font-size: .9rem;
+    line-height: 1.7;
+    color: var(--m-slate);
+    margin: 0;
+}
+
+/* ─── Notes ─────────────────────────────────────────────────────────────────── */
+.delice-modern-notes .delice-modern-section-title {
+    border-bottom-color: rgba(249,115,22,.15);
+}
+
+.delice-modern-notes-text {
+    padding: 16px 20px;
+    font-size: .9rem;
+    line-height: 1.7;
+    color: var(--m-slate);
+    background: linear-gradient(135deg, rgba(249,115,22,.04) 0%, transparent 100%);
+    border-left: 3px solid var(--m-orange);
+    margin: 0 20px 20px;
+    border-radius: 0 var(--m-radius-sm) var(--m-radius-sm) 0;
+}
+
+/* ─── Nutrition ─────────────────────────────────────────────────────────────── */
+.delice-modern-nutrition .delice-modern-section-title {
+    background: var(--m-dark-2);
+    color: #fff;
+    padding: 16px 20px;
+    margin: 0;
+    border-bottom: none;
+}
+
+.delice-modern-nutrition .delice-modern-section-icon {
+    background: rgba(255,255,255,.1);
+}
+
+.delice-modern-nutrition .delice-modern-section-icon svg {
+    stroke: var(--m-orange);
+}
+
+.delice-modern-nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--m-bg);
+    padding: 1px;
+}
+
+.delice-modern-nutrient {
+    background: var(--m-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 10px;
+    text-align: center;
+    gap: 3px;
+}
+
+.delice-modern-nutrient-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+.delice-modern-nutrient-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--m-dark);
+    line-height: 1;
+}
+
+.delice-modern-nutrient-value small {
+    font-size: .65em;
+    font-weight: 500;
+    color: var(--m-slate-light);
+}
+
+.delice-modern-nutrient-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--m-slate-light);
+    font-weight: 600;
+}
+
+/* ─── FAQs ──────────────────────────────────────────────────────────────────── */
+.delice-modern-faq-list {
+    padding: 8px 0 4px;
+}
+
+.delice-modern-faq-item + .delice-modern-faq-item {
+    border-top: 1px solid var(--m-bg);
+}
+
+.delice-modern-faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    gap: 12px;
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--m-dark);
+    transition: color .2s;
+}
+
+.delice-modern-faq-question:hover {
+    color: var(--m-orange);
+}
+
+.delice-modern-faq-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--m-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .25s, background .2s;
+}
+
+.delice-modern-faq-icon svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--m-slate);
+    transition: stroke .2s;
+}
+
+.delice-recipe-modern-faq-item.faq-open .delice-modern-faq-icon {
+    transform: rotate(180deg);
+    background: var(--m-orange);
+}
+
+.delice-recipe-modern-faq-item.faq-open .delice-modern-faq-icon svg {
+    stroke: #fff;
+}
+
+.delice-modern-faq-answer {
+    display: none;
+    padding: 0 20px 16px;
+}
+
+.delice-recipe-modern-faq-item.faq-open .delice-modern-faq-answer {
+    display: block;
+}
+
+.delice-modern-faq-answer p {
+    margin: 0;
+    font-size: .875rem;
+    line-height: 1.7;
+    color: var(--m-slate);
+}
+
+/* ─── Reviews ────────────────────────────────────────────────────────────────── */
+.delice-modern-reviews {
+    margin-top: 24px;
+    background: var(--m-white);
+    border-radius: var(--m-radius);
+    border: 1px solid var(--m-border);
+    overflow: hidden;
+    box-shadow: var(--m-shadow);
+}
+
+.delice-modern-reviews-header {
+    padding: 24px 28px 20px;
+    background: linear-gradient(135deg, var(--m-dark) 0%, var(--m-dark-2) 100%);
+    text-align: center;
+}
+
+.delice-modern-reviews-header h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 6px;
+    letter-spacing: -.02em;
+}
+
+.delice-modern-reviews-header p {
+    font-size: .85rem;
+    color: rgba(255,255,255,.65);
+    margin: 0;
+}
+
+.delice-modern-reviews .delice-recipe-rating-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 28px 0;
+    flex-wrap: wrap;
+}
+
+.delice-modern-reviews .delice-recipe-rating-label {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--m-dark);
+}
+
+.delice-modern-reviews .delice-rating-star {
+    font-size: 1.8rem;
+    color: var(--m-border);
+    cursor: pointer;
+    transition: color .15s, transform .15s;
+    display: inline-block;
+}
+
+.delice-modern-reviews .delice-rating-star:hover,
+.delice-modern-reviews .delice-rating-star.active {
+    color: #f59e0b;
+    transform: scale(1.15);
+}
+
+.delice-modern-reviews .delice-recipe-rating-text {
+    font-size: .8rem;
+    color: var(--m-slate-light);
+}
+
+.delice-modern-review-form {
+    padding: 16px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.delice-modern-review-form .delice-recipe-review-comment label,
+.delice-modern-review-form .delice-recipe-review-image label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--m-dark);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.delice-modern-review-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--m-border);
+    border-radius: var(--m-radius-sm);
+    font-size: .9rem;
+    line-height: 1.6;
+    color: var(--m-dark);
+    background: var(--m-bg);
+    resize: vertical;
+    transition: border-color .2s, box-shadow .2s;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.delice-modern-review-form textarea:focus {
+    outline: none;
+    border-color: var(--m-orange);
+    box-shadow: 0 0 0 3px rgba(249,115,22,.12);
+    background: var(--m-white);
+}
+
+.delice-modern-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 28px;
+    background: linear-gradient(135deg, var(--m-orange) 0%, var(--m-orange-dark) 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--m-radius-sm);
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .02em;
+    box-shadow: 0 4px 14px rgba(249,115,22,.35);
+}
+
+.delice-modern-submit-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: #fff;
+}
+
+.delice-modern-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249,115,22,.45);
+}
+
+.delice-modern-submit-btn:active {
+    transform: none;
+}
+
+.delice-modern-reviews .delice-recipe-review-success {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 28px;
+    background: rgba(34,197,94,.08);
+    border-top: 1px solid rgba(34,197,94,.2);
+    color: #15803d;
+}
+
+.delice-modern-reviews .delice-recipe-review-success svg {
+    width: 22px;
+    height: 22px;
+    stroke: #22c55e;
+    flex-shrink: 0;
+}
+
+.delice-modern-reviews .delice-recipe-review-success p {
+    margin: 0;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.delice-modern-reviews-display {
+    padding: 0 28px 28px;
+}
+
+/* ─── Footer ────────────────────────────────────────────────────────────────── */
+.delice-modern-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    background: var(--m-dark);
+    border-top: none;
+}
+
+.delice-modern-footer-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.7);
+    background: rgba(255,255,255,.08);
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.12);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.delice-modern-footer-tag svg {
+    width: 13px;
+    height: 13px;
+    stroke: var(--m-orange);
+}
+
+/* ─── Selected rating display ───────────────────────────────────────────────── */
+.delice-modern-reviews .delice-selected-rating-display {
+    display: none;
+    background: rgba(249,115,22,.06);
+    border-radius: var(--m-radius-sm);
+    padding: 14px 20px;
+    margin: 16px 28px 0;
+}
+
+.delice-modern-reviews .delice-rating-selected-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.delice-modern-reviews .delice-display-star {
+    font-size: 1.3rem;
+    color: var(--m-border);
+}
+
+.delice-modern-reviews .delice-display-star.active {
+    color: #f59e0b;
+}
+
+/* ─── File upload ──────────────────────────────────────────────────────────── */
+.delice-modern-review-form .delice-recipe-file-upload-wrapper {
+    position: relative;
+    border: 2px dashed var(--m-border);
+    border-radius: var(--m-radius-sm);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: var(--m-bg);
+}
+
+.delice-modern-review-form .delice-recipe-file-upload-wrapper:hover {
+    border-color: var(--m-orange);
+    background: rgba(249,115,22,.03);
+}
+
+.delice-modern-review-form .delice-recipe-file-upload-wrapper input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.delice-modern-review-form .delice-recipe-file-upload-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.delice-modern-review-form .delice-recipe-file-upload-text svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--m-slate-light);
+}
+
+.delice-modern-review-form .delice-recipe-file-upload-text span {
+    font-size: .825rem;
+    color: var(--m-slate-light);
+}
+
+/* ─── No ingredients — full width layout ───────────────────────────────────── */
+.delice-modern-body > .delice-modern-section {
+    /* Full-width section (when no two-col layout) */
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+    .delice-modern-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .delice-modern-hero-content {
+        padding: 24px 20px 20px;
+    }
+
+    .delice-modern-title {
+        font-size: 1.5rem;
+    }
+
+    .delice-modern-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .delice-modern-body {
+        padding: 16px;
+    }
+
+    .delice-modern-meta-badges {
+        gap: 7px;
+    }
+
+    .delice-modern-badge {
+        padding: 8px 12px;
+        min-width: 65px;
+    }
+
+    .delice-modern-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .delice-modern-action-btn span {
+        display: none;
+    }
+
+    .delice-modern-action-btn {
+        padding: 9px 12px;
+    }
+
+    .delice-modern-reviews .delice-recipe-rating-container,
+    .delice-modern-review-form,
+    .delice-modern-reviews .delice-selected-rating-display,
+    .delice-modern-reviews-display {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .delice-modern-reviews-header {
+        padding: 20px 16px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .delice-modern-badge-label,
+    .delice-modern-badge-value {
+        font-size: .7rem;
+    }
+
+    .delice-modern-step-num {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        font-size: .8rem;
+    }
+
+    .delice-modern-nutrient-value {
+        font-size: 1rem;
+    }
+}
+
+/* ─── Print ──────────────────────────────────────────────────────────────────── */
+@media print {
+    .delice-modern {
+        box-shadow: none;
+        max-width: 100%;
+    }
+
+    .delice-modern-hero-gradient {
+        display: none;
+    }
+
+    .delice-modern-hero-content .delice-modern-meta-badges,
+    .delice-modern-toolbar .delice-modern-actions,
+    .delice-modern-reviews,
+    .delice-modern-reviews-display {
+        display: none !important;
+    }
+
+    .delice-modern-title {
+        color: #000;
+        text-shadow: none;
+    }
+
+    .delice-modern-layout {
+        grid-template-columns: 1fr 1fr;
+    }
+}

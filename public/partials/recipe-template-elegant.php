@@ -1,406 +1,507 @@
-
 <?php
 /**
- * Template for displaying recipe in elegant style - Enhanced with improved reviews
+ * Elegant recipe template — "Artisan Magazine"
+ * Warm cream background · forest green headings · gold accents
+ * Complete rewrite — no Font Awesome dependency, all bugs fixed
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-// Exit if accessed directly
-if (!defined('ABSPATH')) exit;
+/* ── Data ───────────────────────────────────────────────────────────────────── */
+$reviews_enabled      = get_option( 'delice_recipe_reviews_enabled', true );
+$lang_texts           = Delice_Recipe_Language::get_all_texts();
+$attribution_settings = get_option( 'delice_recipe_attribution_settings', array(
+    'kitchen_name'        => '',
+    'kitchen_url'         => '',
+    'show_submitted_by'   => true,
+    'show_tested_by'      => true,
+    'default_author_name' => '',
+) );
 
-// Check if reviews feature is enabled
-$reviews_enabled = get_option('delice_recipe_reviews_enabled', true);
+$recipe_title   = get_the_title( $recipe_id );
+$recipe_excerpt = get_the_excerpt( $recipe_id );
 
-// Get post data
-$recipe_post = get_post($recipe_id);
-$recipe_title = get_the_title($recipe_id);
-$recipe_excerpt = get_the_excerpt($recipe_id);
-
-// Clean up excerpt - remove placeholder brackets and shortcodes
-if ($recipe_excerpt) {
-    $recipe_excerpt = preg_replace('/\[.*?\]/', '', $recipe_excerpt);
-    $recipe_excerpt = strip_shortcodes($recipe_excerpt);
-    $recipe_excerpt = trim($recipe_excerpt);
-    // Remove placeholder brackets completely
-    $recipe_excerpt = str_replace(['[', ']'], '', $recipe_excerpt);
+/* Clean excerpt */
+if ( $recipe_excerpt ) {
+    $recipe_excerpt = preg_replace( '/\{[^}]*\}/', '', $recipe_excerpt );   // remove {placeholders}
+    $recipe_excerpt = preg_replace( '/\[.*?\]/', '', $recipe_excerpt );      // remove [shortcodes]
+    $recipe_excerpt = trim( preg_replace( '/\s+/', ' ', $recipe_excerpt ) );
 }
 
-// Enhanced excerpt cleaning to remove bracket placeholders
-function delice_clean_excerpt_elegant($excerpt) {
-    if (empty($excerpt)) {
-        return '';
-    }
-    
-    // Remove bracket placeholders like {how to make}, {chicken roast recipe}, etc.
-    $excerpt = preg_replace('/\{[^}]*\}/', '', $excerpt);
-    
-    // Remove parentheses placeholders like (recipe variation), (cooking method), etc.
-    $excerpt = preg_replace('/\([^)]*recipe[^)]*\)/i', '', $excerpt);
-    $excerpt = preg_replace('/\([^)]*cooking[^)]*\)/i', '', $excerpt);
-    $excerpt = preg_replace('/\([^)]*method[^)]*\)/i', '', $excerpt);
-    
-    // Clean up extra spaces and trim
-    $excerpt = preg_replace('/\s+/', ' ', $excerpt);
-    $excerpt = trim($excerpt);
-    
-    return $excerpt;
-}
-
-// Get attribution settings
-$attribution_settings = get_option('delice_recipe_attribution_settings', array());
-$author_name = get_the_author_meta('display_name', $recipe_post->post_author);
-
-// Get ingredients and instructions directly from database
-$ingredients = get_post_meta($recipe_id, '_delice_recipe_ingredients', true);
-$instructions = get_post_meta($recipe_id, '_delice_recipe_instructions', true);
-
-// If ingredients are not found, create default data
-if (empty($ingredients) || !is_array($ingredients)) {
-    $ingredients = array(
-        array('name' => 'Sample ingredient', 'amount' => '1', 'unit' => 'cup')
-    );
-}
-
-// If instructions are not found, create default data
-if (empty($instructions) || !is_array($instructions)) {
-    $instructions = array(
-        array('step' => '1', 'text' => 'Sample instruction step.')
-    );
-}
-
-// FIXED: Enhanced author name logic to use custom author from settings
-function delice_get_recipe_author_elegant($post_id) {
-    // Get attribution settings
-    $attribution_settings = get_option('delice_recipe_attribution_settings', array());
-    
-    // First check for custom author in recipe meta
-    $custom_author = get_post_meta($post_id, '_delice_recipe_author', true);
-    if (!empty($custom_author)) {
-        return $custom_author;
-    }
-    
-    // Check admin settings for default author name - THIS IS THE KEY FIX
-    if (!empty($attribution_settings['default_author_name'])) {
-        return $attribution_settings['default_author_name'];
-    }
-    
-    // Check for kitchen name as author fallback
-    if (!empty($attribution_settings['kitchen_name'])) {
-        return $attribution_settings['kitchen_name'];
-    }
-    
-    // Last resort - get post author but avoid showing email
-    $author_id = get_post_field('post_author', $post_id);
-    $author_data = get_userdata($author_id);
-    
-    if ($author_data) {
-        // Try first + last name combination first
-        if (!empty($author_data->first_name) || !empty($author_data->last_name)) {
-            $full_name = trim($author_data->first_name . ' ' . $author_data->last_name);
-            if (!empty($full_name)) {
-                return $full_name;
-            }
-        }
-        
-        // Only use display name if it's not an email
-        if (!empty($author_data->display_name) && !filter_var($author_data->display_name, FILTER_VALIDATE_EMAIL)) {
-            return $author_data->display_name;
-        }
-        
-        // Use login name instead of email as final fallback
-        if (!filter_var($author_data->user_login, FILTER_VALIDATE_EMAIL)) {
-            return $author_data->user_login;
+/* Author — smart fallback chain */
+$author = '';
+if ( ! empty( $attribution_settings['default_author_name'] ) ) {
+    $author = $attribution_settings['default_author_name'];
+} elseif ( ! empty( $attribution_settings['kitchen_name'] ) ) {
+    $author = $attribution_settings['kitchen_name'];
+} else {
+    $author_id   = get_post_field( 'post_author', $recipe_id );
+    $author_data = get_userdata( $author_id );
+    if ( $author_data ) {
+        $full_name = trim( $author_data->first_name . ' ' . $author_data->last_name );
+        if ( $full_name ) {
+            $author = $full_name;
+        } elseif ( ! filter_var( $author_data->display_name, FILTER_VALIDATE_EMAIL ) ) {
+            $author = $author_data->display_name;
+        } else {
+            $author = $author_data->user_login;
         }
     }
-    
-    return __('Recipe Author', 'delice-recipe-manager');
+}
+if ( ! $author ) {
+    $author = __( 'Recipe Author', 'delice-recipe-manager' );
 }
 
-// Get featured image
-$featured_image = get_the_post_thumbnail_url($recipe_id, 'large');
+/* Difficulty */
+$difficulty_labels = array(
+    'easy'   => __( 'Easy',   'delice-recipe-manager' ),
+    'medium' => __( 'Medium', 'delice-recipe-manager' ),
+    'hard'   => __( 'Hard',   'delice-recipe-manager' ),
+);
+$difficulty_label = $difficulty ? ( $difficulty_labels[ $difficulty ] ?? ucfirst( $difficulty ) ) : '';
 
-// Get display options
-$display_options = get_post_meta($recipe_id, '_delice_recipe_display_options', true);
-$display_options = !empty($display_options) ? $display_options : array();
+/* Nutrition */
+$nutrition_raw = get_post_meta( $recipe_id, '_delice_recipe_nutrition', true );
+$nutrition     = $nutrition_raw ? json_decode( wp_unslash( $nutrition_raw ), true ) : array();
 
-// Get difficulty and prep time
-$difficulty = get_post_meta($recipe_id, '_delice_recipe_difficulty', true);
-$prep_time = get_post_meta($recipe_id, '_delice_recipe_prep_time', true);
-$servings = get_post_meta($recipe_id, '_delice_recipe_servings', true);
-
-// Remove old language texts - using class method instead
+/* Taxonomy */
+$cuisine_terms = get_the_terms( $recipe_id, 'delice_cuisine' );
+$course_terms  = get_the_terms( $recipe_id, 'delice_course' );
+$dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 ?>
 
-<!-- Recipe Container -->
-<div class="delice-recipe-container delice-recipe-elegant" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-    <!-- Recipe Header -->
-    <div class="delice-recipe-header">
-        <h1 class="delice-recipe-title"><?php echo esc_html($recipe_title); ?></h1>
-        
-        <?php if ($recipe_excerpt): ?>
-            <div class="delice-recipe-excerpt">
-                <?php echo wp_kses_post(wpautop(delice_clean_excerpt_elegant($recipe_excerpt))); ?>
-            </div>
-        <?php endif; ?>
-        
-        <?php if ($featured_image): ?>
-            <div class="delice-recipe-featured-image">
-                <img src="<?php echo esc_url($featured_image); ?>" alt="<?php echo esc_attr($recipe_title); ?>" />
-            </div>
-        <?php endif; ?>
-    </div>
+<article class="delice-recipe-container delice-elegant" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
-    <!-- Recipe Attribution -->
-    <div class="delice-recipe-attribution">
-        <?php if ($attribution_settings['show_submitted_by']): ?>
-            <div class="delice-attribution-item">
-                <span class="delice-attribution-label">
-                    <i class="fas fa-user"></i>
-                    <?php _e('Submitted by:', 'delice-recipe-manager'); ?>
-                </span>
-                <span class="delice-attribution-value">
-                    <?php echo esc_html(delice_get_recipe_author_elegant($recipe_id)); ?>
-                </span>
+    <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
+    <header class="delice-elegant-header">
+
+        <?php if ( $recipe_excerpt ) : ?>
+            <p class="delice-elegant-tagline"><?php echo esc_html( $recipe_excerpt ); ?></p>
+        <?php endif; ?>
+
+        <?php if ( ! $hide_title ) : ?>
+            <h2 class="delice-elegant-title"><?php echo esc_html( $recipe_title ); ?></h2>
+        <?php endif; ?>
+
+        <!-- Byline -->
+        <?php if ( ! empty( $attribution_settings['show_submitted_by'] ) || ( ! empty( $attribution_settings['show_tested_by'] ) && ! empty( $attribution_settings['kitchen_name'] ) ) ) : ?>
+            <div class="delice-elegant-byline">
+                <?php if ( ! empty( $attribution_settings['show_submitted_by'] ) ) : ?>
+                    <span class="delice-elegant-byline-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <?php esc_html_e( 'By', 'delice-recipe-manager' ); ?> <strong><?php echo esc_html( $author ); ?></strong>
+                    </span>
+                <?php endif; ?>
+
+                <?php if ( ! empty( $attribution_settings['show_tested_by'] ) && ! empty( $attribution_settings['kitchen_name'] ) ) : ?>
+                    <span class="delice-elegant-byline-sep" aria-hidden="true">·</span>
+                    <span class="delice-elegant-byline-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <?php esc_html_e( 'Tested by', 'delice-recipe-manager' ); ?>
+                        <?php if ( ! empty( $attribution_settings['kitchen_url'] ) ) : ?>
+                            <a href="<?php echo esc_url( $attribution_settings['kitchen_url'] ); ?>" target="_blank" rel="noopener noreferrer">
+                                <strong><?php echo esc_html( $attribution_settings['kitchen_name'] ); ?></strong>
+                            </a>
+                        <?php else : ?>
+                            <strong><?php echo esc_html( $attribution_settings['kitchen_name'] ); ?></strong>
+                        <?php endif; ?>
+                    </span>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
-        
-        <?php if ($attribution_settings['show_tested_by'] && !empty($attribution_settings['kitchen_name'])): ?>
-            <div class="delice-attribution-item">
-                <span class="delice-attribution-label">
-                    <i class="fas fa-check-circle"></i>
-                    <?php _e('Tested by:', 'delice-recipe-manager'); ?>
-                </span>
-                <span class="delice-attribution-value">
-                    <?php if (!empty($attribution_settings['kitchen_url'])): ?>
-                        <a href="<?php echo esc_url($attribution_settings['kitchen_url']); ?>" target="_blank" rel="noopener">
-                            <?php echo esc_html($attribution_settings['kitchen_name']); ?>
-                        </a>
-                    <?php else: ?>
-                        <?php echo esc_html($attribution_settings['kitchen_name']); ?>
-                    <?php endif; ?>
-                </span>
+
+        <!-- Hero image -->
+        <?php if ( ! empty( $display_options['show_image'] ) && has_post_thumbnail( $recipe_id ) ) : ?>
+            <div class="delice-elegant-hero-image">
+                <?php echo get_the_post_thumbnail( $recipe_id, 'large', array(
+                    'class'   => 'delice-elegant-img',
+                    'loading' => 'lazy',
+                    'alt'     => esc_attr( $recipe_title ),
+                ) ); ?>
+                <?php if ( $difficulty ) : ?>
+                    <span class="delice-elegant-difficulty-badge delice-elegant-difficulty-badge--<?php echo esc_attr( $difficulty ); ?>">
+                        <?php echo esc_html( $difficulty_label ); ?>
+                    </span>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
-    </div>
 
-    <!-- Recipe Action Buttons -->
-    <div class="delice-recipe-actions">
-        <button class="delice-recipe-action-btn print-recipe" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-            <i class="fas fa-print"></i>
-            <span><?php echo esc_html(Delice_Recipe_Language::get_text('print', 'Print Recipe')); ?></span>
-        </button>
-        <button class="delice-recipe-action-btn copy-ingredients" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-            <i class="fas fa-copy"></i>
-            <span><?php echo esc_html(Delice_Recipe_Language::get_text('copy', 'Copy Ingredients')); ?></span>
-        </button>
-        <?php if ($reviews_enabled): ?>
-        <button class="delice-recipe-action-btn delice-recipe-rate-btn" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-            <i class="fas fa-star"></i>
-            <span><?php echo esc_html(Delice_Recipe_Language::get_text('rate', 'Rate this Recipe')); ?></span>
-        </button>
-        <?php endif; ?>
-    </div>
+    </header><!-- /.delice-elegant-header -->
 
-    <!-- Main Recipe Card -->
-    <div class="delice-recipe-card">
-        <div class="delice-recipe-elegant">
-            <?php if ($display_options['show_image'] && has_post_thumbnail($recipe_id)) : ?>
-                <div class="delice-recipe-elegant-image">
-                    <?php echo get_the_post_thumbnail($recipe_id, 'large'); ?>
-                    
-                    <?php if ($display_options['show_difficulty'] && $difficulty) : ?>
-                        <div class="delice-recipe-elegant-difficulty">
-                            <?php echo esc_html(ucfirst($difficulty)); ?>
-                        </div>
-                    <?php endif; ?>
+    <!-- ═══ META BAR ═════════════════════════════════════════════════════════ -->
+    <?php if ( $prep_time || $cook_time || $total_time || $servings || $calories ) : ?>
+        <div class="delice-elegant-meta" role="list" aria-label="<?php esc_attr_e( 'Recipe details', 'delice-recipe-manager' ); ?>">
+
+            <?php if ( $prep_time ) : ?>
+                <div class="delice-elegant-meta-item" role="listitem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <div>
+                        <span class="delice-elegant-meta-label"><?php echo esc_html( $lang_texts['prep_time'] ); ?></span>
+                        <span class="delice-elegant-meta-value"><?php echo esc_html( $prep_time ); ?> <?php echo esc_html( $lang_texts['min'] ); ?></span>
+                    </div>
                 </div>
             <?php endif; ?>
-            
-            <div class="delice-recipe-elegant-meta">
-                <?php if ($display_options['show_prep_time'] && $prep_time) : ?>
-                    <div class="delice-recipe-elegant-meta-item">
-                        <div class="delice-recipe-elegant-meta-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="delice-recipe-elegant-meta-text">
-                            <span class="delice-recipe-elegant-meta-label"><?php echo esc_html(Delice_Recipe_Language::get_text('prep_time', 'Preparation')); ?></span>
-                            <span class="delice-recipe-elegant-meta-value"><?php echo esc_html($prep_time); ?> <?php echo esc_html(Delice_Recipe_Language::get_text('min', 'min')); ?></span>
-                        </div>
-                    </div>
-                <?php endif; ?>
-                
-                <?php if ($display_options['show_servings'] && $servings) : ?>
-                    <div class="delice-recipe-elegant-meta-item">
-                        <div class="delice-recipe-elegant-meta-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="delice-recipe-elegant-meta-text">
-                            <span class="delice-recipe-elegant-meta-label"><?php echo esc_html(Delice_Recipe_Language::get_text('servings', 'Servings')); ?></span>
-                            <span class="delice-recipe-elegant-meta-value"><?php echo esc_html($servings); ?></span>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-            
-            <div class="delice-recipe-elegant-body">
-                <div class="delice-recipe-elegant-sidebar">
-                    <div class="delice-recipe-elegant-section">
-                        <div class="delice-recipe-ingredients-header">
-                            <h3 class="delice-recipe-elegant-section-title">
-                                <i class="fas fa-shopping-basket"></i>
-                                <?php echo esc_html(Delice_Recipe_Language::get_text('ingredients', 'Ingredients')); ?>
-                            </h3>
-                            
-                            <?php if ($servings) : ?>
-                                <div class="delice-recipe-servings-adjuster">
-                                    <span class="delice-recipe-servings-display">
-                                        <?php echo esc_html(Delice_Recipe_Language::get_text('servings', 'Servings')); ?>:
-                                    </span>
-                                    <button class="delice-recipe-servings-btn" type="button">-</button>
-                                    <span class="delice-recipe-servings-value" data-base-servings="<?php echo esc_attr($servings); ?>"><?php echo esc_html($servings); ?></span>
-                                    <button class="delice-recipe-servings-btn" type="button">+</button>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <ul class="delice-recipe-elegant-ingredients">
-                            <?php foreach ($ingredients as $ingredient) : ?>
-                                <li class="delice-recipe-elegant-ingredient delice-recipe-ingredient">
-                                    <span class="delice-recipe-elegant-ingredient-name"><?php echo esc_html($ingredient['name'] ?? ''); ?></span>
-                                    <?php if (!empty($ingredient['amount']) || !empty($ingredient['unit'])) : ?>
-                                        <span class="delice-recipe-elegant-ingredient-quantity delice-recipe-ingredient-quantity" 
-                                              data-original-amount="<?php echo esc_attr($ingredient['amount'] ?? ''); ?>" 
-                                              data-unit="<?php echo esc_attr($ingredient['unit'] ?? ''); ?>">
-                                            <?php echo esc_html(($ingredient['amount'] ?? '') . ' ' . ($ingredient['unit'] ?? '')); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
+
+            <?php if ( $cook_time ) : ?>
+                <div class="delice-elegant-meta-item" role="listitem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path d="M3 11l19-9-9 19-2-8-8-2z"/>
+                    </svg>
+                    <div>
+                        <span class="delice-elegant-meta-label"><?php echo esc_html( $lang_texts['cook_time'] ); ?></span>
+                        <span class="delice-elegant-meta-value"><?php echo esc_html( $cook_time ); ?> <?php echo esc_html( $lang_texts['min'] ); ?></span>
                     </div>
                 </div>
-                
-                <div class="delice-recipe-elegant-main">
-                    <div class="delice-recipe-elegant-section">
-                        <h3 class="delice-recipe-elegant-section-title">
-                            <i class="fas fa-list-ol"></i>
-                            <?php echo esc_html(Delice_Recipe_Language::get_text('instructions', 'Instructions')); ?>
-                        </h3>
-                        <ol class="delice-recipe-elegant-instructions">
-                            <?php foreach ($instructions as $instruction) : ?>
-                                <li class="delice-recipe-elegant-instruction">
-                                    <span class="delice-recipe-elegant-instruction-step"><?php echo esc_html($instruction['step'] ?? ''); ?></span>
-                                    <p class="delice-recipe-elegant-instruction-text"><?php echo esc_html($instruction['text'] ?? ''); ?></p>
-                                </li>
-                            <?php endforeach; ?>
-                        </ol>
+            <?php endif; ?>
+
+            <?php if ( $total_time ) : ?>
+                <div class="delice-elegant-meta-item delice-elegant-meta-item--total" role="listitem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 14 14"/>
+                    </svg>
+                    <div>
+                        <span class="delice-elegant-meta-label"><?php echo esc_html( $lang_texts['total_time'] ); ?></span>
+                        <span class="delice-elegant-meta-value"><?php echo esc_html( $total_time ); ?> <?php echo esc_html( $lang_texts['min'] ); ?></span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Rating and Review Action Buttons -->
-            <div class="delice-recipe-action-buttons">
-                <button type="button" class="delice-recipe-action-button" onclick="window.print()">
-                    <i class="fas fa-print"></i>
-                    <span><?php echo esc_html(Delice_Recipe_Language::get_text('print', 'Print')); ?></span>
-                </button>
-                
-                <button type="button" class="delice-recipe-action-button delice-recipe-rate-btn" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-                    <i class="fas fa-star"></i>
-                    <span><?php echo esc_html(Delice_Recipe_Language::get_text('rate', 'Rate this Recipe')); ?></span>
-                </button>
-            </div>
-        </div>
-    </div>
+            <?php endif; ?>
 
-    <!-- Enhanced Reviews Section - Positioned after main content -->
-    <?php if ($reviews_enabled): ?>
-    <section id="reviewSection-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-review-section delice-recipe-elegant-reviews">
-        <div class="delice-recipe-review-header">
-            <h3><?php _e('Share Your Culinary Experience', 'delice-recipe-manager'); ?></h3>
-            <p class="delice-recipe-review-subtitle"><?php _e('Your feedback helps fellow food enthusiasts perfect this recipe.', 'delice-recipe-manager'); ?></p>
-        </div>
-
-        <!-- Selected Rating Display (shows after popup rating) -->
-        <div class="delice-selected-rating-display" style="display: none;">
-            <div class="delice-rating-selected-info">
-                <span class="delice-rating-label"><?php _e('Your Rating:', 'delice-recipe-manager'); ?></span>
-                <div class="delice-rating-stars-display">
-                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <i class="fas fa-star delice-display-star" data-rating="<?php echo $i; ?>"></i>
-                    <?php endfor; ?>
-                </div>
-                <span class="delice-rating-text"><?php _e('Thank you for rating!', 'delice-recipe-manager'); ?></span>
-            </div>
-        </div>
-
-        <!-- Rating Stars (hidden after popup rating) -->
-        <div class="delice-recipe-rating-container">
-            <label class="delice-recipe-rating-label"><?php _e('Rate This Recipe:', 'delice-recipe-manager'); ?></label>
-            <div class="delice-recipe-rating-stars" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-                <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <i class="fas fa-star delice-rating-star" data-rating="<?php echo $i; ?>"></i>
-                <?php endfor; ?>
-            </div>
-            <span class="delice-recipe-rating-text"><?php _e('Select your rating', 'delice-recipe-manager'); ?></span>
-        </div>
-
-        <!-- Review Form -->
-        <form class="delice-recipe-review-form" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-            <div class="delice-recipe-review-comment">
-                <label for="review-comment-<?php echo esc_attr($recipe_id); ?>">
-                    <?php _e('Your Review:', 'delice-recipe-manager'); ?>
-                </label>
-                <textarea 
-                    id="review-comment-<?php echo esc_attr($recipe_id); ?>"
-                    name="comment" 
-                    placeholder="<?php esc_attr_e('Describe your cooking experience, any modifications you made, or tips for fellow cooks...', 'delice-recipe-manager'); ?>"
-                    rows="5"
-                    required
-                ></textarea>
-            </div>
-            
-            <div class="delice-recipe-review-image">
-                <label for="review-image-<?php echo esc_attr($recipe_id); ?>">
-                    <?php _e('Add Your Photo (Optional):', 'delice-recipe-manager'); ?>
-                </label>
-                <div class="delice-recipe-file-upload-wrapper">
-                    <input 
-                        type="file" 
-                        id="review-image-<?php echo esc_attr($recipe_id); ?>"
-                        name="review_image" 
-                        accept="image/*"
-                    />
-                    <div class="delice-recipe-file-upload-text">
-                        <i class="fas fa-camera"></i>
-                        <span><?php _e('Showcase your culinary creation', 'delice-recipe-manager'); ?></span>
+            <?php if ( $servings ) : ?>
+                <div class="delice-elegant-meta-item" role="listitem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <div>
+                        <span class="delice-elegant-meta-label"><?php echo esc_html( $lang_texts['servings'] ); ?></span>
+                        <span class="delice-elegant-meta-value"><?php echo esc_html( $servings ); ?></span>
                     </div>
                 </div>
-            </div>
-            
-            <button type="submit" class="delice-recipe-review-submit">
-                <i class="fas fa-paper-plane"></i>
-                <?php _e('Submit Review', 'delice-recipe-manager'); ?>
-            </button>
-        </form>
+            <?php endif; ?>
 
-        <!-- Success Message -->
-        <div class="delice-recipe-review-success" style="display: none;">
-            <i class="fas fa-check-circle"></i>
-            <p><?php _e('Your review has been submitted with elegance and grace!', 'delice-recipe-manager'); ?></p>
-        </div>
-    </section>
+            <?php if ( $calories ) : ?>
+                <div class="delice-elegant-meta-item" role="listitem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <div>
+                        <span class="delice-elegant-meta-label"><?php echo esc_html( $lang_texts['calories'] ); ?></span>
+                        <span class="delice-elegant-meta-value"><?php echo esc_html( $calories ); ?> kcal</span>
+                    </div>
+                </div>
+            <?php endif; ?>
 
-    <!-- Reviews Display -->
-    <section id="reviewsDisplay-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-reviews-display delice-recipe-elegant-reviews-display">
-        <!-- Reviews will be loaded here via AJAX -->
-    </section>
+        </div><!-- /.delice-elegant-meta -->
     <?php endif; ?>
 
-    <!-- Notes Section -->
-    <div class="delice-recipe-notes-section">
-        <h3><?php _e('Notes', 'delice-recipe-manager'); ?></h3>
-        <div class="delice-recipe-notes">
-            <?php echo esc_html(get_post_meta($recipe_id, '_delice_recipe_notes', true)); ?>
-        </div>
-    </div>
-</div>
+    <!-- ═══ ACTIONS ══════════════════════════════════════════════════════════ -->
+    <div class="delice-elegant-actions">
+        <button class="delice-recipe-print-btn delice-elegant-btn" type="button" aria-label="<?php esc_attr_e( 'Print recipe', 'delice-recipe-manager' ); ?>">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="6,9 6,2 18,2 18,9"/>
+                <path d="M6,18H4a2,2,0,0,1-2-2V11a2,2,0,0,1,2-2H20a2,2,0,0,1,2,2v5a2,2,0,0,1-2,2H18"/>
+                <polyline points="6,14 18,14 18,22 6,22 6,14"/>
+            </svg>
+            <span><?php echo esc_html( $lang_texts['print'] ); ?></span>
+        </button>
+
+        <div class="delice-recipe-share-dropdown delice-elegant-share-wrap">
+            <button class="delice-recipe-share-btn delice-elegant-btn" type="button" aria-label="<?php esc_attr_e( 'Share recipe', 'delice-recipe-manager' ); ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                <span><?php echo esc_html( $lang_texts['share'] ); ?></span>
+            </button>
+            <div class="delice-recipe-share-menu delice-elegant-share-menu">
+                <a href="#" class="delice-recipe-share-item" data-platform="facebook">
+                    <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    <?php esc_html_e( 'Facebook', 'delice-recipe-manager' ); ?>
+                </a>
+                <a href="#" class="delice-recipe-share-item" data-platform="twitter">
+                    <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+                    <?php esc_html_e( 'Twitter', 'delice-recipe-manager' ); ?>
+                </a>
+                <a href="#" class="delice-recipe-share-item" data-platform="pinterest">
+                    <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                    <?php esc_html_e( 'Pinterest', 'delice-recipe-manager' ); ?>
+                </a>
+                <a href="#" class="delice-recipe-share-item" data-platform="whatsapp">
+                    <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    <?php esc_html_e( 'WhatsApp', 'delice-recipe-manager' ); ?>
+                </a>
+                <a href="#" class="delice-recipe-share-item" data-platform="email">
+                    <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <?php esc_html_e( 'Email', 'delice-recipe-manager' ); ?>
+                </a>
+            </div>
+        </div><!-- /.delice-recipe-share-dropdown -->
+
+        <button class="delice-recipe-copy-ingredients delice-elegant-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span><?php echo esc_html( $lang_texts['copy'] ); ?></span>
+        </button>
+
+        <?php if ( $reviews_enabled ) : ?>
+            <button class="delice-recipe-rate-btn delice-elegant-btn delice-elegant-btn--rate" type="button" data-action="open-rating-modal" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>" aria-label="<?php esc_attr_e( 'Rate this recipe', 'delice-recipe-manager' ); ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span><?php echo esc_html( $lang_texts['rate'] ); ?></span>
+            </button>
+        <?php endif; ?>
+    </div><!-- /.delice-elegant-actions -->
+
+    <hr class="delice-elegant-divider">
+
+    <!-- ═══ BODY ══════════════════════════════════════════════════════════════ -->
+    <div class="delice-elegant-body">
+
+        <!-- ── Ingredients ──────────────────────────────────────────────────── -->
+        <?php if ( ! empty( $ingredients ) ) : ?>
+            <section class="delice-elegant-section delice-elegant-ingredients">
+                <h3 class="delice-elegant-section-title">
+                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                    <?php echo esc_html( $lang_texts['ingredients'] ); ?>
+                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                </h3>
+
+                <ul class="delice-elegant-ingredients-list">
+                    <?php foreach ( $ingredients as $ing ) :
+                        $ing_id = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
+                    ?>
+                        <li class="delice-elegant-ingredient delice-recipe-ingredient">
+                            <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
+                                <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
+                                <span class="delice-elegant-check-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                </span>
+                                <span class="delice-elegant-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
+                            </label>
+                            <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
+                                <span class="delice-elegant-ingredient-qty">
+                                    <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
+                                </span>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </section>
+        <?php endif; ?>
+
+        <hr class="delice-elegant-divider delice-elegant-divider--ornamental">
+
+        <!-- ── Instructions ─────────────────────────────────────────────────── -->
+        <?php if ( ! empty( $instructions ) ) : ?>
+            <section class="delice-elegant-section delice-elegant-instructions">
+                <h3 class="delice-elegant-section-title">
+                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                    <?php echo esc_html( $lang_texts['instructions'] ); ?>
+                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                </h3>
+
+                <ol class="delice-elegant-steps">
+                    <?php foreach ( $instructions as $idx => $step ) :
+                        $text = preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' );
+                        $text = trim( $text );
+                    ?>
+                        <li class="delice-elegant-step">
+                            <span class="delice-elegant-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></span>
+                            <p class="delice-elegant-step-text"><?php echo esc_html( $text ); ?></p>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+            </section>
+        <?php endif; ?>
+
+    </div><!-- /.delice-elegant-body -->
+
+    <!-- ═══ NOTES ════════════════════════════════════════════════════════════ -->
+    <?php if ( ! empty( $notes ) ) : ?>
+        <hr class="delice-elegant-divider">
+        <section class="delice-elegant-section delice-elegant-notes">
+            <h3 class="delice-elegant-section-title">
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                <?php echo esc_html( $lang_texts['notes'] ); ?>
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            </h3>
+            <div class="delice-elegant-notes-text"><?php echo esc_html( $notes ); ?></div>
+        </section>
+    <?php endif; ?>
+
+    <!-- ═══ NUTRITION ═════════════════════════════════════════════════════════ -->
+    <?php if ( ! empty( $nutrition ) ) : ?>
+        <hr class="delice-elegant-divider">
+        <section class="delice-elegant-section delice-elegant-nutrition">
+            <h3 class="delice-elegant-section-title">
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                <?php echo esc_html( $lang_texts['nutrition'] ?? __( 'Nutrition', 'delice-recipe-manager' ) ); ?>
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            </h3>
+            <div class="delice-elegant-nutrition-grid">
+                <?php foreach ( $nutrition as $nutrient => $val ) : ?>
+                    <div class="delice-elegant-nutrient">
+                        <span class="delice-elegant-nutrient-value"><?php echo esc_html( $val ); ?><small>g</small></span>
+                        <span class="delice-elegant-nutrient-label"><?php echo esc_html( ucfirst( $nutrient ) ); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php endif; ?>
+
+    <!-- ═══ FAQs ══════════════════════════════════════════════════════════════ -->
+    <?php if ( ! empty( $faqs ) ) : ?>
+        <hr class="delice-elegant-divider">
+        <section class="delice-elegant-section delice-elegant-faqs">
+            <h3 class="delice-elegant-section-title">
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                <?php printf( esc_html__( 'FAQ for %s', 'delice-recipe-manager' ), esc_html( get_the_title( $recipe_id ) ) ); ?>
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            </h3>
+            <div class="delice-recipe-modern-faqs-list delice-elegant-faq-list">
+                <?php foreach ( $faqs as $i => $faq ) : ?>
+                    <div class="delice-recipe-modern-faq-item delice-elegant-faq-item">
+                        <button
+                            class="delice-recipe-modern-faq-question delice-elegant-faq-question"
+                            type="button"
+                            aria-expanded="false"
+                            data-faq-index="<?php echo esc_attr( $i ); ?>"
+                        >
+                            <span><?php echo esc_html( $faq['question'] ); ?></span>
+                            <span class="delice-recipe-modern-faq-toggle delice-elegant-faq-toggle" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </span>
+                        </button>
+                        <div class="delice-recipe-modern-faq-answer delice-elegant-faq-answer">
+                            <p><?php echo esc_html( $faq['answer'] ); ?></p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php endif; ?>
+
+    <hr class="delice-elegant-divider">
+
+    <!-- ═══ REVIEWS ═══════════════════════════════════════════════════════════ -->
+    <?php if ( $reviews_enabled ) : ?>
+        <section id="reviewSection-<?php echo esc_attr( $recipe_id ); ?>" class="delice-elegant-reviews delice-recipe-review-section">
+
+            <div class="delice-elegant-reviews-header">
+                <h3><?php esc_html_e( 'Share Your Experience', 'delice-recipe-manager' ); ?></h3>
+                <p><?php esc_html_e( 'Your culinary insights help fellow food lovers.', 'delice-recipe-manager' ); ?></p>
+            </div>
+
+            <!-- Selected rating display (shown after modal rating) -->
+            <div class="delice-selected-rating-display">
+                <div class="delice-rating-selected-info">
+                    <span class="delice-rating-label"><?php esc_html_e( 'Your Rating:', 'delice-recipe-manager' ); ?></span>
+                    <div class="delice-rating-stars-display">
+                        <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+                            <span class="delice-display-star" data-rating="<?php echo esc_attr( $i ); ?>">★</span>
+                        <?php endfor; ?>
+                    </div>
+                    <span class="delice-rating-text"><?php esc_html_e( 'Thank you!', 'delice-recipe-manager' ); ?></span>
+                </div>
+            </div>
+
+            <!-- Inline rating stars -->
+            <div class="delice-recipe-rating-container">
+                <label class="delice-recipe-rating-label"><?php esc_html_e( 'Rate this Recipe:', 'delice-recipe-manager' ); ?></label>
+                <div class="delice-recipe-rating-stars" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
+                    <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+                        <span class="delice-rating-star" data-rating="<?php echo esc_attr( $i ); ?>">★</span>
+                    <?php endfor; ?>
+                </div>
+                <span class="delice-recipe-rating-text"><?php esc_html_e( 'Select a rating', 'delice-recipe-manager' ); ?></span>
+            </div>
+
+            <!-- Review form -->
+            <form class="delice-recipe-review-form delice-elegant-review-form" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
+
+                <div class="delice-recipe-review-comment">
+                    <label for="review-comment-<?php echo esc_attr( $recipe_id ); ?>">
+                        <?php esc_html_e( 'Your Review:', 'delice-recipe-manager' ); ?>
+                    </label>
+                    <textarea
+                        id="review-comment-<?php echo esc_attr( $recipe_id ); ?>"
+                        name="comment"
+                        rows="5"
+                        required
+                        placeholder="<?php esc_attr_e( 'Describe your cooking experience and any modifications you made...', 'delice-recipe-manager' ); ?>"
+                    ></textarea>
+                </div>
+
+                <div class="delice-recipe-review-image">
+                    <label for="review-image-<?php echo esc_attr( $recipe_id ); ?>">
+                        <?php esc_html_e( 'Add a Photo (Optional):', 'delice-recipe-manager' ); ?>
+                    </label>
+                    <div class="delice-recipe-file-upload-wrapper">
+                        <input type="file" id="review-image-<?php echo esc_attr( $recipe_id ); ?>" name="review_image" accept="image/*">
+                        <div class="delice-recipe-file-upload-text">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                            <span><?php esc_html_e( 'Showcase your creation', 'delice-recipe-manager' ); ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="delice-recipe-review-submit delice-elegant-submit-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                    <?php esc_html_e( 'Submit Review', 'delice-recipe-manager' ); ?>
+                </button>
+            </form>
+
+            <!-- Success message -->
+            <div class="delice-recipe-review-success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <p><?php esc_html_e( 'Your review has been submitted. Thank you!', 'delice-recipe-manager' ); ?></p>
+            </div>
+
+        </section>
+
+        <section id="reviewsDisplay-<?php echo esc_attr( $recipe_id ); ?>" class="delice-recipe-reviews-display delice-elegant-reviews-display"></section>
+    <?php endif; ?>
+
+    <!-- ═══ FOOTER ═══════════════════════════════════════════════════════════ -->
+    <footer class="delice-elegant-footer">
+        <?php if ( ! is_wp_error( $cuisine_terms ) && ! empty( $cuisine_terms ) ) : ?>
+            <span class="delice-elegant-tag"><?php echo esc_html( $cuisine_terms[0]->name ); ?></span>
+        <?php endif; ?>
+        <?php if ( ! is_wp_error( $course_terms ) && ! empty( $course_terms ) ) : ?>
+            <span class="delice-elegant-tag"><?php echo esc_html( $course_terms[0]->name ); ?></span>
+        <?php endif; ?>
+        <?php if ( ! is_wp_error( $dietary_terms ) && ! empty( $dietary_terms ) ) :
+            foreach ( $dietary_terms as $dietary_term ) : ?>
+                <span class="delice-elegant-tag delice-elegant-tag--dietary"><?php echo esc_html( $dietary_term->name ); ?></span>
+            <?php endforeach;
+        endif; ?>
+    </footer>
+
+</article><!-- /.delice-elegant -->
