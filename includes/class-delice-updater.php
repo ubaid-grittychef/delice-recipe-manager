@@ -90,7 +90,12 @@ class Delice_GitHub_Updater {
             return isset( $cached->api_error ) ? false : $cached;
         }
 
-        $url  = "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/releases/latest";
+        // Use /releases?per_page=1 instead of /releases/latest so that
+        // pre-release tags are also considered.  /releases/latest silently
+        // returns 404 for any repo whose only releases are marked pre-release
+        // or that have no fully-published release yet, which is the most
+        // common reason the updater appears broken for new repos.
+        $url  = "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/releases?per_page=1";
         $args = array(
             'timeout' => 15,
             'headers' => array(
@@ -122,7 +127,9 @@ class Delice_GitHub_Updater {
             return false;
         }
 
-        $body = json_decode( wp_remote_retrieve_body( $response ) );
+        // /releases?per_page=1 returns an array; pick the first element.
+        $list = json_decode( wp_remote_retrieve_body( $response ) );
+        $body = ( is_array( $list ) && ! empty( $list[0] ) ) ? $list[0] : null;
 
         if ( empty( $body ) || empty( $body->tag_name ) ) {
             set_transient( $this->cache_key, (object) array( 'api_error' => $code ), 5 * MINUTE_IN_SECONDS );

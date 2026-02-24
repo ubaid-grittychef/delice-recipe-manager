@@ -403,7 +403,13 @@
                         <?php elseif ( 403 === $api_error ) : ?>
                             <span style="color:#d63638;">&#9888; <?php _e( 'GitHub token lacks permissions. It needs the <code>repo</code> or <code>contents:read</code> scope.', 'delice-recipe-manager' ); ?></span>
                         <?php elseif ( 404 === $api_error ) : ?>
-                            <span style="color:#d63638;">&#9888; <?php _e( 'Repository not found or no releases published yet. Create a GitHub Release (tagged e.g. <code>v1.2.0</code>) to enable updates.', 'delice-recipe-manager' ); ?></span>
+                            <span style="color:#d63638;">&#9888;
+                                <?php _e( 'No releases found on GitHub.', 'delice-recipe-manager' ); ?>
+                                <a href="https://github.com/ubaid-grittychef/delice-recipe-manager/releases/new" target="_blank" rel="noopener">
+                                    <?php _e( 'Create a release now &rarr;', 'delice-recipe-manager' ); ?>
+                                </a><br>
+                                <small><?php _e( 'Important: the release must be <strong>Published</strong> (not Draft). Pre-releases are supported. Tag it as <code>v1.2.0</code> and make sure the version in <code>delice-recipe-manager.php</code> matches.', 'delice-recipe-manager' ); ?></small>
+                            </span>
                         <?php else : ?>
                             <span style="color:#d63638;">&#9888; <?php printf( esc_html__( 'GitHub API error (HTTP %d). Click "Clear Cache &amp; Check Now" to retry.', 'delice-recipe-manager' ), $api_error ); ?></span>
                         <?php endif; ?>
@@ -432,7 +438,7 @@
                                 <?php _e( 'Show / Hide', 'delice-recipe-manager' ); ?>
                             </button>
                             <p class="description">
-                                <?php _e( '<strong>Leave blank for public repositories.</strong> For private repositories, create a token with <code>repo</code> (or <code>contents: read</code>) scope and paste it here. The token is stored encrypted in your WordPress database.', 'delice-recipe-manager' ); ?>
+                                <?php _e( '<strong>Leave blank for public repositories.</strong> For private repositories, create a token with <code>repo</code> scope (classic PAT) or <code>contents: read</code> scope (fine-grained PAT) and paste it here.', 'delice-recipe-manager' ); ?>
                             </p>
                         </td>
                     </tr>
