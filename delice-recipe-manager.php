@@ -18,6 +18,23 @@ define( 'DELICE_RECIPE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_FILE', __FILE__ );
 
 /**
+ * Bootstrap the self-hosted GitHub auto-updater.
+ *
+ * Loaded on 'init' (priority 1) so it runs before the rest of the plugin
+ * but after WordPress has set up its update infrastructure.
+ */
+function delice_recipe_init_updater() {
+    require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-updater.php';
+    new Delice_GitHub_Updater(
+        DELICE_RECIPE_PLUGIN_FILE,
+        'ubaid-grittychef',         // GitHub username
+        'delice-recipe-manager',    // GitHub repository
+        DELICE_RECIPE_VERSION
+    );
+}
+add_action( 'init', 'delice_recipe_init_updater', 1 );
+
+/**
  * Load plugin textdomain for translations
  */
 function delice_recipe_load_textdomain() {

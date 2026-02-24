@@ -358,6 +358,90 @@
             </div>
             
             <div class="delice-recipe-settings-section">
+                <h2><?php _e('GitHub Auto-Updates', 'delice-recipe-manager'); ?></h2>
+                <p>
+                    <?php _e( 'This plugin updates itself directly from its GitHub repository — no third-party service needed.', 'delice-recipe-manager' ); ?>
+                    <?php _e( 'Public repositories work without any configuration. For private repositories, paste a Personal Access Token (PAT) below.', 'delice-recipe-manager' ); ?>
+                </p>
+
+                <?php
+                // Show current update status.
+                $cache_key     = 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) );
+                $release       = get_transient( $cache_key );
+                $remote_ver    = $release ? ltrim( $release->tag_name, 'v' ) : null;
+                $current_ver   = DELICE_RECIPE_VERSION;
+                $has_update    = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
+                ?>
+
+                <div style="margin-bottom:12px;">
+                    <strong><?php _e( 'Current version:', 'delice-recipe-manager' ); ?></strong>
+                    <?php echo esc_html( $current_ver ); ?>
+
+                    <?php if ( $remote_ver ) : ?>
+                        &nbsp;&mdash;&nbsp;
+                        <strong><?php _e( 'Latest on GitHub:', 'delice-recipe-manager' ); ?></strong>
+                        <?php echo esc_html( $remote_ver ); ?>
+                        <?php if ( $has_update ) : ?>
+                            <span style="color:#d63638;font-weight:600;">&nbsp;&#8593; <?php _e( 'Update available!', 'delice-recipe-manager' ); ?></span>
+                        <?php else : ?>
+                            <span style="color:#008a20;font-weight:600;">&nbsp;&#10003; <?php _e( 'Up to date', 'delice-recipe-manager' ); ?></span>
+                        <?php endif; ?>
+                    <?php else : ?>
+                        &nbsp;&mdash;&nbsp;<em><?php _e( 'GitHub not yet checked (will check on next WP update check).', 'delice-recipe-manager' ); ?></em>
+                    <?php endif; ?>
+                </div>
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="delice_github_token"><?php _e( 'GitHub Personal Access Token', 'delice-recipe-manager' ); ?></label>
+                        </th>
+                        <td>
+                            <input
+                                type="password"
+                                id="delice_github_token"
+                                name="delice_github_token"
+                                value="<?php echo esc_attr( get_option( 'delice_github_token', '' ) ); ?>"
+                                class="regular-text"
+                                autocomplete="new-password"
+                            >
+                            <button type="button"
+                                    onclick="var f=document.getElementById('delice_github_token');f.type=f.type==='password'?'text':'password';"
+                                    class="button button-secondary" style="vertical-align:middle;">
+                                <?php _e( 'Show / Hide', 'delice-recipe-manager' ); ?>
+                            </button>
+                            <p class="description">
+                                <?php _e( '<strong>Leave blank for public repositories.</strong> For private repositories, create a token with <code>repo</code> (or <code>contents: read</code>) scope and paste it here. The token is stored encrypted in your WordPress database.', 'delice-recipe-manager' ); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row"><?php _e( 'Repository', 'delice-recipe-manager' ); ?></th>
+                        <td>
+                            <code>ubaid-grittychef/delice-recipe-manager</code>
+                            <p class="description">
+                                <?php _e( 'Updates are fetched from the <strong>latest release</strong> on this repository. Tag your releases as <code>v1.2.0</code> or <code>1.2.0</code> — either format is supported.', 'delice-recipe-manager' ); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row"><?php _e( 'Force Update Check', 'delice-recipe-manager' ); ?></th>
+                        <td>
+                            <a href="<?php echo esc_url( add_query_arg( 'delice_clear_update_cache', '1', admin_url( 'admin.php?page=delice-recipe-settings' ) ) ); ?>"
+                               class="button button-secondary">
+                                <?php _e( 'Clear Cache &amp; Check Now', 'delice-recipe-manager' ); ?>
+                            </a>
+                            <p class="description">
+                                <?php _e( 'GitHub API responses are cached for 12 hours. Click to clear the cache and fetch the latest release immediately.', 'delice-recipe-manager' ); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="delice-recipe-settings-section">
                 <h2><?php _e('Reset Settings', 'delice-recipe-manager'); ?></h2>
                 <p><?php _e('Reset all plugin settings to their default values.', 'delice-recipe-manager'); ?></p>
                 
