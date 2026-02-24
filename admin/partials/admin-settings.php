@@ -431,7 +431,7 @@
                     <tr>
                         <th scope="row"><?php _e( 'Force Update Check', 'delice-recipe-manager' ); ?></th>
                         <td>
-                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=delice-recipe-settings&action=delice_clear_update_cache' ), 'delice_clear_update_cache' ) ); ?>"
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=delice-recipe-settings-hub&action=delice_clear_update_cache' ), 'delice_clear_update_cache' ) ); ?>"
                                class="button button-secondary">
                                 <?php _e( 'Clear Cache &amp; Check Now', 'delice-recipe-manager' ); ?>
                             </a>
