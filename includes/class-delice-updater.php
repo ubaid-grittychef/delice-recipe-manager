@@ -8,9 +8,10 @@
  * repos (Personal Access Token stored in wp_options).
  *
  * How it works:
- *  1. pre_set_site_transient_update_plugins  – Fetches the latest GitHub
- *     release, compares versions, and injects an update notice when a newer
- *     version is found (fires when WP rewrites the transient, ~every 12 h).
+ *  1. pre_set_site_transient_update_plugins  – Reads the Version: header from
+ *     the main branch plugin file, compares versions, and injects an update
+ *     notice when a newer version is found (fires when WP rewrites the
+ *     transient, ~every 12 h).
  *  2. site_transient_update_plugins          – Re-injects the update on every
  *     transient READ using only locally cached data, so the "Update Available"
  *     badge appears immediately without waiting for the next WP update cycle.
@@ -23,6 +24,12 @@
  *     archive directory to match the expected plugin folder name.
  *  6. upgrader_process_complete              – Clears the cached API response
  *     after a successful update.
+ *
+ * Update workflow (no GitHub Releases or tags needed):
+ *  1. Bump the Version: line in the plugin's main PHP file.
+ *  2. Push to the main branch.
+ *  3. WordPress detects the new version on the next check (or immediately
+ *     after clicking "Clear Cache & Check Now") and shows "Update Now".
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -79,46 +86,54 @@ class Delice_GitHub_Updater {
     // -------------------------------------------------------------------------
 
     /**
-     * Fetch the latest release from the GitHub API.
+     * Fetch the remote version by reading the Version: header from the main
+     * branch plugin file directly — no GitHub Releases or tags needed.
      *
-     * The response is cached in a transient for $cache_ttl seconds to avoid
-     * hammering the API on every admin page load.
+     * For public repos the raw.githubusercontent.com URL is used (no rate
+     * limit concerns).  For private repos the GitHub Contents API is used
+     * with the stored Personal Access Token.
      *
-     * @return object|false  Decoded JSON release object, or false on failure.
+     * The response is cached in a transient for $cache_ttl seconds.
+     *
+     * @return object|false  Release-like object with tag_name and zipball_url, or false on failure.
      */
     public function get_release_info() {
         $cached = get_transient( $this->cache_key );
 
         // A cached failure marker is stored as (object)['api_error' => <code>].
-        // Return false for those so the rest of the code sees no release data,
-        // but don't hammer the API again until the short-TTL entry expires.
         if ( false !== $cached ) {
             return isset( $cached->api_error ) ? false : $cached;
         }
 
-        // Use /releases?per_page=1 instead of /releases/latest so that
-        // pre-release tags are also considered.  /releases/latest silently
-        // returns 404 for any repo whose only releases are marked pre-release
-        // or that have no fully-published release yet, which is the most
-        // common reason the updater appears broken for new repos.
-        $url  = "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/releases?per_page=1";
-        $args = array(
-            'timeout' => 15,
-            'headers' => array(
-                'Accept'               => 'application/vnd.github+json',
-                'X-GitHub-Api-Version' => '2022-11-28',
-                'User-Agent'           => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url(),
-            ),
-        );
+        // The main plugin file name, e.g. "delice-recipe-manager.php".
+        $plugin_file = basename( $this->slug );
 
         if ( ! empty( $this->token ) ) {
-            $args['headers']['Authorization'] = 'Bearer ' . $this->token;
+            // Private repo: GitHub Contents API returns the file as base64 JSON.
+            $url  = "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/contents/{$plugin_file}?ref=main";
+            $args = array(
+                'timeout' => 15,
+                'headers' => array(
+                    'Accept'               => 'application/vnd.github+json',
+                    'Authorization'        => 'Bearer ' . $this->token,
+                    'X-GitHub-Api-Version' => '2022-11-28',
+                    'User-Agent'           => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url(),
+                ),
+            );
+        } else {
+            // Public repo: raw file, no authentication required.
+            $url  = "https://raw.githubusercontent.com/{$this->github_user}/{$this->github_repo}/main/{$plugin_file}";
+            $args = array(
+                'timeout' => 15,
+                'headers' => array(
+                    'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url(),
+                ),
+            );
         }
 
         $response = wp_remote_get( $url, $args );
 
         if ( is_wp_error( $response ) ) {
-            // Network failure — retry after 5 minutes.
             set_transient( $this->cache_key, (object) array( 'api_error' => 0 ), 5 * MINUTE_IN_SECONDS );
             return false;
         }
@@ -126,24 +141,44 @@ class Delice_GitHub_Updater {
         $code = (int) wp_remote_retrieve_response_code( $response );
 
         if ( 200 !== $code ) {
-            // Rate-limited (429) or auth error: cache failure briefly to avoid
-            // hammering the API.  Use 1 hour for rate limits, 5 min otherwise.
             $ttl = ( 429 === $code ) ? HOUR_IN_SECONDS : 5 * MINUTE_IN_SECONDS;
             set_transient( $this->cache_key, (object) array( 'api_error' => $code ), $ttl );
             return false;
         }
 
-        // /releases?per_page=1 returns an array; pick the first element.
-        $list = json_decode( wp_remote_retrieve_body( $response ) );
-        $body = ( is_array( $list ) && ! empty( $list[0] ) ) ? $list[0] : null;
+        $body = wp_remote_retrieve_body( $response );
 
-        if ( empty( $body ) || empty( $body->tag_name ) ) {
-            set_transient( $this->cache_key, (object) array( 'api_error' => $code ), 5 * MINUTE_IN_SECONDS );
+        if ( ! empty( $this->token ) ) {
+            // Contents API wraps the file in JSON with base64 content.
+            $data = json_decode( $body );
+            if ( ! $data || empty( $data->content ) ) {
+                set_transient( $this->cache_key, (object) array( 'api_error' => 200 ), 5 * MINUTE_IN_SECONDS );
+                return false;
+            }
+            $file_content = base64_decode( str_replace( "\n", '', $data->content ) );
+        } else {
+            $file_content = $body;
+        }
+
+        // Pull the Version: value out of the WordPress plugin header comment.
+        if ( ! preg_match( '/^\s*\*\s*Version:\s*(.+)$/mi', $file_content, $matches ) ) {
+            set_transient( $this->cache_key, (object) array( 'api_error' => 200 ), 5 * MINUTE_IN_SECONDS );
             return false;
         }
 
-        set_transient( $this->cache_key, $body, $this->cache_ttl );
-        return $body;
+        $remote_version = trim( $matches[1] );
+
+        // Build a release-like object so the rest of the code is unchanged.
+        $release = (object) array(
+            'tag_name'     => $remote_version,
+            'zipball_url'  => "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/zipball/main",
+            'name'         => "Version {$remote_version}",
+            'body'         => '',
+            'published_at' => '',
+        );
+
+        set_transient( $this->cache_key, $release, $this->cache_ttl );
+        return $release;
     }
 
     // -------------------------------------------------------------------------
