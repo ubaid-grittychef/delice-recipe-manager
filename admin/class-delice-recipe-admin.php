@@ -415,6 +415,31 @@ class Delice_Recipe_Admin {
                 'default' => true,
             )
         );
+
+        // GitHub auto-updater: Personal Access Token (for private repos)
+        register_setting(
+            'delice_recipe_settings',
+            'delice_github_token',
+            array(
+                'type'              => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default'           => '',
+            )
+        );
+
+        // Handle "Clear Cache & Check Now" link (runs before the page renders).
+        if (
+            isset( $_GET['delice_clear_update_cache'] ) &&
+            '1' === $_GET['delice_clear_update_cache'] &&
+            current_user_can( 'manage_options' )
+        ) {
+            $cache_key = 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) );
+            delete_transient( $cache_key );
+            // Also clear WordPress's own plugin update transient so a fresh check runs.
+            delete_site_transient( 'update_plugins' );
+            wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&delice_cache_cleared=1' ) );
+            exit;
+        }
     }
 
     /**

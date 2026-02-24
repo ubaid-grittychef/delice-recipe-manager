@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name: WP Delicious Recipe
+ * GitHub Plugin URI: ubaid-grittychef/delice-recipe-manager
  * …
  */
 
@@ -15,6 +16,23 @@ define( 'DELICE_RECIPE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_FILE', __FILE__ );
+
+/**
+ * Bootstrap the self-hosted GitHub auto-updater.
+ *
+ * Loaded on 'init' (priority 1) so it runs before the rest of the plugin
+ * but after WordPress has set up its update infrastructure.
+ */
+function delice_recipe_init_updater() {
+    require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-updater.php';
+    new Delice_GitHub_Updater(
+        DELICE_RECIPE_PLUGIN_FILE,
+        'ubaid-grittychef',         // GitHub username
+        'delice-recipe-manager',    // GitHub repository
+        DELICE_RECIPE_VERSION
+    );
+}
+add_action( 'init', 'delice_recipe_init_updater', 1 );
 
 /**
  * Load plugin textdomain for translations
