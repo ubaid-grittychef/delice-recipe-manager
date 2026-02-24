@@ -334,7 +334,7 @@ class Delice_GitHub_Updater {
                 'stream'   => true,
                 'filename' => $tmpfile,
                 'headers'  => array(
-                    'Accept'               => 'application/octet-stream',
+                    'Accept'               => 'application/vnd.github+json',
                     'Authorization'        => 'Bearer ' . $this->token,
                     'X-GitHub-Api-Version' => '2022-11-28',
                     'User-Agent'           => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url(),
