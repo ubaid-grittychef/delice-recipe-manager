@@ -82,8 +82,12 @@ class Delice_GitHub_Updater {
      */
     public function get_release_info() {
         $cached = get_transient( $this->cache_key );
+
+        // A cached failure marker is stored as (object)['api_error' => <code>].
+        // Return false for those so the rest of the code sees no release data,
+        // but don't hammer the API again until the short-TTL entry expires.
         if ( false !== $cached ) {
-            return $cached;
+            return isset( $cached->api_error ) ? false : $cached;
         }
 
         $url  = "https://api.github.com/repos/{$this->github_user}/{$this->github_repo}/releases/latest";
@@ -103,16 +107,25 @@ class Delice_GitHub_Updater {
         $response = wp_remote_get( $url, $args );
 
         if ( is_wp_error( $response ) ) {
+            // Network failure — retry after 5 minutes.
+            set_transient( $this->cache_key, (object) array( 'api_error' => 0 ), 5 * MINUTE_IN_SECONDS );
             return false;
         }
 
-        if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+        $code = (int) wp_remote_retrieve_response_code( $response );
+
+        if ( 200 !== $code ) {
+            // Rate-limited (429) or auth error: cache failure briefly to avoid
+            // hammering the API.  Use 1 hour for rate limits, 5 min otherwise.
+            $ttl = ( 429 === $code ) ? HOUR_IN_SECONDS : 5 * MINUTE_IN_SECONDS;
+            set_transient( $this->cache_key, (object) array( 'api_error' => $code ), $ttl );
             return false;
         }
 
         $body = json_decode( wp_remote_retrieve_body( $response ) );
 
         if ( empty( $body ) || empty( $body->tag_name ) ) {
+            set_transient( $this->cache_key, (object) array( 'api_error' => $code ), 5 * MINUTE_IN_SECONDS );
             return false;
         }
 

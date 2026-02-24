@@ -453,6 +453,15 @@ class Delice_Recipe_Admin {
         delete_transient( $cache_key );
         delete_site_transient( 'update_plugins' );
 
+        // Force WordPress to run a fresh plugin update check right now so the
+        // new GitHub release appears immediately in the Updates admin — without
+        // this, WordPress won't re-check until the user visits Dashboard→Updates
+        // or a cron job fires (up to 12 hours later).
+        if ( ! function_exists( 'wp_update_plugins' ) ) {
+            require_once ABSPATH . 'wp-includes/update.php';
+        }
+        wp_update_plugins();
+
         wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&delice_cache_cleared=1' ) );
         exit;
     }

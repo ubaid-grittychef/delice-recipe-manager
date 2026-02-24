@@ -367,12 +367,18 @@
                 <?php
                 // Show current update status — always fetch live so clearing the
                 // cache immediately shows fresh data (result is re-cached for 12 h).
-                $release    = isset( $GLOBALS['delice_gh_updater'] )
+                // get_release_info() returns false on error and caches a short-lived
+                // failure marker so the API is not hammered on repeated page loads.
+                $cache_key   = 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) );
+                $raw_cached  = get_transient( $cache_key ); // read before the live call overwrites
+                $api_error   = ( $raw_cached && isset( $raw_cached->api_error ) ) ? (int) $raw_cached->api_error : null;
+
+                $release     = isset( $GLOBALS['delice_gh_updater'] )
                     ? $GLOBALS['delice_gh_updater']->get_release_info()
-                    : get_transient( 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) ) );
-                $remote_ver = $release ? ltrim( $release->tag_name, 'v' ) : null;
-                $current_ver   = DELICE_RECIPE_VERSION;
-                $has_update    = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
+                    : ( ( $raw_cached && ! isset( $raw_cached->api_error ) ) ? $raw_cached : false );
+                $remote_ver  = $release ? ltrim( $release->tag_name, 'v' ) : null;
+                $current_ver = DELICE_RECIPE_VERSION;
+                $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                 ?>
 
                 <div style="margin-bottom:12px;">
@@ -388,8 +394,21 @@
                         <?php else : ?>
                             <span style="color:#008a20;font-weight:600;">&nbsp;&#10003; <?php _e( 'Up to date', 'delice-recipe-manager' ); ?></span>
                         <?php endif; ?>
+                    <?php elseif ( null !== $api_error ) : ?>
+                        &nbsp;&mdash;&nbsp;
+                        <?php if ( 429 === $api_error ) : ?>
+                            <span style="color:#d63638;">&#9888; <?php _e( 'GitHub API rate limit reached. Retry in ~1 hour or add a Personal Access Token.', 'delice-recipe-manager' ); ?></span>
+                        <?php elseif ( 401 === $api_error ) : ?>
+                            <span style="color:#d63638;">&#9888; <?php _e( 'GitHub token is invalid or expired. Please update your Personal Access Token.', 'delice-recipe-manager' ); ?></span>
+                        <?php elseif ( 403 === $api_error ) : ?>
+                            <span style="color:#d63638;">&#9888; <?php _e( 'GitHub token lacks permissions. It needs the <code>repo</code> or <code>contents:read</code> scope.', 'delice-recipe-manager' ); ?></span>
+                        <?php elseif ( 404 === $api_error ) : ?>
+                            <span style="color:#d63638;">&#9888; <?php _e( 'Repository not found or no releases published yet. Create a GitHub Release (tagged e.g. <code>v1.2.0</code>) to enable updates.', 'delice-recipe-manager' ); ?></span>
+                        <?php else : ?>
+                            <span style="color:#d63638;">&#9888; <?php printf( esc_html__( 'GitHub API error (HTTP %d). Click "Clear Cache &amp; Check Now" to retry.', 'delice-recipe-manager' ), $api_error ); ?></span>
+                        <?php endif; ?>
                     <?php else : ?>
-                        &nbsp;&mdash;&nbsp;<em><?php _e( 'GitHub not yet checked (will check on next WP update check).', 'delice-recipe-manager' ); ?></em>
+                        &nbsp;&mdash;&nbsp;<em><?php _e( 'Not yet checked. Click "Clear Cache &amp; Check Now" to fetch the latest release from GitHub.', 'delice-recipe-manager' ); ?></em>
                     <?php endif; ?>
                 </div>
 

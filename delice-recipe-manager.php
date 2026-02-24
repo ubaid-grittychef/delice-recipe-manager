@@ -1,8 +1,16 @@
 <?php
 /**
- * Plugin Name: WP Delicious Recipe
+ * Plugin Name:       WP Delicious Recipe
+ * Plugin URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
+ * Description:       A powerful recipe manager plugin for WordPress with AI generation, schema markup, and GitHub auto-updates.
+ * Version:           1.1.0
+ * Author:            Delice Team
+ * Author URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
+ * License:           GPL-2.0+
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       delice-recipe-manager
+ * Domain Path:       /languages
  * GitHub Plugin URI: ubaid-grittychef/delice-recipe-manager
- * …
  */
 
 // Exit if accessed directly
