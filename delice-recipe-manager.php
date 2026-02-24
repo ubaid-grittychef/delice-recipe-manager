@@ -3,7 +3,7 @@
  * Plugin Name:       WP Delicious Recipe
  * Plugin URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * Description:       A powerful recipe manager plugin for WordPress with AI generation, schema markup, and GitHub auto-updates.
- * Version:           1.6.0
+ * Version:           1.7.0
  * Author:            Delice Team
  * Author URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * License:           GPL-2.0+
@@ -19,7 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'DELICE_RECIPE_VERSION', '1.6.0' );
+define( 'DELICE_RECIPE_VERSION',    '1.7.0' );
+define( 'DELICE_RECIPE_DB_VERSION', '1.7.0' ); // bump when schema changes require an upgrade routine
 define( 'DELICE_RECIPE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -41,6 +42,11 @@ function delice_recipe_init_updater() {
     );
 }
 add_action( 'init', 'delice_recipe_init_updater', 1 );
+
+// Opt this plugin into WordPress automatic background updates.
+add_filter( 'auto_update_plugin', function( $update, $item ) {
+    return isset( $item->plugin ) && $item->plugin === plugin_basename( __FILE__ ) ? true : $update;
+}, 10, 2 );
 
 /**
  * Load plugin textdomain for translations
@@ -376,6 +382,21 @@ function delice_recipe_plugin_deactivate() {
 register_deactivation_hook( __FILE__, 'delice_recipe_plugin_deactivate' );
 
 /**
+ * DB upgrade routine — runs on every admin page load but exits immediately
+ * when the stored version already matches DELICE_RECIPE_DB_VERSION.
+ * Add schema migration logic here when future versions need it.
+ */
+function delice_recipe_maybe_upgrade() {
+    $stored = get_option( 'delice_recipe_db_version', '0.0.0' );
+    if ( version_compare( $stored, DELICE_RECIPE_DB_VERSION, '>=' ) ) {
+        return;
+    }
+    // Future upgrade steps go here (e.g. ALTER TABLE, new options defaults).
+    update_option( 'delice_recipe_db_version', DELICE_RECIPE_DB_VERSION );
+}
+add_action( 'admin_init', 'delice_recipe_maybe_upgrade' );
+
+/**
  * Plugin action links (settings)
  */
 function delice_recipe_plugin_action_links( $links ) {
@@ -393,7 +414,7 @@ add_filter( 'plugin_action_links_' . DELICE_RECIPE_PLUGIN_BASENAME, 'delice_reci
  * Debug info in footer
  */
 function delice_recipe_debug_info() {
-    if ( current_user_can('manage_options') && isset($_GET['delice_debug']) ) {
+    if ( defined('WP_DEBUG') && WP_DEBUG && current_user_can('manage_options') && isset($_GET['delice_debug']) ) {
         printf(
             '<div style="background:#f8f9fa;padding:15px;margin:20px;border:1px solid #ddd;">
                 <h4>%s</h4>

@@ -47,6 +47,10 @@ class Delice_Recipe_Import_Export {
      * Export multiple recipes to JSON
      */
     public function export_recipes($recipe_ids = array()) {
+        if ( ! current_user_can('edit_posts') ) {
+            return new WP_Error('unauthorized', __('You do not have permission to export recipes.', 'delice-recipe-manager'));
+        }
+
         if (empty($recipe_ids)) {
             // Export all recipes
             $recipe_ids = get_posts(array(
@@ -87,7 +91,7 @@ class Delice_Recipe_Import_Export {
                 'attribution_settings' => get_option('delice_recipe_attribution_settings', array()),
                 'default_language' => get_option('delice_recipe_default_language', 'en_US'),
                 'enabled_languages' => get_option('delice_recipe_enabled_languages', array()),
-                'ai_api_key' => get_option('delice_recipe_ai_api_key', ''),
+                // ai_api_key intentionally excluded — never export credentials.
                 'enable_ai_images' => get_option('delice_recipe_enable_ai_images', false),
                 'review_settings' => get_option('delice_recipe_review_settings', array()),
                 'default_cuisine' => get_option('delice_recipe_default_cuisine', ''),

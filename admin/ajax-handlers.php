@@ -306,33 +306,29 @@ function delice_ajax_migrate_recipes() {
         
         // Verify nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'delice_recipe_nonce')) {
-            error_log('Migration AJAX: Nonce verification failed');
             wp_send_json_error(array('message' => __('Security verification failed.', 'delice-recipe-manager')));
         }
-        
+
         // Check permissions
         if (!current_user_can('manage_options')) {
-            error_log('Migration AJAX: Permission denied');
             wp_send_json_error(array('message' => __('Unauthorized access.', 'delice-recipe-manager')));
         }
-        
-        error_log('Migration AJAX: Starting migration batch');
-        
+
         // Get migration instance
         $migration = new Delice_Recipe_Migration();
         $offset = intval($_POST['offset'] ?? 0);
-        
-        // Create backup on first batch
+
+        // Create backup on first batch; abort if backup fails.
         if ($offset === 0) {
-            error_log('Migration AJAX: Creating backup');
-            $migration->create_backup();
+            $backup_ok = $migration->create_backup();
+            if ( ! $backup_ok ) {
+                wp_send_json_error(array('message' => __('Could not create a backup before migrating. Migration aborted.', 'delice-recipe-manager')));
+            }
         }
-        
+
         // Migrate batch
         $migrated = $migration->migrate_recipes_batch($offset);
         $stats = $migration->get_migration_stats();
-        
-        error_log('Migration AJAX: Migrated ' . $migrated . ' recipes');
         
         wp_send_json_success(array(
             'migrated' => $migrated,
@@ -964,18 +960,18 @@ function delice_ajax_import_recipes() {
     }
     
     // Get JSON data
-    $json_data = isset($_POST['json_data']) ? stripslashes($_POST['json_data']) : '';
-    
+    $json_data = isset($_POST['json_data']) ? wp_unslash($_POST['json_data']) : '';
+
     if (empty($json_data)) {
         wp_send_json_error(array('message' => __('No data provided', 'delice-recipe-manager')));
     }
-    
+
     $import_data = json_decode($json_data, true);
-    
+
     if (json_last_error() !== JSON_ERROR_NONE) {
         wp_send_json_error(array('message' => __('Invalid JSON data', 'delice-recipe-manager')));
     }
-    
+
     require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-import-export.php';
     $importer = new Delice_Recipe_Import_Export();
     
@@ -1010,12 +1006,12 @@ function delice_ajax_import_settings() {
     }
     
     // Get JSON data
-    $json_data = isset($_POST['json_data']) ? stripslashes($_POST['json_data']) : '';
-    
+    $json_data = isset($_POST['json_data']) ? wp_unslash($_POST['json_data']) : '';
+
     if (empty($json_data)) {
         wp_send_json_error(array('message' => __('No data provided', 'delice-recipe-manager')));
     }
-    
+
     $settings_data = json_decode($json_data, true);
     
     if (json_last_error() !== JSON_ERROR_NONE) {

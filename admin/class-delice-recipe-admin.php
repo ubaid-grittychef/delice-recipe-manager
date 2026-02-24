@@ -489,7 +489,7 @@ class Delice_Recipe_Admin {
 
             add_meta_box(
                 'delice_recipe_details' . $suffix,
-                __( 'Détails de la recette', 'delice-recipe-manager' ),
+                __( 'Recipe Details', 'delice-recipe-manager' ),
                 array( $this, 'render_recipe_details_meta_box' ),
                 $post_type,
                 'normal',
@@ -498,7 +498,7 @@ class Delice_Recipe_Admin {
 
             add_meta_box(
                 'delice_recipe_ingredients' . $suffix,
-                __( 'Ingrédients', 'delice-recipe-manager' ),
+                __( 'Ingredients', 'delice-recipe-manager' ),
                 array( $this, 'render_ingredients_meta_box' ),
                 $post_type,
                 'normal',

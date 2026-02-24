@@ -145,7 +145,7 @@ class Delice_Recipe_AI {
     private function make_openai_request($prompt) {
         $url = 'https://api.openai.com/v1/chat/completions';
         $body = [
-            'model'       => 'gpt-4o',
+            'model'       => get_option( 'delice_recipe_ai_model', 'gpt-4o' ),
             'messages'    => [
                 [ 'role' => 'system', 'content' => $prompt['system'] ],
                 [ 'role' => 'user',   'content' => $prompt['user']   ],
