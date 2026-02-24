@@ -20,6 +20,9 @@ class Delice_Recipe_Admin {
         
         // Register plugin settings
         add_action('admin_init', array($this, 'register_settings'));
+
+        // Handle "Clear Cache & Check Now" for the GitHub updater
+        add_action('admin_init', array($this, 'handle_update_cache_clear'));
         
         // Add meta boxes for recipe post type
         add_action('add_meta_boxes', array($this, 'add_recipe_meta_boxes'));
@@ -427,19 +430,31 @@ class Delice_Recipe_Admin {
             )
         );
 
-        // Handle "Clear Cache & Check Now" link (runs before the page renders).
-        if (
-            isset( $_GET['delice_clear_update_cache'] ) &&
-            '1' === $_GET['delice_clear_update_cache'] &&
-            current_user_can( 'manage_options' )
-        ) {
-            $cache_key = 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) );
-            delete_transient( $cache_key );
-            // Also clear WordPress's own plugin update transient so a fresh check runs.
-            delete_site_transient( 'update_plugins' );
-            wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&delice_cache_cleared=1' ) );
-            exit;
+    }
+
+    /**
+     * Handle the "Clear Cache & Check Now" GET action.
+     *
+     * Runs on its own admin_init callback so it is completely separate from
+     * WordPress's settings-saving flow (which caused the "not allowed" error).
+     */
+    public function handle_update_cache_clear() {
+        if ( ! isset( $_GET['action'] ) || 'delice_clear_update_cache' !== $_GET['action'] ) {
+            return;
         }
+
+        check_admin_referer( 'delice_clear_update_cache' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'You do not have permission to do this.', 'delice-recipe-manager' ) );
+        }
+
+        $cache_key = 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) );
+        delete_transient( $cache_key );
+        delete_site_transient( 'update_plugins' );
+
+        wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&delice_cache_cleared=1' ) );
+        exit;
     }
 
     /**
