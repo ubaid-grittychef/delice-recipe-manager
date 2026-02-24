@@ -64,6 +64,7 @@ class Delice_GitHub_Updater {
         add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_update' ) );
         add_filter( 'plugins_api',                           array( $this, 'plugin_info' ), 20, 3 );
         add_filter( 'upgrader_pre_download',                 array( $this, 'pre_download' ), 10, 3 );
+        add_filter( 'upgrader_source_selection',             array( $this, 'fix_source_directory' ), 10, 4 );
         add_action( 'upgrader_process_complete',             array( $this, 'purge_cache' ), 10, 2 );
     }
 
@@ -251,7 +252,7 @@ class Delice_GitHub_Updater {
                 'stream'   => true,
                 'filename' => $tmpfile,
                 'headers'  => array(
-                    'Accept'               => 'application/vnd.github+json',
+                    'Accept'               => 'application/octet-stream',
                     'Authorization'        => 'Bearer ' . $this->token,
                     'X-GitHub-Api-Version' => '2022-11-28',
                     'User-Agent'           => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . home_url(),
@@ -275,6 +276,60 @@ class Delice_GitHub_Updater {
         }
 
         return $tmpfile;
+    }
+
+    /**
+     * Hook: upgrader_source_selection
+     *
+     * GitHub release zips extract to a directory named "{user}-{repo}-{hash}/"
+     * instead of the plugin's own folder name.  WordPress would then install
+     * the update under a different directory, leaving the old files in place.
+     *
+     * This filter detects that situation and renames the extracted directory
+     * to the correct plugin folder so the update lands in the right place.
+     *
+     * @param  string|WP_Error $source        Path to the extracted source dir.
+     * @param  string          $remote_source  Temp directory containing the source.
+     * @param  WP_Upgrader     $upgrader       Upgrader instance.
+     * @param  array           $hook_extra     Extra data (may include 'plugin').
+     * @return string|WP_Error
+     */
+    public function fix_source_directory( $source, $remote_source, $upgrader, $hook_extra = array() ) {
+        global $wp_filesystem;
+
+        // If WordPress already knows this update is for a different plugin, bail.
+        if ( isset( $hook_extra['plugin'] ) && $hook_extra['plugin'] !== $this->slug ) {
+            return $source;
+        }
+
+        $plugin_dir  = dirname( $this->slug ); // e.g. "delice-recipe-manager"
+        $source_base = basename( rtrim( $source, '/' ) );
+
+        // Nothing to do — directory is already named correctly.
+        if ( $source_base === $plugin_dir ) {
+            return $source;
+        }
+
+        // Only act on directories that look like they came from our GitHub repo
+        // (GitHub archives: "{user}-{repo}-{hash}").
+        if ( strpos( $source_base, $this->github_repo ) === false ) {
+            return $source;
+        }
+
+        if ( ! $wp_filesystem ) {
+            return $source;
+        }
+
+        $target = trailingslashit( $remote_source ) . $plugin_dir;
+
+        if ( ! $wp_filesystem->move( rtrim( $source, '/' ), $target ) ) {
+            return new WP_Error(
+                'delice_updater_rename_failed',
+                __( 'Could not rename the update package. Please try again.', 'delice-recipe-manager' )
+            );
+        }
+
+        return trailingslashit( $target );
     }
 
     /**
