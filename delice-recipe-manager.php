@@ -42,6 +42,11 @@ function delice_recipe_init_updater() {
 }
 add_action( 'init', 'delice_recipe_init_updater', 1 );
 
+// Opt this plugin into WordPress automatic background updates.
+add_filter( 'auto_update_plugin', function( $update, $item ) {
+    return isset( $item->plugin ) && $item->plugin === plugin_basename( __FILE__ ) ? true : $update;
+}, 10, 2 );
+
 /**
  * Load plugin textdomain for translations
  */
