@@ -145,13 +145,14 @@ class Delice_Recipe_AI {
     private function make_openai_request($prompt) {
         $url = 'https://api.openai.com/v1/chat/completions';
         $body = [
-            'model'=>'gpt-4o',
-            'messages'=>[
-                ['role'=>'system','content'=>$prompt['system']],
-                ['role'=>'user','content'=>$prompt['user']],
+            'model'       => 'gpt-4o',
+            'messages'    => [
+                [ 'role' => 'system', 'content' => $prompt['system'] ],
+                [ 'role' => 'user',   'content' => $prompt['user']   ],
             ],
-            'temperature'=>0.7,
-            'max_tokens'=>2000,
+            'temperature' => 0.7,
+            // 4096 tokens avoids truncated JSON for recipes with many steps/FAQs.
+            'max_tokens'  => 4096,
         ];
         $args = [
             'headers'=>[
@@ -589,13 +590,48 @@ class Delice_Recipe_AI {
     }
 
     /**
-     * Clear cache by keyword or all.
+     * Clear AI-generated recipe cache.
+     *
+     * When $keywords is supplied the transient for all prompt combinations that
+     * include that keyword string is deleted.  Because the full prompt array is
+     * hashed we can only delete the exact match; for a broader purge pass null
+     * to delete all plugin transients via a pattern scan.
+     *
+     * @param string|null $keywords Keyword string used when generating the recipe, or null for full purge.
+     * @return bool
      */
-    public function clear_cache($keywords=null) {
-        if($keywords) {
-            return delete_transient('delice_recipe_ai_'.md5(wp_json_encode(['keyword'=>$keywords])));
+    public function clear_cache( $keywords = null ) {
+        global $wpdb;
+
+        if ( $keywords ) {
+            // Build the same base prompt array that generate_recipe() would use so
+            // the MD5 key matches what was stored.
+            $prompt_sample = array( 'keyword' => $keywords );
+            $cache_key     = 'delice_recipe_ai_' . md5( wp_json_encode( $prompt_sample ) );
+            return delete_transient( $cache_key );
         }
-        return true;
+
+        // Full purge: remove all transients whose option name starts with our prefix.
+        $prefix   = '_transient_delice_recipe_ai_';
+        $like     = $wpdb->esc_like( $prefix ) . '%';
+        $deleted  = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $like
+            )
+        );
+
+        // Also remove the timeout entries.
+        $timeout_prefix = '_transient_timeout_delice_recipe_ai_';
+        $timeout_like   = $wpdb->esc_like( $timeout_prefix ) . '%';
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $timeout_like
+            )
+        );
+
+        return $deleted !== false;
     }
 }
 }

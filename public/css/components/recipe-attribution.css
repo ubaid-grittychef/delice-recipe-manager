@@ -7,6 +7,8 @@
   background: #f8fafc;
   border-radius: 8px;
   border-left: 4px solid #3b82f6;
+  position: relative;
+  z-index: 1;
 }
 
 .delice-recipe-attribution-item {
@@ -51,6 +53,37 @@
   width: 16px;
   height: 16px;
   color: #6b7280;
+}
+
+/* Action buttons for rating */
+.delice-recipe-action-buttons {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.delice-recipe-action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.delice-recipe-action-button:hover {
+  background: #ea580c;
+}
+
+.delice-recipe-action-button i {
+  font-size: 16px;
 }
 
 /* Toast notifications */
@@ -155,6 +188,10 @@
     right: 10px;
     left: 10px;
     width: auto;
+  }
+  
+  .delice-recipe-action-buttons {
+    flex-direction: column;
   }
 }
 

@@ -57,19 +57,21 @@ class Delice_Recipe_Manager {
         $admin     = new Delice_Recipe_Admin();
         $nutrition = new Delice_Recipe_Nutrition();
 
-        // Admin assets
-        $this->loader->add_action('admin_enqueue_scripts', $admin,     'enqueue_styles');
-        $this->loader->add_action('admin_enqueue_scripts', $admin,     'enqueue_scripts');
+        // Admin assets – enqueue_styles / enqueue_scripts are NOT registered in
+        // the constructor so they go through the loader as normal.
+        $this->loader->add_action('admin_enqueue_scripts', $admin, 'enqueue_styles');
+        $this->loader->add_action('admin_enqueue_scripts', $admin, 'enqueue_scripts');
 
-        // Menus & settings
-        $this->loader->add_action('admin_menu',             $admin,     'add_plugin_admin_menu');
-        $this->loader->add_action('admin_init',             $admin,     'register_settings');
+        // admin_menu, admin_init, add_meta_boxes, and save_post_* are already
+        // hooked in Delice_Recipe_Admin::__construct().  Skip them here.
 
-        // Meta boxes
-        $this->loader->add_action('add_meta_boxes',         $admin,     'add_recipe_meta_boxes');
-        $this->loader->add_action('save_post',              $admin,     'save_recipe_meta');
-        $this->loader->add_action('add_meta_boxes',         $nutrition, 'add_nutrition_meta_box');
-        $this->loader->add_action('save_post',              $nutrition, 'save_nutrition_meta');
+        // Meta boxes.
+        // NOTE: add_recipe_meta_boxes and save_recipe_meta are ALREADY registered
+        // inside Delice_Recipe_Admin::__construct() (via save_post_delice_recipe /
+        // save_post_post hooks).  We must NOT add them again here through the
+        // loader to prevent duplicate saves and extra DB calls.
+        $this->loader->add_action('add_meta_boxes', $nutrition, 'add_nutrition_meta_box');
+        $this->loader->add_action('save_post',      $nutrition, 'save_nutrition_meta');
 
         // AJAX
         delice_register_ajax_handlers();
