@@ -453,7 +453,7 @@ class Delice_Recipe_Admin {
         delete_transient( $cache_key );
         delete_site_transient( 'update_plugins' );
 
-        wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&delice_cache_cleared=1' ) );
+        wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings-hub&delice_cache_cleared=1' ) );
         exit;
     }
 
@@ -970,7 +970,7 @@ class Delice_Recipe_Admin {
         $page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
         // Notice after "Clear Cache & Check Now".
-        if ( isset( $_GET['delice_cache_cleared'] ) && '1' === $_GET['delice_cache_cleared'] && 'delice-recipe-settings' === $page ) {
+        if ( isset( $_GET['delice_cache_cleared'] ) && '1' === $_GET['delice_cache_cleared'] && 'delice-recipe-settings-hub' === $page ) {
             ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php _e( 'Update cache cleared. Fresh release data has been fetched from GitHub.', 'delice-recipe-manager' ); ?></p>
@@ -978,7 +978,7 @@ class Delice_Recipe_Admin {
             <?php
         }
 
-        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] && $page === 'delice-recipe-settings' ) {
+        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] && $page === 'delice-recipe-settings-hub' ) {
             ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php _e('Settings saved successfully!', 'delice-recipe-manager'); ?></p>
