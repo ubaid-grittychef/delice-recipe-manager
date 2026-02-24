@@ -418,93 +418,70 @@ class Delice_Recipe_Admin {
     }
 
     /**
-     * Add meta boxes for recipe posts (both custom type and migrated)
+     * Add meta boxes for recipe posts (both custom type and migrated).
+     *
+     * For the 'post' post type we only show recipe meta boxes when the post is
+     * a migrated recipe (has recipe meta).  This avoids cluttering every
+     * regular blog post with recipe fields.
      */
     public function add_recipe_meta_boxes() {
-        // Add to custom post type
-        add_meta_box(
-            'delice_recipe_details',
-            __('Détails de la recette', 'delice-recipe-manager'),
-            array($this, 'render_recipe_details_meta_box'),
-            'delice_recipe',
-            'normal',
-            'high'
-        );
-        
-        // Add to regular posts that have recipe metadata
-        add_meta_box(
-            'delice_recipe_details_post',
-            __('Détails de la recette', 'delice-recipe-manager'),
-            array($this, 'render_recipe_details_meta_box'),
-            'post',
-            'normal',
-            'high'
-        );
-        
-        // Ingredients
-        add_meta_box(
-            'delice_recipe_ingredients',
-            __('Ingrédients', 'delice-recipe-manager'),
-            array($this, 'render_ingredients_meta_box'),
-            'delice_recipe',
-            'normal',
-            'high'
-        );
-        
-        add_meta_box(
-            'delice_recipe_ingredients_post',
-            __('Ingrédients', 'delice-recipe-manager'),
-            array($this, 'render_ingredients_meta_box'),
-            'post',
-            'normal',
-            'high'
-        );
-        
-        // Instructions
-        add_meta_box(
-            'delice_recipe_instructions',
-            __('Instructions', 'delice-recipe-manager'),
-            array($this, 'render_instructions_meta_box'),
-            'delice_recipe',
-            'normal',
-            'high'
-        );
-        
-        add_meta_box(
-            'delice_recipe_instructions_post',
-            __('Instructions', 'delice-recipe-manager'),
-            array($this, 'render_instructions_meta_box'),
-            'post',
-            'normal',
-            'high'
-        );
-        
-        // Taxonomies (only for custom post type)
+        global $post;
+
+        // Always register for the custom post type.
+        $post_types = array( 'delice_recipe' );
+
+        // For regular posts only add boxes when the post carries recipe data.
+        if ( $post && $post->post_type === 'post' && $this->is_recipe_post( $post ) ) {
+            $post_types[] = 'post';
+        }
+
+        foreach ( $post_types as $post_type ) {
+            $suffix = ( $post_type === 'post' ) ? '_post' : '';
+
+            add_meta_box(
+                'delice_recipe_details' . $suffix,
+                __( 'Détails de la recette', 'delice-recipe-manager' ),
+                array( $this, 'render_recipe_details_meta_box' ),
+                $post_type,
+                'normal',
+                'high'
+            );
+
+            add_meta_box(
+                'delice_recipe_ingredients' . $suffix,
+                __( 'Ingrédients', 'delice-recipe-manager' ),
+                array( $this, 'render_ingredients_meta_box' ),
+                $post_type,
+                'normal',
+                'high'
+            );
+
+            add_meta_box(
+                'delice_recipe_instructions' . $suffix,
+                __( 'Instructions', 'delice-recipe-manager' ),
+                array( $this, 'render_instructions_meta_box' ),
+                $post_type,
+                'normal',
+                'high'
+            );
+
+            add_meta_box(
+                'delice_recipe_notes' . $suffix,
+                __( 'Notes', 'delice-recipe-manager' ),
+                array( $this, 'render_notes_meta_box' ),
+                $post_type,
+                'normal',
+                'default'
+            );
+        }
+
+        // Taxonomy box only for the custom post type.
         add_meta_box(
             'delice_recipe_taxonomies',
-            __('Categories & Tags', 'delice-recipe-manager'),
-            array($this, 'render_taxonomies_meta_box'),
+            __( 'Categories & Tags', 'delice-recipe-manager' ),
+            array( $this, 'render_taxonomies_meta_box' ),
             'delice_recipe',
             'side',
-            'default'
-        );
-        
-        // Notes
-        add_meta_box(
-            'delice_recipe_notes',
-            __('Notes', 'delice-recipe-manager'),
-            array($this, 'render_notes_meta_box'),
-            'delice_recipe',
-            'normal',
-            'default'
-        );
-        
-        add_meta_box(
-            'delice_recipe_notes_post',
-            __('Notes', 'delice-recipe-manager'),
-            array($this, 'render_notes_meta_box'),
-            'post',
-            'normal',
             'default'
         );
     }
@@ -528,36 +505,36 @@ class Delice_Recipe_Admin {
         ?>
         <div class="delice-recipe-meta-box">
             <div class="delice-recipe-field">
-                <label for="delice_recipe_prep_time"><?php _e('Temps de préparation (minutes)', 'delice-recipe-manager'); ?></label>
+                <label for="delice_recipe_prep_time"><?php esc_html_e('Temps de préparation (minutes)', 'delice-recipe-manager'); ?></label>
                 <input type="number" id="delice_recipe_prep_time" name="delice_recipe_prep_time" value="<?php echo esc_attr($prep_time); ?>" min="0">
             </div>
-            
+
             <div class="delice-recipe-field">
-                <label for="delice_recipe_cook_time"><?php _e('Temps de cuisson (minutes)', 'delice-recipe-manager'); ?></label>
+                <label for="delice_recipe_cook_time"><?php esc_html_e('Temps de cuisson (minutes)', 'delice-recipe-manager'); ?></label>
                 <input type="number" id="delice_recipe_cook_time" name="delice_recipe_cook_time" value="<?php echo esc_attr($cook_time); ?>" min="0">
             </div>
-            
+
             <div class="delice-recipe-field">
-                <label for="delice_recipe_total_time"><?php _e('Temps total (minutes)', 'delice-recipe-manager'); ?></label>
+                <label for="delice_recipe_total_time"><?php esc_html_e('Temps total (minutes)', 'delice-recipe-manager'); ?></label>
                 <input type="number" id="delice_recipe_total_time" name="delice_recipe_total_time" value="<?php echo esc_attr($total_time); ?>" min="0">
             </div>
-            
+
             <div class="delice-recipe-field">
-                <label for="delice_recipe_servings"><?php _e('Nombre de portions', 'delice-recipe-manager'); ?></label>
+                <label for="delice_recipe_servings"><?php esc_html_e('Nombre de portions', 'delice-recipe-manager'); ?></label>
                 <input type="number" id="delice_recipe_servings" name="delice_recipe_servings" value="<?php echo esc_attr($servings); ?>" min="1">
             </div>
-            
+
             <div class="delice-recipe-field">
-                <label for="delice_recipe_calories"><?php _e('Calories par portion', 'delice-recipe-manager'); ?></label>
+                <label for="delice_recipe_calories"><?php esc_html_e('Calories par portion', 'delice-recipe-manager'); ?></label>
                 <input type="number" id="delice_recipe_calories" name="delice_recipe_calories" value="<?php echo esc_attr($calories); ?>" min="0">
             </div>
-            
+
             <div class="delice-recipe-field">
-                <label for="delice_recipe_difficulty"><?php _e('Difficulté', 'delice-recipe-manager'); ?></label>
+                <label for="delice_recipe_difficulty"><?php esc_html_e('Difficulté', 'delice-recipe-manager'); ?></label>
                 <select id="delice_recipe_difficulty" name="delice_recipe_difficulty">
-                    <option value="easy" <?php selected($difficulty, 'easy'); ?>><?php _e('Facile', 'delice-recipe-manager'); ?></option>
-                    <option value="medium" <?php selected($difficulty, 'medium'); ?>><?php _e('Moyen', 'delice-recipe-manager'); ?></option>
-                    <option value="hard" <?php selected($difficulty, 'hard'); ?>><?php _e('Difficile', 'delice-recipe-manager'); ?></option>
+                    <option value="easy" <?php selected($difficulty, 'easy'); ?>><?php esc_html_e('Facile', 'delice-recipe-manager'); ?></option>
+                    <option value="medium" <?php selected($difficulty, 'medium'); ?>><?php esc_html_e('Moyen', 'delice-recipe-manager'); ?></option>
+                    <option value="hard" <?php selected($difficulty, 'hard'); ?>><?php esc_html_e('Difficile', 'delice-recipe-manager'); ?></option>
                 </select>
             </div>
         </div>
@@ -577,24 +554,24 @@ class Delice_Recipe_Admin {
             <div id="delice-recipe-ingredients-container">
                 <?php foreach ($ingredients as $index => $ingredient) : ?>
                 <div class="delice-recipe-ingredient-row">
-                    <input type="text" class="ingredient-name" name="delice_recipe_ingredients[<?php echo $index; ?>][name]" 
-                           placeholder="<?php _e('Ingrédient', 'delice-recipe-manager'); ?>" 
-                           value="<?php echo esc_attr($ingredient['name']); ?>">
-                    
-                    <input type="text" class="ingredient-amount" name="delice_recipe_ingredients[<?php echo $index; ?>][amount]" 
-                           placeholder="<?php _e('Quantité', 'delice-recipe-manager'); ?>" 
-                           value="<?php echo esc_attr($ingredient['amount']); ?>">
-                    
-                    <input type="text" class="ingredient-unit" name="delice_recipe_ingredients[<?php echo $index; ?>][unit]" 
-                           placeholder="<?php _e('Unité', 'delice-recipe-manager'); ?>" 
-                           value="<?php echo esc_attr($ingredient['unit']); ?>">
-                    
-                    <button type="button" class="button remove-ingredient"><?php _e('Supprimer', 'delice-recipe-manager'); ?></button>
+                    <input type="text" class="ingredient-name" name="delice_recipe_ingredients[<?php echo absint( $index ); ?>][name]"
+                           placeholder="<?php esc_attr_e('Ingrédient', 'delice-recipe-manager'); ?>"
+                           value="<?php echo esc_attr( isset( $ingredient['name'] ) ? $ingredient['name'] : '' ); ?>">
+
+                    <input type="text" class="ingredient-amount" name="delice_recipe_ingredients[<?php echo absint( $index ); ?>][amount]"
+                           placeholder="<?php esc_attr_e('Quantité', 'delice-recipe-manager'); ?>"
+                           value="<?php echo esc_attr( isset( $ingredient['amount'] ) ? $ingredient['amount'] : '' ); ?>">
+
+                    <input type="text" class="ingredient-unit" name="delice_recipe_ingredients[<?php echo absint( $index ); ?>][unit]"
+                           placeholder="<?php esc_attr_e('Unité', 'delice-recipe-manager'); ?>"
+                           value="<?php echo esc_attr( isset( $ingredient['unit'] ) ? $ingredient['unit'] : '' ); ?>">
+
+                    <button type="button" class="button remove-ingredient"><?php esc_html_e('Supprimer', 'delice-recipe-manager'); ?></button>
                 </div>
                 <?php endforeach; ?>
             </div>
             
-            <button type="button" id="add-ingredient" class="button"><?php _e('Ajouter un ingrédient', 'delice-recipe-manager'); ?></button>
+            <button type="button" id="add-ingredient" class="button"><?php esc_html_e('Ajouter un ingrédient', 'delice-recipe-manager'); ?></button>
         </div>
         <?php
     }
@@ -611,20 +588,21 @@ class Delice_Recipe_Admin {
         <div class="delice-recipe-meta-box">
             <div id="delice-recipe-instructions-container">
                 <?php foreach ($instructions as $instruction) : ?>
+                <?php $step = absint( isset( $instruction['step'] ) ? $instruction['step'] : 0 ); ?>
                 <div class="delice-recipe-instruction-row">
-                    <span class="instruction-step"><?php echo $instruction['step']; ?></span>
-                    
-                    <textarea class="instruction-text" name="delice_recipe_instructions[<?php echo $instruction['step']; ?>][text]" 
-                              placeholder="<?php _e('Instruction', 'delice-recipe-manager'); ?>"><?php echo esc_textarea($instruction['text']); ?></textarea>
-                    
-                    <input type="hidden" name="delice_recipe_instructions[<?php echo $instruction['step']; ?>][step]" value="<?php echo $instruction['step']; ?>">
-                    
-                    <button type="button" class="button remove-instruction"><?php _e('Supprimer', 'delice-recipe-manager'); ?></button>
+                    <span class="instruction-step"><?php echo esc_html( $step ); ?></span>
+
+                    <textarea class="instruction-text" name="delice_recipe_instructions[<?php echo esc_attr( $step ); ?>][text]"
+                              placeholder="<?php esc_attr_e('Instruction', 'delice-recipe-manager'); ?>"><?php echo esc_textarea( isset( $instruction['text'] ) ? $instruction['text'] : '' ); ?></textarea>
+
+                    <input type="hidden" name="delice_recipe_instructions[<?php echo esc_attr( $step ); ?>][step]" value="<?php echo esc_attr( $step ); ?>">
+
+                    <button type="button" class="button remove-instruction"><?php esc_html_e('Supprimer', 'delice-recipe-manager'); ?></button>
                 </div>
                 <?php endforeach; ?>
             </div>
-            
-            <button type="button" id="add-instruction" class="button"><?php _e('Ajouter une instruction', 'delice-recipe-manager'); ?></button>
+
+            <button type="button" id="add-instruction" class="button"><?php esc_html_e('Ajouter une instruction', 'delice-recipe-manager'); ?></button>
         </div>
         <?php
     }
@@ -949,7 +927,8 @@ class Delice_Recipe_Admin {
      * Show admin notices for settings validation
      */
     public function show_settings_notices() {
-        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] && isset($_GET['page']) && $_GET['page'] === 'delice-recipe-settings') {
+        $page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] && $page === 'delice-recipe-settings' ) {
             ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php _e('Settings saved successfully!', 'delice-recipe-manager'); ?></p>

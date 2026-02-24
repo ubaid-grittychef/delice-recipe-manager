@@ -42,72 +42,89 @@ function delice_recipe_register_meta() {
     // Define post types that support recipe meta
     $post_types = array('post', 'delice_recipe');
     
+    // Capability required to write recipe meta via the REST API.
+    $edit_recipe_meta = function( $allowed, $meta_key, $post_id ) {
+        return current_user_can( 'edit_post', $post_id );
+    };
+
     foreach ($post_types as $post_type) {
         // Numeric / string fields
         register_meta( $post_type, '_delice_recipe_prep_time', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_recipe_cook_time', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_recipe_total_time', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_recipe_servings', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_recipe_calories', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_recipe_difficulty', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'string',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'string',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_recipe_notes', array(
             'show_in_rest'      => true,
             'single'            => true,
             'type'              => 'string',
-            'sanitize_callback' => 'sanitize_text_field',
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'auth_callback'     => $edit_recipe_meta,
         ) );
 
         // Migration tracking fields
         register_meta( $post_type, '_delice_recipe_migrated', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'string',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'string',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_recipe_original_id', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => $edit_recipe_meta,
         ) );
         register_meta( $post_type, '_delice_migration_new_id', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => $edit_recipe_meta,
         ) );
 
-        // Rating fields
+        // Rating fields – read-only via REST (managed server-side only).
         register_meta( $post_type, '_delice_recipe_rating_average', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => '__return_false', // computed automatically; no external writes.
         ) );
         register_meta( $post_type, '_delice_recipe_rating_count', array(
-            'show_in_rest' => true,
-            'single'       => true,
-            'type'         => 'number',
+            'show_in_rest'  => true,
+            'single'        => true,
+            'type'          => 'number',
+            'auth_callback' => '__return_false',
         ) );
 
         // Nutrition stored as JSON in string
@@ -116,13 +133,15 @@ function delice_recipe_register_meta() {
             'single'            => true,
             'type'              => 'string',
             'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback'     => $edit_recipe_meta,
         ) );
 
         // Ingredients: array of objects { name, amount, unit }
         register_meta( $post_type, '_delice_recipe_ingredients', array(
-            'single'       => true,
-            'type'         => 'array',
-            'show_in_rest' => array(
+            'single'        => true,
+            'type'          => 'array',
+            'auth_callback' => $edit_recipe_meta,
+            'show_in_rest'  => array(
                 'schema' => array(
                     'type'  => 'array',
                     'items' => array(
@@ -139,9 +158,10 @@ function delice_recipe_register_meta() {
 
         // Instructions: array of objects { step, text }
         register_meta( $post_type, '_delice_recipe_instructions', array(
-            'single'       => true,
-            'type'         => 'array',
-            'show_in_rest' => array(
+            'single'        => true,
+            'type'          => 'array',
+            'auth_callback' => $edit_recipe_meta,
+            'show_in_rest'  => array(
                 'schema' => array(
                     'type'  => 'array',
                     'items' => array(
@@ -157,9 +177,10 @@ function delice_recipe_register_meta() {
 
         // FAQs: array of objects { question, answer }
         register_meta( $post_type, '_delice_recipe_faqs', array(
-            'single'       => true,
-            'type'         => 'array',
-            'show_in_rest' => array(
+            'single'        => true,
+            'type'          => 'array',
+            'auth_callback' => $edit_recipe_meta,
+            'show_in_rest'  => array(
                 'schema' => array(
                     'type'  => 'array',
                     'items' => array(
@@ -186,10 +207,9 @@ function delice_recipe_add_ajax_data() {
     }
     ?>
     <script>
-    var deliceRecipe = {
-        ajaxUrl: '<?php echo esc_js( admin_url('admin-ajax.php') ); ?>',
-        nonce:   '<?php echo esc_js( wp_create_nonce('delice_recipe_ai_generate') ); ?>'
-    };
+    var deliceRecipe = deliceRecipe || {};
+    deliceRecipe.ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
+    deliceRecipe.nonce   = '<?php echo esc_js( wp_create_nonce( 'delice_hybrid_nonce' ) ); ?>';
     </script>
     <?php
 }
@@ -284,10 +304,14 @@ function delice_recipe_manager_init() {
     // Core plugin initialization
     $manager = new Delice_Recipe_Manager();
     $manager->run();
-    
-    // Initialize E-E-A-T features (v1.1.0+)
-    if (file_exists(DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-eeat.php')) {
-        require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-eeat.php';
+
+    // Initialize E-E-A-T features (v1.1.0+).
+    // The class must be both loaded AND instantiated via get_instance() so that
+    // its hooks (admin menu, assets, AJAX handlers) are registered.
+    $eeat_file = DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-eeat.php';
+    if ( file_exists( $eeat_file ) ) {
+        require_once $eeat_file;
+        Delice_Recipe_EEAT::get_instance();
     }
 }
 add_action( 'init', 'delice_recipe_manager_init', 5 );

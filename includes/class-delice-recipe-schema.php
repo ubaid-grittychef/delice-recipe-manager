@@ -66,7 +66,12 @@ class Delice_Recipe_Schema {
         }
 
         $recipe_post = get_post( $recipe_id );
-        if ( ! $recipe_post || 'delice_recipe' !== $recipe_post->post_type ) {
+        if ( ! $recipe_post ) {
+            return array();
+        }
+        // Accept both the custom post type and regular posts that carry recipe meta (migrated recipes).
+        $allowed_types = array( 'delice_recipe', 'post' );
+        if ( ! in_array( $recipe_post->post_type, $allowed_types, true ) ) {
             return array();
         }
 
@@ -275,19 +280,38 @@ class Delice_Recipe_Schema {
                 }
             }
 
-            if ( $cuisine = get_post_meta( $recipe_id, '_delice_recipe_cuisine', true ) ) {
-                $schema['recipeCuisine'] = $cuisine;
-            }
-            if ( $category = get_post_meta( $recipe_id, '_delice_recipe_course', true ) ) {
-                $schema['recipeCategory'] = $category;
+            // Read cuisine from taxonomy terms (not meta – the plugin stores them as terms).
+            $cuisine_terms = wp_get_object_terms( $recipe_id, 'delice_cuisine', array( 'fields' => 'names' ) );
+            if ( ! is_wp_error( $cuisine_terms ) && ! empty( $cuisine_terms ) ) {
+                $schema['recipeCuisine'] = implode( ', ', $cuisine_terms );
             }
 
-            if ( $keywords = get_post_meta( $recipe_id, '_delice_recipe_keywords', true ) && is_array( $keywords ) ) {
-                $joined = implode(', ', $keywords);
+            // Read course/category from taxonomy terms.
+            $course_terms = wp_get_object_terms( $recipe_id, 'delice_course', array( 'fields' => 'names' ) );
+            if ( ! is_wp_error( $course_terms ) && ! empty( $course_terms ) ) {
+                $schema['recipeCategory'] = implode( ', ', $course_terms );
+            }
+
+            // Read keyword terms from taxonomy – note the assignment must be
+            // wrapped in parentheses to avoid PHP operator-precedence bug.
+            $keywords = get_post_meta( $recipe_id, '_delice_recipe_keywords', true );
+            if ( $keywords && is_array( $keywords ) ) {
+                $joined = implode( ', ', array_map( 'sanitize_text_field', $keywords ) );
                 if ( isset( $schema['keywords'] ) ) {
                     $schema['keywords'] .= ', ' . $joined;
                 } else {
-                    $schema['keywords']  = $joined;
+                    $schema['keywords'] = $joined;
+                }
+            }
+
+            // Also pull keyword taxonomy terms.
+            $keyword_terms = wp_get_object_terms( $recipe_id, 'delice_keyword', array( 'fields' => 'names' ) );
+            if ( ! is_wp_error( $keyword_terms ) && ! empty( $keyword_terms ) ) {
+                $term_str = implode( ', ', $keyword_terms );
+                if ( isset( $schema['keywords'] ) && $schema['keywords'] ) {
+                    $schema['keywords'] .= ', ' . $term_str;
+                } else {
+                    $schema['keywords'] = $term_str;
                 }
             }
 

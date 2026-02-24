@@ -9,42 +9,54 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Register AJAX handlers
+ * Register AJAX handlers.
+ *
+ * Called once from Delice_Recipe_Manager::define_admin_hooks() – do NOT also
+ * hook it to 'init' to prevent double-registration.
  */
 function delice_register_ajax_handlers() {
-    add_action('wp_ajax_delice_generate_recipe', 'delice_ajax_generate_recipe');
-    add_action('wp_ajax_delice_generate_bulk_recipes', 'delice_ajax_generate_bulk_recipes');
-    add_action('wp_ajax_delice_purge_recipe_cache', 'delice_ajax_purge_recipe_cache');
-    
-    // Migration AJAX handlers
-    add_action('wp_ajax_delice_migrate_recipes', 'delice_ajax_migrate_recipes');
-    add_action('wp_ajax_delice_migrate_single_recipe', 'delice_ajax_migrate_single_recipe');
-    add_action('wp_ajax_delice_rollback_migration', 'delice_ajax_rollback_migration');
-    add_action('wp_ajax_delice_migration_progress', 'delice_ajax_migration_progress');
-    
-    // Review and Rating AJAX handlers - FIXED action names
-    add_action('wp_ajax_delice_save_rating', 'delice_ajax_save_rating');
-    add_action('wp_ajax_nopriv_delice_save_rating', 'delice_ajax_save_rating');
-    add_action('wp_ajax_delice_save_review', 'delice_ajax_save_review');
-    add_action('wp_ajax_nopriv_delice_save_review', 'delice_ajax_save_review');
-    add_action('wp_ajax_delice_get_reviews', 'delice_ajax_get_reviews');
-    add_action('wp_ajax_nopriv_delice_get_reviews', 'delice_ajax_get_reviews');
-    add_action('wp_ajax_delice_approve_review', 'delice_ajax_approve_review');
-    add_action('wp_ajax_delice_delete_review', 'delice_ajax_delete_review');
-    
-    // Settings AJAX handlers
-    add_action('wp_ajax_delice_update_reviews_setting', 'delice_ajax_update_reviews_setting');
-    
-    // Import/Export AJAX handlers
-    add_action('wp_ajax_delice_export_recipes', 'delice_ajax_export_recipes');
-    add_action('wp_ajax_delice_export_settings', 'delice_ajax_export_settings');
-    add_action('wp_ajax_delice_import_recipes', 'delice_ajax_import_recipes');
-    add_action('wp_ajax_delice_import_settings', 'delice_ajax_import_settings');
-    
-    // Initialize review system
-    new Delice_Recipe_Reviews();
+    // Guard against double-registration (e.g. if the function is ever called
+    // a second time accidentally).
+    static $registered = false;
+    if ( $registered ) {
+        return;
+    }
+    $registered = true;
+
+    add_action( 'wp_ajax_delice_generate_recipe',       'delice_ajax_generate_recipe' );
+    add_action( 'wp_ajax_delice_generate_bulk_recipes', 'delice_ajax_generate_bulk_recipes' );
+    add_action( 'wp_ajax_delice_purge_recipe_cache',    'delice_ajax_purge_recipe_cache' );
+
+    // Migration AJAX handlers.
+    add_action( 'wp_ajax_delice_migrate_recipes',       'delice_ajax_migrate_recipes' );
+    add_action( 'wp_ajax_delice_migrate_single_recipe', 'delice_ajax_migrate_single_recipe' );
+    add_action( 'wp_ajax_delice_rollback_migration',    'delice_ajax_rollback_migration' );
+    add_action( 'wp_ajax_delice_migration_progress',    'delice_ajax_migration_progress' );
+
+    // Review and Rating AJAX handlers.
+    add_action( 'wp_ajax_delice_save_rating',           'delice_ajax_save_rating' );
+    add_action( 'wp_ajax_nopriv_delice_save_rating',    'delice_ajax_save_rating' );
+    add_action( 'wp_ajax_delice_save_review',           'delice_ajax_save_review' );
+    add_action( 'wp_ajax_nopriv_delice_save_review',    'delice_ajax_save_review' );
+    add_action( 'wp_ajax_delice_get_reviews',           'delice_ajax_get_reviews' );
+    add_action( 'wp_ajax_nopriv_delice_get_reviews',    'delice_ajax_get_reviews' );
+    add_action( 'wp_ajax_delice_approve_review',        'delice_ajax_approve_review' );
+    add_action( 'wp_ajax_delice_delete_review',         'delice_ajax_delete_review' );
+
+    // Settings AJAX handlers.
+    add_action( 'wp_ajax_delice_update_reviews_setting', 'delice_ajax_update_reviews_setting' );
+
+    // Import/Export AJAX handlers.
+    add_action( 'wp_ajax_delice_export_recipes',  'delice_ajax_export_recipes' );
+    add_action( 'wp_ajax_delice_export_settings', 'delice_ajax_export_settings' );
+    add_action( 'wp_ajax_delice_import_recipes',  'delice_ajax_import_recipes' );
+    add_action( 'wp_ajax_delice_import_settings', 'delice_ajax_import_settings' );
+
+    // NOTE: Delice_Recipe_Reviews instantiation is deferred; it registers its
+    // own admin_init hook and does a DB check via maybe_create_reviews_table on
+    // 'init'.  We do NOT instantiate it here to avoid running a DB query on
+    // every non-AJAX request.
 }
-add_action('init', 'delice_register_ajax_handlers');
 
 /**
  * AJAX handler for generating a single recipe
@@ -371,12 +383,17 @@ function delice_ajax_migration_progress() {
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'delice_recipe_nonce')) {
             wp_send_json_error(array('message' => __('Security verification failed.', 'delice-recipe-manager')));
         }
-        
+
+        // Verify capability – migration data is admin-only.
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Unauthorized access.', 'delice-recipe-manager' ) ) );
+        }
+
         $migration = new Delice_Recipe_Migration();
         $stats = $migration->get_migration_stats();
-        
+
         wp_send_json_success($stats);
-        
+
     } catch (Exception $e) {
         error_log('Migration Progress Exception: ' . $e->getMessage());
         wp_send_json_error(array('message' => __('Failed to get migration progress.', 'delice-recipe-manager')));
@@ -487,49 +504,60 @@ function delice_ajax_get_dashboard_stats() {
 add_action('wp_ajax_delice_get_dashboard_stats', 'delice_ajax_get_dashboard_stats');
 
 /**
- * AJAX handler for saving settings
+ * AJAX handler for saving settings.
+ *
+ * NOTE: We intentionally do NOT write arbitrary option names from the request.
+ * Instead we delegate to the typed section handler which whitelists every key.
  */
 function delice_ajax_save_settings() {
-    check_ajax_referer('delice_recipe_nonce', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => 'Unauthorized'));
+    check_ajax_referer( 'delice_recipe_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => 'Unauthorized' ) );
     }
-    
-    $section = isset($_POST['section']) ? sanitize_text_field($_POST['section']) : '';
-    $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
-    
-    // Save settings based on section
-    // This is a simplified version - expand based on your needs
-    foreach ($settings as $key => $value) {
-        update_option($key, $value);
-    }
-    
-    wp_send_json_success(array('message' => 'Settings saved successfully'));
+
+    // Delegate to the section handler which applies per-key whitelists.
+    $section  = isset( $_POST['section'] ) ? sanitize_text_field( wp_unslash( $_POST['section'] ) ) : '';
+    $settings = isset( $_POST['settings'] ) && is_array( $_POST['settings'] )
+        ? wp_unslash( $_POST['settings'] )
+        : array();
+
+    delice_save_section_settings( $section, $settings );
+
+    wp_send_json_success( array( 'message' => 'Settings saved successfully' ) );
 }
-add_action('wp_ajax_delice_save_settings', 'delice_ajax_save_settings');
+add_action( 'wp_ajax_delice_save_settings', 'delice_ajax_save_settings' );
 
 /**
- * AJAX handler for saving toggle settings
+ * AJAX handler for saving toggle settings.
+ *
+ * Whitelisted option suffixes only to prevent arbitrary option overwrites.
  */
 function delice_ajax_save_toggle() {
-    check_ajax_referer('delice_recipe_nonce', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => 'Unauthorized'));
+    check_ajax_referer( 'delice_recipe_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => 'Unauthorized' ) );
     }
-    
-    $setting = isset($_POST['setting']) ? sanitize_text_field($_POST['setting']) : '';
-    $value = isset($_POST['value']) ? intval($_POST['value']) : 0;
-    
-    if ($setting) {
-        update_option('delice_recipe_' . $setting, $value);
-        wp_send_json_success(array('message' => 'Setting saved'));
+
+    // Explicitly whitelist allowed toggle settings.
+    $allowed_settings = array(
+        'reviews_enabled',
+        'enable_ai_images',
+        'auto_publish',
+    );
+
+    $setting = isset( $_POST['setting'] ) ? sanitize_key( wp_unslash( $_POST['setting'] ) ) : '';
+    $value   = isset( $_POST['value'] ) ? intval( $_POST['value'] ) : 0;
+
+    if ( $setting && in_array( $setting, $allowed_settings, true ) ) {
+        update_option( 'delice_recipe_' . $setting, $value );
+        wp_send_json_success( array( 'message' => 'Setting saved' ) );
     }
-    
-    wp_send_json_error(array('message' => 'Invalid setting'));
+
+    wp_send_json_error( array( 'message' => 'Invalid setting' ) );
 }
-add_action('wp_ajax_delice_save_toggle', 'delice_ajax_save_toggle');
+add_action( 'wp_ajax_delice_save_toggle', 'delice_ajax_save_toggle' );
 
 /**
  * AJAX handler for toggling reviews
@@ -555,216 +583,275 @@ add_action('wp_ajax_delice_toggle_reviews', 'delice_ajax_toggle_reviews');
  */
 
 /**
- * Save single setting
+ * Save a single named setting.
+ *
+ * All allowed setting names are whitelisted.  Unknown names are rejected.
  */
 function delice_ajax_save_setting() {
-    check_ajax_referer('delice_hybrid_nonce', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => 'Unauthorized'));
+    check_ajax_referer( 'delice_hybrid_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => 'Unauthorized' ) );
     }
-    
-    $setting = isset($_POST['setting']) ? sanitize_text_field($_POST['setting']) : '';
-    $value = isset($_POST['value']) ? sanitize_text_field($_POST['value']) : '';
-    
-    if (!$setting) {
-        wp_send_json_error(array('message' => 'Invalid setting'));
+
+    $setting = isset( $_POST['setting'] ) ? sanitize_key( wp_unslash( $_POST['setting'] ) ) : '';
+    $value   = isset( $_POST['value'] ) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
+
+    if ( ! $setting ) {
+        wp_send_json_error( array( 'message' => 'Invalid setting' ) );
     }
-    
-    // Handle display options (they're stored as array)
-    if (strpos($setting, 'show_') === 0) {
-        $options = get_option('delice_recipe_display_options', array());
-        $options[$setting] = (bool)$value;
-        update_option('delice_recipe_display_options', $options);
+
+    // Display option booleans.
+    $display_bool_keys = array(
+        'show_image', 'show_servings', 'show_prep_time', 'show_cook_time',
+        'show_total_time', 'show_calories', 'show_difficulty', 'show_rating',
+        'show_ingredients', 'show_instructions', 'show_notes', 'show_faqs',
+        'show_nutrition', 'show_print_button', 'show_attribution',
+    );
+    if ( in_array( $setting, $display_bool_keys, true ) ) {
+        $options             = get_option( 'delice_recipe_display_options', array() );
+        $options[ $setting ] = (bool) $value;
+        update_option( 'delice_recipe_display_options', $options );
+        wp_send_json_success( array( 'message' => 'Setting saved' ) );
     }
-    // Handle schema settings
-    elseif (in_array($setting, array('enable_schema', 'use_author'))) {
-        $schema_settings = get_option('delice_recipe_schema_settings', array());
-        $schema_settings[$setting] = (bool)$value;
-        update_option('delice_recipe_schema_settings', $schema_settings);
+
+    // Schema booleans.
+    if ( in_array( $setting, array( 'enable_schema', 'use_author' ), true ) ) {
+        $schema_settings             = get_option( 'delice_recipe_schema_settings', array() );
+        $schema_settings[ $setting ] = (bool) $value;
+        update_option( 'delice_recipe_schema_settings', $schema_settings );
+        wp_send_json_success( array( 'message' => 'Setting saved' ) );
     }
-    // Handle attribution settings
-    elseif (in_array($setting, array('show_submitted_by', 'show_tested_by'))) {
-        $attribution_settings = get_option('delice_recipe_attribution_settings', array());
-        $attribution_settings[$setting] = (bool)$value;
-        update_option('delice_recipe_attribution_settings', $attribution_settings);
+
+    // Attribution booleans.
+    if ( in_array( $setting, array( 'show_submitted_by', 'show_tested_by' ), true ) ) {
+        $attribution_settings             = get_option( 'delice_recipe_attribution_settings', array() );
+        $attribution_settings[ $setting ] = (bool) $value;
+        update_option( 'delice_recipe_attribution_settings', $attribution_settings );
+        wp_send_json_success( array( 'message' => 'Setting saved' ) );
     }
-    // Handle review settings
-    elseif (in_array($setting, array('reviews_enabled', 'auto_approve', 'allow_anonymous', 'allow_images'))) {
-        $review_settings = get_option('delice_recipe_review_settings', array());
-        $review_settings[$setting] = (bool)$value;
-        update_option('delice_recipe_review_settings', $review_settings);
+
+    // Review booleans.
+    if ( in_array( $setting, array( 'reviews_enabled', 'auto_approve', 'allow_anonymous', 'allow_images', 'require_email' ), true ) ) {
+        $review_settings             = get_option( 'delice_recipe_review_settings', array() );
+        $review_settings[ $setting ] = (bool) $value;
+        update_option( 'delice_recipe_review_settings', $review_settings );
+        wp_send_json_success( array( 'message' => 'Setting saved' ) );
     }
-    // Handle individual settings
-    else {
-        update_option('delice_recipe_' . $setting, $value);
+
+    // Scalar individual settings.
+    $allowed_individual = array( 'reviews_enabled', 'enable_ai_images', 'selected_template', 'default_language', 'image_style', 'image_size' );
+    if ( in_array( $setting, $allowed_individual, true ) ) {
+        update_option( 'delice_recipe_' . $setting, $value );
+        wp_send_json_success( array( 'message' => 'Setting saved' ) );
     }
-    
-    wp_send_json_success(array('message' => 'Setting saved'));
+
+    wp_send_json_error( array( 'message' => 'Unknown setting: ' . esc_html( $setting ) ) );
 }
-add_action('wp_ajax_delice_save_setting', 'delice_ajax_save_setting');
+add_action( 'wp_ajax_delice_save_setting', 'delice_ajax_save_setting' );
 
 /**
- * Save all settings
+ * Save all settings – delegates to the whitelisted section handler.
  */
 function delice_ajax_save_all_settings() {
-    check_ajax_referer('delice_hybrid_nonce', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => 'Unauthorized'));
+    check_ajax_referer( 'delice_hybrid_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => 'Unauthorized' ) );
     }
-    
-    $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
-    
-    foreach ($settings as $key => $value) {
-        $sanitized_key = sanitize_key($key);
-        
-        // Handle array values (like translations)
-        if (is_array($value)) {
-            $sanitized_value = array_map('sanitize_text_field', $value);
-        } else {
-            $sanitized_value = sanitize_text_field($value);
+
+    $settings = isset( $_POST['settings'] ) && is_array( $_POST['settings'] )
+        ? wp_unslash( $_POST['settings'] )
+        : array();
+
+    // Determine section from the keys present in the settings array.
+    // For bulk saves we save each recognised group individually.
+    $known_sections = array( 'display', 'templates', 'schema', 'attribution', 'languages', 'advanced', 'openai', 'reviews' );
+    $section        = isset( $_POST['section'] ) ? sanitize_text_field( wp_unslash( $_POST['section'] ) ) : '';
+
+    if ( $section && in_array( $section, $known_sections, true ) ) {
+        delice_save_section_settings( $section, $settings );
+    } else {
+        // Fall back: save each known section that has matching keys.
+        foreach ( $known_sections as $sec ) {
+            delice_save_section_settings( $sec, $settings );
         }
-        
-        update_option($sanitized_key, $sanitized_value);
     }
-    
-    wp_send_json_success(array('message' => 'Settings saved successfully'));
+
+    wp_send_json_success( array( 'message' => 'Settings saved successfully' ) );
 }
-add_action('wp_ajax_delice_save_all_settings', 'delice_ajax_save_all_settings');
+add_action( 'wp_ajax_delice_save_all_settings', 'delice_ajax_save_all_settings' );
 
 /**
- * Save section settings
+ * Shared, whitelisted section-save helper.
+ *
+ * Every writable key is explicitly declared here.  Unknown keys are ignored,
+ * preventing arbitrary option-write attacks.
+ *
+ * @param string $section  Section name.
+ * @param array  $settings Raw (but wp_unslashed) settings array.
+ */
+function delice_save_section_settings( $section, array $settings ) {
+    switch ( $section ) {
+        case 'display':
+            $allowed_display_keys = array(
+                'show_image', 'show_servings', 'show_prep_time', 'show_cook_time',
+                'show_total_time', 'show_calories', 'show_difficulty', 'show_rating',
+                'show_ingredients', 'show_instructions', 'show_notes', 'show_faqs',
+                'show_nutrition', 'show_print_button', 'show_attribution',
+            );
+            $display_options = get_option( 'delice_recipe_display_options', array() );
+            foreach ( $settings as $key => $value ) {
+                $clean_key = sanitize_key( $key );
+                if ( in_array( $clean_key, $allowed_display_keys, true ) ) {
+                    $display_options[ $clean_key ] = (bool) $value;
+                }
+            }
+            update_option( 'delice_recipe_display_options', $display_options );
+            break;
+
+        case 'templates':
+            $allowed_templates = array( 'default', 'elegant' );
+            if ( isset( $settings['delice_recipe_selected_template'] ) ) {
+                $tpl = sanitize_text_field( $settings['delice_recipe_selected_template'] );
+                if ( in_array( $tpl, $allowed_templates, true ) ) {
+                    update_option( 'delice_recipe_selected_template', $tpl );
+                }
+            }
+            break;
+
+        case 'schema':
+            $schema_settings = get_option( 'delice_recipe_schema_settings', array() );
+            $bool_keys = array( 'enable_schema', 'use_author' );
+            $text_keys = array( 'publisher_name', 'default_author' );
+            $url_keys  = array( 'publisher_logo' );
+            foreach ( $settings as $raw_key => $value ) {
+                $key = str_replace( 'delice_recipe_schema_', '', sanitize_key( $raw_key ) );
+                if ( in_array( $key, $bool_keys, true ) ) {
+                    $schema_settings[ $key ] = (bool) $value;
+                } elseif ( in_array( $key, $text_keys, true ) ) {
+                    $schema_settings[ $key ] = sanitize_text_field( $value );
+                } elseif ( in_array( $key, $url_keys, true ) ) {
+                    $schema_settings[ $key ] = esc_url_raw( $value );
+                }
+            }
+            update_option( 'delice_recipe_schema_settings', $schema_settings );
+            break;
+
+        case 'attribution':
+            $attribution_settings = get_option( 'delice_recipe_attribution_settings', array() );
+            $bool_keys = array( 'show_submitted_by', 'show_tested_by' );
+            $text_keys = array( 'kitchen_name' );
+            $url_keys  = array( 'kitchen_url' );
+            foreach ( $settings as $raw_key => $value ) {
+                $key = str_replace( 'delice_recipe_', '', sanitize_key( $raw_key ) );
+                if ( in_array( $key, $bool_keys, true ) ) {
+                    $attribution_settings[ $key ] = (bool) $value;
+                } elseif ( in_array( $key, $text_keys, true ) ) {
+                    $attribution_settings[ $key ] = sanitize_text_field( $value );
+                } elseif ( in_array( $key, $url_keys, true ) ) {
+                    $attribution_settings[ $key ] = esc_url_raw( $value );
+                }
+            }
+            update_option( 'delice_recipe_attribution_settings', $attribution_settings );
+            break;
+
+        case 'languages':
+            if ( isset( $settings['delice_default_language'] ) ) {
+                update_option( 'delice_recipe_default_language', sanitize_text_field( $settings['delice_default_language'] ) );
+            }
+            if ( isset( $settings['translations'] ) && is_array( $settings['translations'] ) ) {
+                $lang                   = get_option( 'delice_recipe_default_language', 'en_US' );
+                $sanitized_translations = array_map( 'sanitize_text_field', $settings['translations'] );
+                update_option( 'delice_recipe_translations_' . sanitize_key( $lang ), $sanitized_translations );
+            }
+            break;
+
+        case 'advanced':
+            // Only a specific, audited list of advanced options may be written.
+            $allowed_advanced = array(
+                'delice_recipe_default_language',
+                'delice_recipe_reviews_enabled',
+                'delice_recipe_enable_ai_images',
+                'delice_recipe_image_style',
+                'delice_recipe_image_size',
+                'delice_recipe_selected_template',
+            );
+            foreach ( $settings as $raw_key => $value ) {
+                $key = sanitize_key( $raw_key );
+                if ( in_array( $key, $allowed_advanced, true ) ) {
+                    update_option( $key, sanitize_text_field( $value ) );
+                }
+            }
+            break;
+
+        case 'openai':
+            if ( isset( $settings['delice_recipe_ai_api_key'] ) ) {
+                update_option( 'delice_recipe_ai_api_key', sanitize_text_field( $settings['delice_recipe_ai_api_key'] ) );
+            }
+            if ( isset( $settings['delice_recipe_enable_ai_images'] ) ) {
+                update_option( 'delice_recipe_enable_ai_images', (bool) $settings['delice_recipe_enable_ai_images'] );
+            }
+            if ( isset( $settings['delice_recipe_image_style'] ) ) {
+                $allowed_styles = array( 'vivid', 'natural' );
+                $style = sanitize_text_field( $settings['delice_recipe_image_style'] );
+                if ( in_array( $style, $allowed_styles, true ) ) {
+                    update_option( 'delice_recipe_image_style', $style );
+                }
+            }
+            if ( isset( $settings['delice_recipe_image_size'] ) ) {
+                $allowed_sizes = array( '1024x1024', '1792x1024', '1024x1792', '800x600', '600x600', '700x700', '600x800', '900x600' );
+                $size = sanitize_text_field( $settings['delice_recipe_image_size'] );
+                if ( in_array( $size, $allowed_sizes, true ) ) {
+                    update_option( 'delice_recipe_image_size', $size );
+                }
+            }
+            break;
+
+        case 'reviews':
+            $review_settings = get_option( 'delice_recipe_review_settings', array() );
+            $bool_keys = array( 'reviews_enabled', 'auto_approve', 'allow_anonymous', 'allow_images', 'require_email' );
+            foreach ( $settings as $raw_key => $value ) {
+                $key = str_replace( 'delice_recipe_', '', sanitize_key( $raw_key ) );
+                if ( in_array( $key, $bool_keys, true ) ) {
+                    $review_settings[ $key ] = (bool) $value;
+                } elseif ( 'max_image_size' === $key ) {
+                    $review_settings['max_image_size'] = max( 1, min( 50, intval( $value ) ) );
+                }
+            }
+            update_option( 'delice_recipe_review_settings', $review_settings );
+            break;
+
+        // Unknown sections are silently ignored.
+    }
+}
+
+/**
+ * Save section settings AJAX handler.
  */
 function delice_ajax_save_section() {
-    check_ajax_referer('delice_hybrid_nonce', 'nonce');
-    
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => 'Unauthorized'));
+    check_ajax_referer( 'delice_hybrid_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => 'Unauthorized' ) );
     }
-    
-    $section = isset($_POST['section']) ? sanitize_text_field($_POST['section']) : '';
-    $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
-    
-    // Handle different section types
-    switch ($section) {
-        case 'display':
-            // Display options are stored as array
-            $display_options = array();
-            foreach ($settings as $key => $value) {
-                if (strpos($key, 'show_') === 0 || strpos($key, 'display_') === 0) {
-                    $display_options[sanitize_key($key)] = (bool)$value;
-                }
-            }
-            update_option('delice_recipe_display_options', $display_options);
-            break;
-            
-        case 'templates':
-            // Template selection
-            if (isset($settings['delice_recipe_selected_template'])) {
-                update_option('delice_recipe_selected_template', sanitize_text_field($settings['delice_recipe_selected_template']));
-            }
-            break;
-            
-        case 'schema':
-            // Schema settings are stored as array
-            $schema_settings = array();
-            foreach ($settings as $key => $value) {
-                if (strpos($key, 'delice_recipe_schema_') === 0) {
-                    $clean_key = str_replace('delice_recipe_schema_', '', $key);
-                    if (in_array($clean_key, array('enable_schema', 'use_author'))) {
-                        $schema_settings[$clean_key] = (bool)$value;
-                    } else {
-                        $schema_settings[$clean_key] = sanitize_text_field($value);
-                    }
-                }
-            }
-            update_option('delice_recipe_schema_settings', $schema_settings);
-            break;
-            
-        case 'attribution':
-            // Attribution settings are stored as array
-            $attribution_settings = array();
-            foreach ($settings as $key => $value) {
-                if (strpos($key, 'delice_recipe_') === 0) {
-                    $clean_key = str_replace('delice_recipe_', '', $key);
-                    if (in_array($clean_key, array('show_submitted_by', 'show_tested_by'))) {
-                        $attribution_settings[$clean_key] = (bool)$value;
-                    } else {
-                        $attribution_settings[$clean_key] = sanitize_text_field($value);
-                    }
-                }
-            }
-            update_option('delice_recipe_attribution_settings', $attribution_settings);
-            break;
-            
-        case 'languages':
-            // Language and translations
-            foreach ($settings as $key => $value) {
-                if ($key === 'delice_default_language') {
-                    update_option('delice_recipe_default_language', sanitize_text_field($value));
-                } elseif ($key === 'translations' && is_array($value)) {
-                    $lang = get_option('delice_recipe_default_language', 'en_US');
-                    $sanitized_translations = array_map('sanitize_text_field', $value);
-                    update_option('delice_recipe_translations_' . $lang, $sanitized_translations);
-                }
-            }
-            break;
-            
-        case 'advanced':
-            // Advanced settings - individual options
-            foreach ($settings as $key => $value) {
-                if (strpos($key, 'delice_recipe_') === 0) {
-                    update_option(sanitize_key($key), sanitize_text_field($value));
-                }
-            }
-            break;
-            
-        case 'openai':
-            // OpenAI settings
-            foreach ($settings as $key => $value) {
-                if ($key === 'delice_recipe_ai_api_key') {
-                    update_option('delice_recipe_ai_api_key', sanitize_text_field($value));
-                } elseif ($key === 'delice_recipe_enable_ai_images') {
-                    update_option('delice_recipe_enable_ai_images', (bool)$value);
-                }
-            }
-            break;
-            
-        case 'reviews':
-            // Review settings are stored as array
-            $review_settings = array();
-            foreach ($settings as $key => $value) {
-                if (strpos($key, 'delice_recipe_') === 0) {
-                    $clean_key = str_replace('delice_recipe_', '', $key);
-                    if (in_array($clean_key, array('reviews_enabled', 'auto_approve', 'allow_anonymous', 'allow_images'))) {
-                        $review_settings[$clean_key] = (bool)$value;
-                    } elseif ($clean_key === 'max_image_size') {
-                        $review_settings[$clean_key] = intval($value);
-                    }
-                }
-            }
-            update_option('delice_recipe_review_settings', $review_settings);
-            break;
-            
-        default:
-            // Fallback for unknown sections
-            foreach ($settings as $key => $value) {
-                $sanitized_key = sanitize_key($key);
-                
-                if (is_array($value)) {
-                    $sanitized_value = array_map('sanitize_text_field', $value);
-                } else {
-                    $sanitized_value = sanitize_text_field($value);
-                }
-                
-                update_option($sanitized_key, $sanitized_value);
-            }
+
+    $section  = isset( $_POST['section'] ) ? sanitize_text_field( wp_unslash( $_POST['section'] ) ) : '';
+    $settings = isset( $_POST['settings'] ) && is_array( $_POST['settings'] )
+        ? wp_unslash( $_POST['settings'] )
+        : array();
+
+    $known_sections = array( 'display', 'templates', 'schema', 'attribution', 'languages', 'advanced', 'openai', 'reviews' );
+
+    if ( ! in_array( $section, $known_sections, true ) ) {
+        wp_send_json_error( array( 'message' => 'Invalid section' ) );
     }
-    
-    wp_send_json_success(array('message' => 'Section saved successfully'));
+
+    delice_save_section_settings( $section, $settings );
+
+    wp_send_json_success( array( 'message' => 'Section saved successfully' ) );
 }
-add_action('wp_ajax_delice_save_section', 'delice_ajax_save_section');
+add_action( 'wp_ajax_delice_save_section', 'delice_ajax_save_section' );
 
 /**
  * Get translations for language
@@ -1016,26 +1103,27 @@ function delice_ajax_save_display_setting() {
         wp_send_json_error(array('message' => __('You do not have permission to save settings.', 'delice-recipe-manager')));
     }
     
-    // Get setting key and value
-    $setting_key = isset($_POST['setting_key']) ? sanitize_text_field($_POST['setting_key']) : '';
-    $value = isset($_POST['value']) ? ($_POST['value'] === '1' ? true : false) : false;
-    
-    if (empty($setting_key)) {
-        wp_send_json_error(array('message' => __('Invalid setting key.', 'delice-recipe-manager')));
+    $allowed_display_keys = array(
+        'show_image', 'show_servings', 'show_prep_time', 'show_cook_time',
+        'show_total_time', 'show_calories', 'show_difficulty', 'show_rating',
+        'show_ingredients', 'show_instructions', 'show_notes', 'show_faqs',
+        'show_nutrition', 'show_print_button', 'show_attribution',
+    );
+
+    $setting_key = isset( $_POST['setting_key'] ) ? sanitize_key( wp_unslash( $_POST['setting_key'] ) ) : '';
+    $value       = isset( $_POST['value'] ) && ( $_POST['value'] === '1' || $_POST['value'] === 1 );
+
+    if ( empty( $setting_key ) || ! in_array( $setting_key, $allowed_display_keys, true ) ) {
+        wp_send_json_error( array( 'message' => __( 'Invalid setting key.', 'delice-recipe-manager' ) ) );
     }
-    
-    // Get current display options
-    $display_options = get_option('delice_recipe_display_options', array());
-    
-    // Update specific setting
-    $display_options[$setting_key] = $value;
-    
-    // Save back to database
-    update_option('delice_recipe_display_options', $display_options);
-    
-    wp_send_json_success(array('message' => __('Display setting saved successfully!', 'delice-recipe-manager')));
+
+    $display_options                 = get_option( 'delice_recipe_display_options', array() );
+    $display_options[ $setting_key ] = $value;
+    update_option( 'delice_recipe_display_options', $display_options );
+
+    wp_send_json_success( array( 'message' => __( 'Display setting saved successfully!', 'delice-recipe-manager' ) ) );
 }
-add_action('wp_ajax_delice_save_display_setting', 'delice_ajax_save_display_setting');
+add_action( 'wp_ajax_delice_save_display_setting', 'delice_ajax_save_display_setting' );
 
 /**
  * Save Review Settings (entire form)
@@ -1068,34 +1156,28 @@ function delice_ajax_save_review_settings() {
 add_action('wp_ajax_delice_save_review_settings', 'delice_ajax_save_review_settings');
 
 /**
- * Save Settings Hub Section
+ * Save Settings Hub Section – delegates to the shared whitelisted handler.
  */
 function delice_ajax_save_settings_hub_section() {
-    // Check nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'delice_settings_hub_nonce')) {
-        wp_send_json_error(array('message' => __('Security verification failed.', 'delice-recipe-manager')));
+    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'delice_settings_hub_nonce' ) ) {
+        wp_send_json_error( array( 'message' => __( 'Security verification failed.', 'delice-recipe-manager' ) ) );
     }
-    
-    // Check permissions
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => __('Unauthorized access.', 'delice-recipe-manager')));
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => __( 'Unauthorized access.', 'delice-recipe-manager' ) ) );
     }
-    
-    $section = isset($_POST['section']) ? sanitize_text_field($_POST['section']) : '';
-    $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
-    
-    if ($section === 'display' && !empty($settings)) {
-        // Save display options
-        $display_options = array();
-        foreach ($settings as $key => $value) {
-            $clean_key = sanitize_text_field($key);
-            $display_options[$clean_key] = ($value === '1' || $value === 1) ? true : false;
-        }
-        
-        update_option('delice_recipe_display_options', $display_options);
-        wp_send_json_success(array('message' => __('Display settings saved!', 'delice-recipe-manager')));
+
+    $known_sections = array( 'display', 'templates', 'schema', 'attribution', 'languages', 'advanced', 'openai', 'reviews' );
+    $section        = isset( $_POST['section'] ) ? sanitize_text_field( wp_unslash( $_POST['section'] ) ) : '';
+    $settings       = isset( $_POST['settings'] ) && is_array( $_POST['settings'] )
+        ? wp_unslash( $_POST['settings'] )
+        : array();
+
+    if ( ! in_array( $section, $known_sections, true ) || empty( $settings ) ) {
+        wp_send_json_error( array( 'message' => __( 'Invalid section or data.', 'delice-recipe-manager' ) ) );
     }
-    
-    wp_send_json_error(array('message' => __('Invalid section or data.', 'delice-recipe-manager')));
+
+    delice_save_section_settings( $section, $settings );
+    wp_send_json_success( array( 'message' => __( 'Settings saved!', 'delice-recipe-manager' ) ) );
 }
-add_action('wp_ajax_delice_save_settings_hub_section', 'delice_ajax_save_settings_hub_section');
+add_action( 'wp_ajax_delice_save_settings_hub_section', 'delice_ajax_save_settings_hub_section' );

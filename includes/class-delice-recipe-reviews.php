@@ -165,13 +165,18 @@ class Delice_Recipe_Reviews {
         if (!$rating || $rating < 1 || $rating > 5) {
             wp_send_json_error(array('message' => __('Please select a rating first.', 'delice-recipe-manager')));
         }
-        
+
         // Get user information
         $user_id = get_current_user_id();
         $user_ip = $this->get_user_ip();
         $user_name = $user_id ? get_userdata($user_id)->display_name : __('Anonymous', 'delice-recipe-manager');
         $user_email = $user_id ? get_userdata($user_id)->user_email : '';
-        
+
+        // Prevent duplicate reviews (one per user/IP per recipe)
+        if ( $this->user_has_rated( $recipe_id, $user_id, $user_ip ) ) {
+            wp_send_json_error( array( 'message' => __( 'You have already submitted a review for this recipe.', 'delice-recipe-manager' ) ) );
+        }
+
         // Handle image upload
         $image_url = '';
         if (isset($_FILES['review_image']) && $_FILES['review_image']['error'] === UPLOAD_ERR_OK) {
@@ -222,8 +227,13 @@ class Delice_Recipe_Reviews {
      * Get reviews for a recipe
      */
     public function get_reviews() {
+        // Verify nonce – even public read endpoints need CSRF protection.
+        if ( ! check_ajax_referer( 'delice_recipe_rating_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'delice-recipe-manager' ) ) );
+        }
+
         $recipe_id = isset($_POST['recipe_id']) ? absint($_POST['recipe_id']) : 0;
-        
+
         if (!$recipe_id) {
             wp_send_json_error(array('message' => __('Invalid recipe.', 'delice-recipe-manager')));
         }
@@ -232,9 +242,9 @@ class Delice_Recipe_Reviews {
         $table_name = $wpdb->prefix . 'delice_recipe_reviews';
         
         $reviews = $wpdb->get_results($wpdb->prepare(
-            "SELECT id, recipe_id, user_name, user_email, rating, comment, created_at 
-             FROM $table_name 
-             WHERE recipe_id = %d AND status = 'approved' AND comment IS NOT NULL AND comment != '' 
+            "SELECT id, recipe_id, user_name, user_email, rating, comment, image_url, created_at
+             FROM $table_name
+             WHERE recipe_id = %d AND status = 'approved' AND comment IS NOT NULL AND comment != ''
              ORDER BY created_at DESC",
             $recipe_id
         ));
@@ -357,55 +367,71 @@ class Delice_Recipe_Reviews {
     }
     
     /**
-     * Handle image upload
+     * Handle image upload with strict MIME type validation.
      */
-    private function handle_image_upload($file, $recipe_id) {
-        if (!function_exists('wp_handle_upload')) {
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
+    private function handle_image_upload( $file, $recipe_id ) {
+        if ( ! function_exists( 'wp_handle_upload' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
         }
-        
-        // Validate file type
-        $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
-        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        
-        if (!in_array($file_extension, $allowed_types)) {
+
+        // Allowed MIME types – declared explicitly to pass to wp_handle_upload.
+        $allowed_mimes = array(
+            'jpg|jpeg|jpe' => 'image/jpeg',
+            'png'          => 'image/png',
+            'gif'          => 'image/gif',
+        );
+
+        // Extension-based pre-check (fast fail before file read).
+        $file_extension = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+        $allowed_extensions = array( 'jpg', 'jpeg', 'png', 'gif' );
+        if ( ! in_array( $file_extension, $allowed_extensions, true ) ) {
             return false;
         }
-        
-        // Validate file size (max 5MB)
-        if ($file['size'] > 5 * 1024 * 1024) {
+
+        // Get review settings for max size.
+        $review_settings = get_option( 'delice_recipe_review_settings', array() );
+        $max_mb = isset( $review_settings['max_image_size'] ) ? intval( $review_settings['max_image_size'] ) : 5;
+        $max_bytes = $max_mb * 1024 * 1024;
+
+        if ( $file['size'] > $max_bytes ) {
             return false;
         }
-        
+
+        // Use WordPress's own MIME sniffer via check_filetype_and_ext which
+        // reads the actual file bytes rather than trusting the extension.
+        if ( ! function_exists( 'wp_check_filetype_and_ext' ) ) {
+            require_once ABSPATH . 'wp-includes/functions.php';
+        }
+        $check = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'], $allowed_mimes );
+        if ( empty( $check['type'] ) || ! in_array( $check['type'], array_values( $allowed_mimes ), true ) ) {
+            return false;
+        }
+
         $upload_overrides = array(
             'test_form' => false,
-            'mimes' => array(
-                'jpg|jpeg|jpe' => 'image/jpeg',
-                'png' => 'image/png',
-                'gif' => 'image/gif'
-            )
+            'mimes'     => $allowed_mimes,
         );
-        
-        $movefile = wp_handle_upload($file, $upload_overrides);
-        
-        if ($movefile && !isset($movefile['error'])) {
+
+        $movefile = wp_handle_upload( $file, $upload_overrides );
+
+        if ( $movefile && ! isset( $movefile['error'] ) ) {
             return $movefile['url'];
         }
-        
+
         return false;
     }
     
     /**
-     * Get user IP address
+     * Get user IP address.
+     *
+     * Uses REMOTE_ADDR as the authoritative source. Proxy headers
+     * (HTTP_X_FORWARDED_FOR, HTTP_CLIENT_IP) are trivially spoofed and must
+     * not be trusted for security decisions such as duplicate-vote detection.
      */
     private function get_user_ip() {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            return $_SERVER['REMOTE_ADDR'];
-        }
+        return isset( $_SERVER['REMOTE_ADDR'] )
+            ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
+            : '0.0.0.0';
     }
     
     /**
