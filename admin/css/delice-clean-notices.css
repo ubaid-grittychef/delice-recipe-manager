@@ -1,0 +1,16 @@
+/**
+ * Clean Empty Notices CSS
+ * Hides notices with no content while keeping legitimate ones visible
+ */
+
+/* Hide completely empty notice divs */
+.notice:empty,
+.updated:empty,
+.error:empty {
+    display: none !important;
+}
+
+/* Hide notices that only contain whitespace */
+.notice:not(:has(*)) {
+    display: none !important;
+}

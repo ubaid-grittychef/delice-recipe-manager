@@ -1,0 +1,447 @@
+<div class="wrap">
+    <h1><?php _e('Delice Recipe Manager Settings', 'delice-recipe-manager'); ?></h1>
+    
+    <form method="post" action="options.php">
+        <?php 
+        settings_fields('delice_recipe_settings'); 
+        do_settings_sections('delice_recipe_settings'); 
+        ?>
+        
+        <div class="delice-recipe-settings-container">
+            <div class="delice-recipe-settings-section">
+                <h2><?php _e('Template Selection', 'delice-recipe-manager'); ?></h2>
+                <p><?php _e('Choose which template to use for displaying recipes on your site.', 'delice-recipe-manager'); ?></p>
+                
+                <?php
+                $selected_template = get_option('delice_recipe_selected_template', 'default');
+                $available_templates = array(
+                    'default' => __('Default', 'delice-recipe-manager'),
+                    'modern' => __('Modern', 'delice-recipe-manager'),
+                    'elegant' => __('Elegant', 'delice-recipe-manager'),
+                );
+                ?>
+                
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('Recipe Template', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <select name="delice_recipe_selected_template" id="delice_recipe_selected_template">
+                                <?php foreach ($available_templates as $template_key => $template_name) : ?>
+                                <option value="<?php echo esc_attr($template_key); ?>" <?php selected($selected_template, $template_key); ?>>
+                                    <?php echo esc_html($template_name); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description">
+                                <?php _e('Select the template style you want to use for displaying recipes.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="delice-recipe-settings-section">
+                <h2><?php _e('Display Settings', 'delice-recipe-manager'); ?></h2>
+                <?php
+                $display_options = get_option('delice_recipe_display_options', array(
+                    'show_image' => true,
+                    'show_servings' => true,
+                    'show_prep_time' => true,
+                    'show_cook_time' => true,
+                    'show_total_time' => true,
+                    'show_calories' => true,
+                    'show_difficulty' => true,
+                    'show_rating' => true,
+                    'show_ingredients' => true,
+                    'show_instructions' => true,
+                    'show_notes' => true,
+                    'show_faqs' => true,
+                ));
+                ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('Optional elements to display', 'delice-recipe-manager'); ?><br><small style="font-weight:normal;color:#666;"><?php _e('(Core elements like ingredients, instructions, times, and servings are always shown)', 'delice-recipe-manager'); ?></small></th>
+                        <td>
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_image]" value="1" <?php checked(!empty($display_options['show_image']), true); ?>>
+                                    <?php _e('Featured image', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_rating]" value="1" <?php checked(!empty($display_options['show_rating']), true); ?>>
+                                    <?php _e('Rating system', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_notes]" value="1" <?php checked(!empty($display_options['show_notes']), true); ?>>
+                                    <?php _e('Chef notes section', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_faqs]" value="1" <?php checked(!empty($display_options['show_faqs']), true); ?>>
+                                    <?php _e('FAQ section', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_print]" value="1" <?php checked(!empty($display_options['show_print']), true); ?>>
+                                    <?php _e('Print button', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_share]" value="1" <?php checked(!empty($display_options['show_share']), true); ?>>
+                                    <?php _e('Social share buttons', 'delice-recipe-manager'); ?>
+                                </label>
+                            </fieldset>
+                            <p class="description">
+                                <?php _e('Choose which elements to display in your recipe templates. Unchecked items will be hidden.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="delice-recipe-settings-section">
+                <h2><?php _e('Recipe Attribution', 'delice-recipe-manager'); ?></h2>
+                <p><?php _e('Configure how recipe attribution is displayed on your recipes.', 'delice-recipe-manager'); ?></p>
+                
+                <?php
+                $attribution_defaults = array(
+                    'kitchen_name' => '',
+                    'kitchen_url' => '',
+                    'show_submitted_by' => true,
+                    'show_tested_by' => true,
+                    'default_author_name' => '',
+                );
+                $attribution_settings = array_merge($attribution_defaults, get_option('delice_recipe_attribution_settings', array()));
+                ?>
+                
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('Attribution Display', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="delice_recipe_attribution_settings[show_submitted_by]" value="1" <?php checked(!empty($attribution_settings['show_submitted_by']), true); ?>>
+                                <?php _e('Show "Submitted by" author attribution', 'delice-recipe-manager'); ?>
+                            </label><br><br>
+                            
+                            <label>
+                                <input type="checkbox" name="delice_recipe_attribution_settings[show_tested_by]" value="1" <?php checked(!empty($attribution_settings['show_tested_by']), true); ?>>
+                                <?php _e('Show "Tested by" kitchen attribution', 'delice-recipe-manager'); ?>
+                            </label>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('Default Author Name', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <input type="text" name="delice_recipe_attribution_settings[default_author_name]" value="<?php echo esc_attr($attribution_settings['default_author_name']); ?>" class="regular-text" placeholder="e.g. Chef Sarah">
+                            <p class="description">
+                                <?php _e('This name will be used when no custom author is set for a recipe. Leave empty to use WordPress user data.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('Kitchen Information', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <span><?php _e('Kitchen name:', 'delice-recipe-manager'); ?></span>
+                                <input type="text" name="delice_recipe_attribution_settings[kitchen_name]" value="<?php echo esc_attr($attribution_settings['kitchen_name']); ?>" class="regular-text" placeholder="e.g. Delice Recipe Kitchen">
+                            </label><br><br>
+                            
+                            <label>
+                                <span><?php _e('Kitchen page URL:', 'delice-recipe-manager'); ?></span>
+                                <input type="url" name="delice_recipe_attribution_settings[kitchen_url]" value="<?php echo esc_url($attribution_settings['kitchen_url']); ?>" class="regular-text" placeholder="https://example.com/kitchen">
+                            </label>
+                            <p class="description">
+                                <?php _e('Enter the URL where users should be directed when clicking on the "Tested by" link.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="delice-recipe-settings-section">
+                <h2><?php _e('Schema.org Settings', 'delice-recipe-manager'); ?></h2>
+                <p><?php _e('Configure settings for recipe structured data markup.', 'delice-recipe-manager'); ?></p>
+                
+                <?php
+                $schema_settings = get_option('delice_recipe_schema_settings', array(
+                    'enable_schema' => true,
+                    'publisher_name' => get_bloginfo('name'),
+                    'publisher_logo' => '',
+                    'use_author' => true,
+                    'default_author' => '',
+                ));
+                ?>
+                
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('Recipe Schema', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="delice_recipe_schema_settings[enable_schema]" value="1" <?php checked(!empty($schema_settings['enable_schema']), true); ?>>
+                                <?php _e('Enable structured data for recipes', 'delice-recipe-manager'); ?>
+                            </label>
+                            <p class="description">
+                                <?php _e('This adds JSON-LD markup to your recipe pages to help search engines understand your content and display rich results.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('Publisher Information', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <span><?php _e('Publisher name:', 'delice-recipe-manager'); ?></span>
+                                <input type="text" name="delice_recipe_schema_settings[publisher_name]" value="<?php echo esc_attr($schema_settings['publisher_name']); ?>" class="regular-text">
+                            </label><br><br>
+                            
+                            <label>
+                                <span><?php _e('Publisher logo URL:', 'delice-recipe-manager'); ?></span>
+                                <input type="url" name="delice_recipe_schema_settings[publisher_logo]" value="<?php echo esc_url($schema_settings['publisher_logo']); ?>" class="regular-text">
+                            </label>
+                            <p class="description">
+                                <?php _e('If left empty, your site logo will be used. Logo should be at least 112x112px.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('Author Settings', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="delice_recipe_schema_settings[use_author]" value="1" <?php checked(!empty($schema_settings['use_author']), true); ?>>
+                                <?php _e('Use post author as recipe author', 'delice-recipe-manager'); ?>
+                            </label><br><br>
+                            
+                            <label>
+                                <span><?php _e('Default author name:', 'delice-recipe-manager'); ?></span>
+                                <input type="text" name="delice_recipe_schema_settings[default_author]" value="<?php echo esc_attr($schema_settings['default_author']); ?>" class="regular-text">
+                            </label>
+                            <p class="description">
+                                <?php _e('Used when no author is set or when "Use post author" is disabled.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('Validation', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <p><?php _e('Test your structured data with these tools:', 'delice-recipe-manager'); ?></p>
+                            <ul>
+                                <li><a href="https://search.google.com/test/rich-results" target="_blank"><?php _e('Google Rich Results Test', 'delice-recipe-manager'); ?></a></li>
+                                <li><a href="https://validator.schema.org/" target="_blank"><?php _e('Schema.org Validator', 'delice-recipe-manager'); ?></a></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="delice-recipe-settings-section">
+                <h2><?php _e('AI Integration', 'delice-recipe-manager'); ?></h2>
+                <p><?php _e('Configure your API key for the AI recipe generator.', 'delice-recipe-manager'); ?></p>
+                
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="delice_recipe_ai_api_key"><?php _e('OpenAI API Key', 'delice-recipe-manager'); ?></label>
+                        </th>
+                        <td>
+                            <input type="password" id="delice_recipe_ai_api_key" name="delice_recipe_ai_api_key" 
+                                   value="<?php echo esc_attr(get_option('delice_recipe_ai_api_key', '')); ?>" 
+                                   class="regular-text">
+                            <p class="description">
+                                <?php _e('Enter your OpenAI API key to enable AI-powered recipe generation.', 'delice-recipe-manager'); ?>
+                                <br><?php _e('Get your API key from: https://platform.openai.com/api-keys', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('AI Image Generation', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="delice_recipe_enable_ai_images" value="1" 
+                                       <?php checked(get_option('delice_recipe_enable_ai_images', false), true); ?>>
+                                <?php _e('Automatically generate featured images with DALL-E 3', 'delice-recipe-manager'); ?>
+                            </label>
+                            <p class="description">
+                                <?php _e('When enabled, a high-quality recipe image will be generated and set as the featured image for each recipe. This uses DALL-E 3 and requires your OpenAI API key.', 'delice-recipe-manager'); ?>
+                                <br><strong><?php _e('Note:', 'delice-recipe-manager'); ?></strong> <?php _e('Image generation costs $0.04 per image (HD quality, 1024x1024). Disable this if you prefer to add images manually.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('Image Style', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <?php $image_style = get_option('delice_recipe_image_style', 'vivid'); ?>
+                            <select name="delice_recipe_image_style" id="delice_recipe_image_style">
+                                <option value="vivid" <?php selected($image_style, 'vivid'); ?>>
+                                    <?php _e('Vivid (More dramatic, vibrant colors)', 'delice-recipe-manager'); ?>
+                                </option>
+                                <option value="natural" <?php selected($image_style, 'natural'); ?>>
+                                    <?php _e('Natural (More realistic, subtle)', 'delice-recipe-manager'); ?>
+                                </option>
+                            </select>
+                            <p class="description">
+                                <?php _e('Choose the style of generated images. Vivid creates more dramatic food photography, while Natural creates more realistic images.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><?php _e('Image Size', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <?php $image_size = get_option('delice_recipe_image_size', '1024x1024'); ?>
+                            <select name="delice_recipe_image_size" id="delice_recipe_image_size">
+                                <optgroup label="<?php _e('DALL-E Native Sizes (No Resize)', 'delice-recipe-manager'); ?>">
+                                    <option value="1024x1024" <?php selected($image_size, '1024x1024'); ?>>
+                                        <?php _e('Square - 1024×1024 (High Quality)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                    <option value="1792x1024" <?php selected($image_size, '1792x1024'); ?>>
+                                        <?php _e('Landscape - 1792×1024 (Wide)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                    <option value="1024x1792" <?php selected($image_size, '1024x1792'); ?>>
+                                        <?php _e('Portrait - 1024×1792 (Tall)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                </optgroup>
+                                <optgroup label="<?php _e('Optimized Sizes (Auto-Resized)', 'delice-recipe-manager'); ?>">
+                                    <option value="800x600" <?php selected($image_size, '800x600'); ?>>
+                                        <?php _e('Landscape - 800×600 (Recommended)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                    <option value="600x600" <?php selected($image_size, '600x600'); ?>>
+                                        <?php _e('Square - 600×600 (Small)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                    <option value="700x700" <?php selected($image_size, '700x700'); ?>>
+                                        <?php _e('Square - 700×700 (Medium)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                    <option value="600x800" <?php selected($image_size, '600x800'); ?>>
+                                        <?php _e('Portrait - 600×800 (Vertical)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                    <option value="900x600" <?php selected($image_size, '900x600'); ?>>
+                                        <?php _e('Landscape - 900×600 (Wide)', 'delice-recipe-manager'); ?>
+                                    </option>
+                                </optgroup>
+                            </select>
+                            <p class="description">
+                                <?php _e('<strong>Native Sizes:</strong> Generated directly by DALL-E 3, no processing (1-4 MB files).', 'delice-recipe-manager'); ?><br>
+                                <?php _e('<strong>Optimized Sizes:</strong> Generated at 1024×1024, then auto-resized for faster loading (200-500 KB files).', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="delice-recipe-settings-section">
+                <h2><?php _e('Recipe Reviews', 'delice-recipe-manager'); ?></h2>
+                <p><?php _e('Configure the review and rating system for your recipes.', 'delice-recipe-manager'); ?></p>
+                
+                <?php $reviews_enabled = get_option('delice_recipe_reviews_enabled', true); ?>
+                
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('Enable Reviews', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="delice_recipe_reviews_enabled" value="1" <?php checked($reviews_enabled, true); ?>>
+                                <?php _e('Enable recipe reviews and ratings', 'delice-recipe-manager'); ?>
+                            </label>
+                            <p class="description">
+                                <?php _e('When enabled, visitors can rate and review your recipes. When disabled, all review sections will be completely hidden from recipe pages.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="delice-recipe-settings-section">
+                <h2><?php _e('Reset Settings', 'delice-recipe-manager'); ?></h2>
+                <p><?php _e('Reset all plugin settings to their default values.', 'delice-recipe-manager'); ?></p>
+                
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('Reset Options', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <button type="button" id="reset-settings" class="button button-secondary">
+                                <?php _e('Reset All Settings', 'delice-recipe-manager'); ?>
+                            </button>
+                            <p class="description">
+                                <?php _e('Warning: This will reset all plugin settings to their default values. This action cannot be undone.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <?php submit_button(); ?>
+    </form>
+</div>
+
+<script>
+jQuery(document).ready(function($) {
+    $('#reset-settings').on('click', function() {
+        if (confirm('<?php _e('Are you sure you want to reset all settings? This action cannot be undone.', 'delice-recipe-manager'); ?>')) {
+            // Clear all settings by setting them to empty/default values
+            $('input[type="checkbox"]').prop('checked', false);
+            $('input[type="text"], input[type="url"], input[type="password"]').val('');
+            $('select').prop('selectedIndex', 0);
+            
+            // Set some defaults
+            $('input[name="delice_recipe_display_options[show_image]"]').prop('checked', true);
+            $('input[name="delice_recipe_display_options[show_ingredients]"]').prop('checked', true);
+            $('input[name="delice_recipe_display_options[show_instructions]"]').prop('checked', true);
+            $('input[name="delice_recipe_schema_settings[enable_schema]"]').prop('checked', true);
+            
+            alert('<?php _e('Settings have been reset. Click "Save Changes" to apply.', 'delice-recipe-manager'); ?>');
+        }
+    });
+});
+</script>
+
+<style>
+.delice-recipe-settings-container {
+    max-width: 1000px;
+}
+
+.delice-recipe-settings-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.delice-recipe-settings-section h2 {
+    margin-top: 0;
+    color: #0073aa;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.form-table th {
+    width: 200px;
+    vertical-align: top;
+    padding-top: 15px;
+}
+
+.form-table td {
+    vertical-align: top;
+    padding-top: 10px;
+}
+
+.form-table fieldset label {
+    display: block;
+    margin: 5px 0;
+}
+
+.description {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px !important;
+}
+</style>

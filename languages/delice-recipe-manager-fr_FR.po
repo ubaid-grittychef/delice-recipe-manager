@@ -1,0 +1,104 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Délice Recipe Manager 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/delice-recipe-manager\n"
+"POT-Creation-Date: 2025-04-21T13:45:00+00:00\n"
+"PO-Revision-Date: 2025-04-21T13:45:00+00:00\n"
+"Last-Translator: Recette Délice\n"
+"Language-Team: French (France)\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.0\n"
+"X-Domain: delice-recipe-manager\n"
+
+#: admin/class-delice-recipe-admin.php:76
+msgid "Recipes"
+msgstr "Recettes"
+
+#: admin/class-delice-recipe-admin.php:77
+msgid "Recipe"
+msgstr "Recette"
+
+#: admin/class-delice-recipe-admin.php:178
+msgid "Settings"
+msgstr "Paramètres"
+
+#: admin/class-delice-recipe-admin.php:191
+msgid "Délice Recettes"
+msgstr "Délice Recettes"
+
+#: admin/class-delice-recipe-admin.php:203
+msgid "Paramètres"
+msgstr "Paramètres"
+
+#: admin/class-delice-recipe-admin.php:214
+msgid "Générateur IA"
+msgstr "Générateur IA" 
+
+#: admin/class-delice-recipe-admin.php:225
+msgid "Languages"
+msgstr "Langues"
+
+#: admin/class-delice-recipe-admin.php:279
+msgid "Détails de la recette"
+msgstr "Détails de la recette"
+
+#: admin/class-delice-recipe-admin.php:347
+msgid "Ingredient"
+msgstr "Ingrédient"
+
+#: admin/class-delice-recipe-admin.php:348
+msgid "Amount"
+msgstr "Quantité"
+
+#: admin/class-delice-recipe-admin.php:349
+msgid "Unit"
+msgstr "Unité"
+
+#: admin/class-delice-recipe-admin.php:350
+msgid "Instruction"
+msgstr "Instruction"
+
+#: admin/class-delice-recipe-admin.php:351
+msgid "Remove"
+msgstr "Supprimer"
+
+#: admin/class-delice-recipe-admin.php:360
+msgid "Copy Ingredients"
+msgstr "Copier les ingrédients"
+
+#: admin/class-delice-recipe-admin.php:361 
+msgid "Print Recipe"
+msgstr "Imprimer la recette"
+
+#: admin/class-delice-recipe-admin.php:362
+msgid "Ingredients copied!"
+msgstr "Ingrédients copiés !"
+
+#: public/partials/recipe-template-default.php:64
+msgid "Prep Time"
+msgstr "Temps de préparation"
+
+#: public/partials/recipe-template-default.php:71
+msgid "Cook Time"
+msgstr "Temps de cuisson"
+
+#: public/partials/recipe-template-default.php:78
+msgid "Total Time"
+msgstr "Temps total"
+
+#: public/partials/recipe-template-default.php:85
+msgid "Servings"
+msgstr "Portions"
+
+#: public/partials/recipe-template-default.php:92
+msgid "Calories"
+msgstr "Calories"
+
+#: public/partials/recipe-template-default.php:99
+msgid "Difficulty"
+msgstr "Difficulté"

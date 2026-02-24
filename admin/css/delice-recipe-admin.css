@@ -1,0 +1,251 @@
+
+/**
+ * Admin styles for Délice Recipe Manager
+ */
+
+/* General styles */
+.delice-recipe-dashboard {
+    margin-top: 20px;
+}
+
+.delice-recipe-welcome {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.delice-recipe-welcome h2 {
+    color: #1e3a8a;
+    margin-top: 0;
+}
+
+/* Cards */
+.delice-recipe-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.delice-recipe-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.delice-recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.delice-recipe-card h4 {
+    display: flex;
+    align-items: center;
+    color: #1e3a8a;
+    margin-top: 0;
+}
+
+.delice-recipe-card h4 .dashicons {
+    margin-right: 10px;
+    color: #1e3a8a;
+}
+
+.delice-recipe-recent {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Meta boxes */
+.delice-recipe-meta-box {
+    padding: 10px 0;
+}
+
+.delice-recipe-field {
+    margin-bottom: 15px;
+}
+
+.delice-recipe-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.delice-recipe-field input, 
+.delice-recipe-field select {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Ingredients meta box */
+.delice-recipe-ingredient-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.delice-recipe-ingredient-row .ingredient-name {
+    flex: 3;
+}
+
+.delice-recipe-ingredient-row .ingredient-amount {
+    flex: 1;
+}
+
+.delice-recipe-ingredient-row .ingredient-unit {
+    flex: 1;
+}
+
+.delice-recipe-ingredient-row .remove-ingredient {
+    flex: 0 0 auto;
+}
+
+/* Instructions meta box */
+.delice-recipe-instruction-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.delice-recipe-instruction-row .instruction-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background-color: #1e3a8a;
+    color: #fff;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.delice-recipe-instruction-row .instruction-text {
+    flex-grow: 1;
+    width: calc(100% - 100px);
+}
+
+.delice-recipe-instruction-row .remove-instruction {
+    flex-shrink: 0;
+}
+
+/* AI Generator styles */
+.delice-ai-generator {
+    max-width: 1200px;
+}
+
+.delice-recipe-generator-form {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.delice-recipe-generator-intro {
+    margin-bottom: 20px;
+}
+
+.delice-recipe-generator-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.delice-recipe-generator-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.delice-recipe-generator-field {
+    flex: 1;
+    min-width: 250px;
+}
+
+.delice-recipe-generator-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.delice-recipe-generator-field input,
+.delice-recipe-generator-field select,
+.delice-recipe-generator-field textarea {
+    width: 100%;
+}
+
+.delice-recipe-generator-submit {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.delice-recipe-generating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.delice-recipe-result {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #e9ecef;
+}
+
+.delice-recipe-preview {
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin: 15px 0;
+}
+
+.delice-recipe-result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#generate-recipe-button {
+    background-color: #1e3a8a;
+    color: #fff;
+    border-color: #1e3a8a;
+}
+
+#generate-recipe-button:hover {
+    background-color: #1e3a8a;
+    opacity: 0.9;
+}
+
+/* Settings page */
+.delice-recipe-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 800px;
+}
+
+.delice-recipe-settings-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.delice-recipe-settings-section h2 {
+    margin-top: 0;
+    color: #1e3a8a;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}

@@ -1,0 +1,333 @@
+/* Phase 3: Modern Nutrition Dashboard */
+.delice-recipe-nutrition {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 32px;
+  margin: 24px 0;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.delice-recipe-nutrition::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6, #ec4899);
+  opacity: 0.8;
+}
+
+.delice-recipe-nutrition h4 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delice-recipe-nutrition h4::before {
+  content: '🥄';
+  font-size: 28px;
+}
+
+/* Nutrition Dashboard Grid */
+.delice-recipe-nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* Enhanced Nutrition Cards */
+.delice-recipe-nutrition-item {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.delice-recipe-nutrition-item:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Nutrition Icons */
+.delice-nutrition-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.delice-recipe-nutrition-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.delice-recipe-nutrition-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+/* Visual Nutrition Bars */
+.delice-nutrition-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(229, 231, 235, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.delice-nutrition-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease-in-out;
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+/* Color-Coded Values (Traffic Light System) */
+.delice-nutrition-value.low {
+  color: #10b981;
+}
+
+.delice-nutrition-value.medium {
+  color: #f59e0b;
+}
+
+.delice-nutrition-value.high {
+  color: #ef4444;
+}
+
+/* Daily Value Percentages */
+.delice-nutrition-dv {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.delice-nutrition-dv.good {
+  color: #10b981;
+}
+
+.delice-nutrition-dv.moderate {
+  color: #f59e0b;
+}
+
+.delice-nutrition-dv.high {
+  color: #ef4444;
+}
+
+/* Macro Distribution Chart */
+.delice-macro-distribution {
+  margin-top: 32px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.delice-macro-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 20px;
+}
+
+.delice-macro-circle {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  position: relative;
+  background: conic-gradient(
+    #3b82f6 0deg var(--carbs-deg),
+    #10b981 var(--carbs-deg) var(--protein-end-deg),
+    #f59e0b var(--protein-end-deg) 360deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delice-macro-center {
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* Macro Legend */
+.delice-macro-legend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  text-align: center;
+}
+
+.delice-macro-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.delice-macro-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.delice-macro-color.carbs { background: #3b82f6; }
+.delice-macro-color.protein { background: #10b981; }
+.delice-macro-color.fat { background: #f59e0b; }
+
+.delice-macro-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.delice-macro-percentage {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Health Icons & Indicators */
+.delice-nutrition-highlights {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.delice-health-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.delice-health-badge.keto {
+  background: rgba(139, 92, 246, 0.1);
+  color: #581c87;
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.delice-health-badge.vegan {
+  background: rgba(34, 197, 94, 0.1);
+  color: #14532d;
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.delice-health-badge.low-carb {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e3a8a;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Allergen Warnings */
+.delice-allergen-warnings {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.1);
+  border-radius: 12px;
+}
+
+.delice-allergen-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delice-allergen-title::before {
+  content: '⚠️';
+  font-size: 16px;
+}
+
+.delice-allergen-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.delice-allergen-item {
+  padding: 4px 8px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Specific Nutrition Item Colors */
+.delice-recipe-nutrition-item[data-nutrient="calories"] { border-left: 4px solid #ef4444; }
+.delice-recipe-nutrition-item[data-nutrient="carbs"] { border-left: 4px solid #3b82f6; }
+.delice-recipe-nutrition-item[data-nutrient="protein"] { border-left: 4px solid #10b981; }
+.delice-recipe-nutrition-item[data-nutrient="fat"] { border-left: 4px solid #f59e0b; }
+.delice-recipe-nutrition-item[data-nutrient="fiber"] { border-left: 4px solid #8b5cf6; }
+.delice-recipe-nutrition-item[data-nutrient="sodium"] { border-left: 4px solid #ec4899; }
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .delice-recipe-nutrition-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .delice-recipe-nutrition-item {
+    padding: 6px 10px;
+  }
+  
+  .delice-recipe-nutrition-label,
+  .delice-recipe-nutrition-value {
+    font-size: 12px;
+  }
+}

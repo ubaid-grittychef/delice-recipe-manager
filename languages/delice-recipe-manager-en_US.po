@@ -1,0 +1,188 @@
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Délice Recipe Manager 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/delice-recipe-manager\n"
+"POT-Creation-Date: 2025-04-21T13:45:00+00:00\n"
+"PO-Revision-Date: 2025-04-21T13:45:00+00:00\n"
+"Last-Translator: Recette Délice\n"
+"Language-Team: English (United States)\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0\n"
+"X-Domain: delice-recipe-manager\n"
+
+#: admin/class-delice-recipe-admin.php:76
+msgid "Recipes"
+msgstr "Recipes"
+
+#: admin/class-delice-recipe-admin.php:77
+msgid "Recipe"
+msgstr "Recipe"
+
+#: admin/class-delice-recipe-admin.php:178
+msgid "Settings"
+msgstr "Settings"
+
+#: admin/class-delice-recipe-admin.php:191
+msgid "Délice Recettes"
+msgstr "Delice Recipes"
+
+#: admin/class-delice-recipe-admin.php:203
+msgid "Paramètres"
+msgstr "Settings"
+
+#: admin/class-delice-recipe-admin.php:214
+msgid "Générateur IA"
+msgstr "AI Generator"
+
+#: admin/class-delice-recipe-admin.php:225
+msgid "Languages"
+msgstr "Languages"
+
+#: admin/class-delice-recipe-admin.php:279
+msgid "Détails de la recette"
+msgstr "Recipe Details"
+
+#: admin/class-delice-recipe-admin.php:347
+msgid "Ingredient"
+msgstr "Ingredient"
+
+#: admin/class-delice-recipe-admin.php:348
+msgid "Amount"
+msgstr "Amount"
+
+#: admin/class-delice-recipe-admin.php:349
+msgid "Unit"
+msgstr "Unit"
+
+#: admin/class-delice-recipe-admin.php:350
+msgid "Instruction"
+msgstr "Instruction"
+
+#: admin/class-delice-recipe-admin.php:351
+msgid "Remove"
+msgstr "Remove"
+
+#: admin/class-delice-recipe-admin.php:360
+msgid "Copy Ingredients"
+msgstr "Copy Ingredients"
+
+#: admin/class-delice-recipe-admin.php:361 
+msgid "Print Recipe"
+msgstr "Print Recipe"
+
+#: admin/class-delice-recipe-admin.php:362
+msgid "Ingredients copied!"
+msgstr "Ingredients copied!"
+
+#: admin/partials/admin-settings.php:87
+msgid "Schema.org Settings"
+msgstr "Schema.org Settings"
+
+#: admin/partials/admin-settings.php:88
+msgid "Configure settings for recipe structured data markup."
+msgstr "Configure settings for recipe structured data markup."
+
+#: admin/partials/admin-settings.php:100
+msgid "Recipe Schema"
+msgstr "Recipe Schema"
+
+#: admin/partials/admin-settings.php:103
+msgid "Enable structured data for recipes"
+msgstr "Enable structured data for recipes"
+
+#: admin/partials/admin-settings.php:106
+msgid "This adds JSON-LD markup to your recipe pages to help search engines understand your content and display rich results."
+msgstr "This adds JSON-LD markup to your recipe pages to help search engines understand your content and display rich results."
+
+#: admin/partials/admin-settings.php:112
+msgid "Publisher Information"
+msgstr "Publisher Information"
+
+#: admin/partials/admin-settings.php:115
+msgid "Publisher name:"
+msgstr "Publisher name:"
+
+#: admin/partials/admin-settings.php:120
+msgid "Publisher logo URL:"
+msgstr "Publisher logo URL:"
+
+#: admin/partials/admin-settings.php:124
+msgid "If left empty, your site logo will be used. Logo should be at least 112x112px."
+msgstr "If left empty, your site logo will be used. Logo should be at least 112x112px."
+
+#: admin/partials/admin-settings.php:130
+msgid "Author Settings"
+msgstr "Author Settings"
+
+#: admin/partials/admin-settings.php:133
+msgid "Use post author as recipe author"
+msgstr "Use post author as recipe author"
+
+#: admin/partials/admin-settings.php:137
+msgid "Default author name:"
+msgstr "Default author name:"
+
+#: admin/partials/admin-settings.php:141
+msgid "Used when no author is set or when \"Use post author\" is disabled."
+msgstr "Used when no author is set or when \"Use post author\" is disabled."
+
+#: admin/partials/admin-settings.php:147
+msgid "Validation"
+msgstr "Validation"
+
+#: admin/partials/admin-settings.php:149
+msgid "Test your structured data with these tools:"
+msgstr "Test your structured data with these tools:"
+
+#: admin/partials/admin-settings.php:151
+msgid "Google Rich Results Test"
+msgstr "Google Rich Results Test"
+
+#: admin/partials/admin-settings.php:152
+msgid "Schema.org Validator"
+msgstr "Schema.org Validator"
+
+#: admin/partials/recipe-preview.php:71
+msgid "Schema.org Testing"
+msgstr "Schema.org Testing"
+
+#: admin/partials/recipe-preview.php:72
+msgid "After publishing, verify your recipe schema using these tools:"
+msgstr "After publishing, verify your recipe schema using these tools:"
+
+#: admin/partials/recipe-preview.php:73
+msgid "Test with Google"
+msgstr "Test with Google"
+
+#: admin/partials/recipe-preview.php:74
+msgid "Schema Validator"
+msgstr "Schema Validator"
+
+#: public/partials/recipe-template-default.php:64
+msgid "Prep Time"
+msgstr "Prep Time"
+
+#: public/partials/recipe-template-default.php:71
+msgid "Cook Time"
+msgstr "Cook Time"
+
+#: public/partials/recipe-template-default.php:78
+msgid "Total Time"
+msgstr "Total Time"
+
+#: public/partials/recipe-template-default.php:85
+msgid "Servings"
+msgstr "Servings"
+
+#: public/partials/recipe-template-default.php:92
+msgid "Calories"
+msgstr "Calories"
+
+#: public/partials/recipe-template-default.php:99
+msgid "Difficulty"
+msgstr "Difficulty"

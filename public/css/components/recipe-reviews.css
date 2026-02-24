@@ -1,0 +1,594 @@
+
+
+/* Enhanced Recipe Reviews Styles - Improved UX */
+
+/* Message Styles */
+.delice-recipe-message {
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 8px;
+  font-weight: 500;
+  display: none;
+}
+
+.delice-recipe-message.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.delice-recipe-message.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Modal Message Styles */
+.delice-modal-message {
+  padding: 12px 16px;
+  margin: 0 0 16px 0;
+  border-radius: 8px;
+  font-weight: 500;
+  display: none;
+}
+
+.delice-modal-message.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.delice-modal-message.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Highlight Animation for Section Transition */
+.delice-highlight-section {
+  animation: highlightPulse 2s ease-in-out;
+  border: 2px solid #f97316 !important;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.3) !important;
+}
+
+@keyframes highlightPulse {
+  0% { 
+    border-color: #f97316;
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+  }
+  50% { 
+    border-color: #ea580c;
+    box-shadow: 0 0 30px rgba(249, 115, 22, 0.5);
+  }
+  100% { 
+    border-color: #f97316;
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+  }
+}
+
+/* Enhanced Review Section */
+.delice-recipe-review-section {
+  margin: 40px 0;
+  padding: 32px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.delice-recipe-review-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.delice-recipe-review-header h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.delice-recipe-review-subtitle {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Enhanced Rating Button Styles */
+.delice-recipe-rate-btn {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3) !important;
+}
+
+.delice-recipe-rate-btn:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 8px -1px rgba(249, 115, 22, 0.4) !important;
+}
+
+.delice-recipe-rate-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* Modern template specific styling */
+.delice-recipe-modern .delice-recipe-rate-btn {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+}
+
+.delice-recipe-modern .delice-recipe-rate-btn:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  box-shadow: 0 6px 8px -1px rgba(14, 165, 233, 0.4) !important;
+}
+
+/* Elegant template specific styling */
+.delice-recipe-elegant .delice-recipe-rate-btn {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%) !important;
+}
+
+.delice-recipe-elegant .delice-recipe-rate-btn:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
+  box-shadow: 0 6px 8px -1px rgba(168, 85, 247, 0.4) !important;
+}
+
+/* Selected Rating Display (Read-only) */
+.delice-selected-rating-display {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  display: none;
+}
+
+.delice-rating-selected-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.delice-rating-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 16px;
+}
+
+.delice-rating-stars-display {
+  display: flex;
+  gap: 4px;
+}
+
+.delice-display-star {
+  font-size: 20px;
+  color: #d1d5db;
+  transition: color 0.2s ease;
+}
+
+.delice-display-star.selected {
+  color: #f59e0b;
+}
+
+.delice-rating-text {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Rating Container - Hidden after popup rating */
+.delice-recipe-rating-container {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.delice-recipe-rating-container.hidden {
+  display: none;
+}
+
+/* Rating Stars Interactive */
+.delice-recipe-rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.delice-rating-star {
+  font-size: 24px;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delice-rating-star:hover,
+.delice-rating-star.active {
+  color: #f59e0b;
+  transform: scale(1.1);
+}
+
+.delice-rating-star.selected {
+  color: #f59e0b;
+}
+
+/* Enhanced Form Styles */
+.delice-recipe-review-form {
+  background: white;
+  padding: 28px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.delice-recipe-review-comment label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 16px;
+}
+
+.delice-recipe-review-comment textarea {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.delice-recipe-review-comment textarea:focus {
+  outline: none;
+  border-color: #f97316;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+}
+
+/* Enhanced File Upload with Preview */
+.delice-recipe-review-image label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 16px;
+}
+
+.delice-recipe-file-upload-wrapper {
+  position: relative;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.delice-recipe-file-upload-wrapper:hover {
+  border-color: #f97316;
+  background: #fef3e2;
+}
+
+.delice-recipe-file-upload-wrapper input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.delice-recipe-file-upload-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.delice-recipe-file-upload-text i {
+  font-size: 32px;
+  color: #9ca3af;
+}
+
+.delice-recipe-file-upload-text span {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Image Preview Styles */
+.delice-image-preview {
+  position: relative;
+  margin-top: 16px;
+  display: inline-block;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.delice-image-preview img {
+  max-width: 200px;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.delice-remove-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.delice-remove-image:hover {
+  background: rgba(220, 38, 38, 0.8);
+}
+
+/* Enhanced Submit Button */
+.delice-recipe-review-submit {
+  align-self: center;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+}
+
+.delice-recipe-review-submit:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(249, 115, 22, 0.4);
+}
+
+.delice-recipe-review-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Success Message */
+.delice-recipe-review-success {
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 20px;
+  display: none;
+}
+
+.delice-recipe-review-success i {
+  font-size: 24px;
+  margin-right: 8px;
+}
+
+.delice-recipe-review-success p {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Reviews Display Enhanced */
+.delice-recipe-reviews-display {
+  margin: 40px 0;
+}
+
+.delice-recipe-reviews-display h3 {
+  margin-bottom: 28px;
+  color: #1f2937;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.delice-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.delice-review-item {
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.delice-review-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.delice-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.delice-review-author {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 16px;
+}
+
+.delice-review-rating {
+  display: flex;
+  gap: 3px;
+}
+
+.delice-review-rating .fas.fa-star {
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+.delice-review-rating .fas.fa-star.active {
+  color: #f59e0b;
+}
+
+.delice-review-date {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.delice-review-comment {
+  margin-bottom: 16px;
+  color: #374151;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.delice-review-image {
+  margin-top: 16px;
+}
+
+.delice-review-image img {
+  max-width: 250px;
+  max-height: 250px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Template-specific styles */
+.delice-recipe-modern-reviews {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #0ea5e9;
+}
+
+.delice-recipe-elegant-reviews {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-color: #a855f7;
+}
+
+.delice-recipe-elegant-reviews .delice-recipe-review-header h3 {
+  color: #7c3aed;
+}
+
+/* Attribution Positioning */
+.delice-recipe-attribution {
+  max-width: 600px;
+  margin: 16px 0 24px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .delice-recipe-review-section {
+    margin: 24px 0;
+    padding: 24px;
+  }
+  
+  .delice-recipe-review-header h3 {
+    font-size: 24px;
+  }
+  
+  .delice-recipe-review-form {
+    padding: 20px;
+  }
+  
+  .delice-review-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .delice-review-image img {
+    max-width: 200px;
+    max-height: 200px;
+  }
+  
+  .delice-recipe-attribution {
+    margin: 12px 0 20px 0;
+  }
+  
+  .delice-image-preview img {
+    max-width: 150px;
+    max-height: 150px;
+  }
+  
+  .delice-rating-selected-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .delice-recipe-rate-btn {
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .delice-recipe-review-section {
+    padding: 20px;
+  }
+  
+  .delice-recipe-review-form {
+    padding: 16px;
+  }
+  
+  .delice-review-item {
+    padding: 16px;
+  }
+  
+  .delice-review-image img {
+    max-width: 150px;
+    max-height: 150px;
+  }
+  
+  .delice-image-preview img {
+    max-width: 120px;
+    max-height: 120px;
+  }
+
+  .delice-recipe-rate-btn {
+    padding: 8px 16px !important;
+    font-size: 12px !important;
+  }
+}

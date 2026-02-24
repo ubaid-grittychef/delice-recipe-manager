@@ -1,0 +1,1039 @@
+/**
+ * Delice Recipe Manager - Hybrid Modern Design
+ * Complete CSS for AI Generator and Settings Hub
+ */
+
+:root {
+    --delice-primary: #FF6B35;
+    --delice-primary-dark: #e55528;
+    --delice-bg: #ffffff;
+    --delice-bg-alt: #fafafa;
+    --delice-bg-hover: #f5f5f5;
+    --delice-border: #e8e8e8;
+    --delice-text: #1a1a1a;
+    --delice-text-light: #737373;
+    --delice-success: #22c55e;
+    --delice-warning: #f59e0b;
+    --delice-error: #ef4444;
+    --delice-info: #3b82f6;
+}
+
+/* ========================================
+   SUCCESS NOTIFICATION (GLOBAL)
+   ======================================== */
+
+.delice-notification {
+    position: fixed;
+    top: 64px;
+    right: 24px;
+    background: white;
+    border: 1px solid var(--delice-border);
+    border-left: 4px solid var(--delice-success);
+    border-radius: 6px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    min-width: 320px;
+    animation: deliceSlideIn 0.3s ease-out;
+}
+
+.delice-notification.show {
+    display: flex;
+}
+
+.delice-notification.error {
+    border-left-color: var(--delice-error);
+}
+
+.delice-notification-icon {
+    font-size: 20px;
+}
+
+.delice-notification-content {
+    flex: 1;
+}
+
+.delice-notification-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.delice-notification-message {
+    font-size: 13px;
+    color: var(--delice-text-light);
+}
+
+.delice-notification-close {
+    cursor: pointer;
+    color: var(--delice-text-light);
+    font-size: 18px;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.delice-notification-close:hover {
+    color: var(--delice-text);
+}
+
+@keyframes deliceSlideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes deliceSlideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   COMMON STYLES
+   ======================================== */
+
+.wrap.delice-hybrid-page {
+    margin: 0 0 0 -20px;
+    padding: 0;
+    background: var(--delice-bg-alt);
+}
+
+/* Header */
+.delice-hybrid-header {
+    background: var(--delice-bg);
+    border-bottom: 1px solid var(--delice-border);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 32px;
+    z-index: 100;
+    margin: 0 0 0 20px;
+}
+
+.delice-hybrid-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.delice-back-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+    background: transparent;
+    border: 1px solid var(--delice-border);
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--delice-text);
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.delice-back-btn:hover {
+    background: var(--delice-bg-alt);
+    color: var(--delice-text);
+}
+
+.delice-hybrid-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.delice-hybrid-header-right {
+    display: flex;
+    gap: 12px;
+}
+
+/* Buttons */
+.delice-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.delice-btn-primary {
+    background: var(--delice-text);
+    color: white;
+}
+
+.delice-btn-primary:hover:not(:disabled) {
+    background: var(--delice-primary);
+    color: white;
+}
+
+.delice-btn-primary:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+}
+
+.delice-btn-secondary {
+    background: transparent;
+    color: var(--delice-text);
+    border: 1px solid var(--delice-border);
+}
+
+.delice-btn-secondary:hover {
+    background: var(--delice-bg-alt);
+    color: var(--delice-text);
+}
+
+.delice-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Notice */
+.delice-notice {
+    padding: 12px 16px;
+    margin: 16px 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.delice-notice-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.delice-notice-info {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+/* Container */
+.delice-hybrid-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+}
+
+.delice-hybrid-container.two-col {
+    grid-template-columns: 400px 1fr;
+}
+
+/* Form Elements */
+.delice-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--delice-text);
+}
+
+.delice-input,
+.delice-select,
+.delice-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--delice-border);
+    border-radius: 6px;
+    background: var(--delice-bg);
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.delice-input:focus,
+.delice-select:focus,
+.delice-textarea:focus {
+    outline: none;
+    border-color: var(--delice-primary);
+}
+
+.delice-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.delice-hint {
+    font-size: 12px;
+    color: var(--delice-text-light);
+    margin-top: 6px;
+}
+
+/* Toggle Switch */
+.delice-toggle {
+    width: 44px;
+    height: 24px;
+    background: #d1d5db;
+    border-radius: 24px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.delice-toggle.active {
+    background: var(--delice-primary);
+}
+
+.delice-toggle-dot {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.delice-toggle.active .delice-toggle-dot {
+    transform: translateX(20px);
+}
+
+/* Info Box */
+.delice-info-box {
+    padding: 16px;
+    background: rgba(255, 107, 53, 0.05);
+    border: 1px solid var(--delice-primary);
+    border-radius: 6px;
+    margin-bottom: 24px;
+}
+
+.delice-info-box-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--delice-primary);
+    margin-bottom: 8px;
+}
+
+.delice-info-box-text {
+    font-size: 13px;
+    color: var(--delice-text);
+}
+
+/* ========================================
+   AI GENERATOR SPECIFIC STYLES
+   ======================================== */
+
+.delice-ai-sidebar {
+    background: var(--delice-bg);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 24px;
+    height: fit-content;
+    position: sticky;
+    top: 96px;
+}
+
+.delice-ai-sidebar-header {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--delice-border);
+}
+
+/* Mode Tabs */
+.delice-mode-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--delice-bg-alt);
+    padding: 4px;
+    border-radius: 6px;
+    margin-bottom: 24px;
+}
+
+.delice-mode-tab {
+    flex: 1;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--delice-text-light);
+}
+
+.delice-mode-tab.active {
+    background: var(--delice-bg);
+    color: var(--delice-text);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Form Sections */
+.delice-form-section {
+    margin-bottom: 24px;
+}
+
+.delice-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--delice-text);
+}
+
+.delice-form-group {
+    margin-bottom: 16px;
+}
+
+.delice-form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Tags Input */
+.delice-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--delice-border);
+    border-radius: 6px;
+    min-height: 44px;
+    background: var(--delice-bg);
+    cursor: text;
+}
+
+.delice-tags-container:focus-within {
+    border-color: var(--delice-primary);
+}
+
+.delice-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--delice-bg-alt);
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.delice-tag-remove {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--delice-text-light);
+    margin-left: 4px;
+}
+
+.delice-tag-remove:hover {
+    color: var(--delice-error);
+}
+
+.delice-tags-input {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+    font-size: 14px;
+    padding: 4px;
+}
+
+/* Checkbox Group */
+.delice-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.delice-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.delice-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Stats Row */
+.delice-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.delice-stat-card {
+    background: var(--delice-bg);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 3px solid var(--stat-color);
+}
+
+.delice-stat-card-primary { --stat-color: var(--delice-primary); }
+.delice-stat-card-success { --stat-color: var(--delice-success); }
+.delice-stat-card-warning { --stat-color: var(--delice-warning); }
+.delice-stat-card-info { --stat-color: var(--delice-info); }
+
+.delice-stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--delice-text);
+}
+
+.delice-stat-label {
+    font-size: 11px;
+    color: var(--delice-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+    display: block;
+}
+
+/* Results Section */
+.delice-results-section {
+    background: var(--delice-bg);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 24px;
+    min-height: 400px;
+}
+
+.delice-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--delice-border);
+}
+
+.delice-results-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.delice-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 350px;
+    color: var(--delice-text-light);
+    text-align: center;
+}
+
+.delice-empty-icon {
+    font-size: 72px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.delice-empty-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--delice-text);
+}
+
+/* Progress */
+.delice-progress-container {
+    margin-bottom: 24px;
+}
+
+.delice-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.delice-progress-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.delice-progress-status {
+    font-size: 13px;
+    color: var(--delice-text-light);
+}
+
+.delice-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: var(--delice-bg-alt);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.delice-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--delice-primary), var(--delice-success));
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* Recipe Card */
+.delice-recipe-results {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.delice-recipe-card {
+    background: var(--delice-bg-alt);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.2s;
+}
+
+.delice-recipe-card:hover {
+    border-color: var(--delice-primary);
+}
+
+.delice-recipe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.delice-recipe-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--delice-text);
+    flex: 1;
+    margin: 0;
+}
+
+.delice-recipe-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+/* History Panel */
+.delice-history-panel {
+    background: var(--delice-bg);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.delice-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.delice-history-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.delice-history-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.delice-history-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--delice-border);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.delice-history-item:hover {
+    background: var(--delice-bg-alt);
+}
+
+.delice-history-item:last-child {
+    border-bottom: none;
+}
+
+.delice-history-recipe-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.delice-history-time {
+    font-size: 12px;
+    color: var(--delice-text-light);
+}
+
+.delice-history-empty {
+    text-align: center;
+    padding: 32px;
+    color: var(--delice-text-light);
+}
+
+/* ========================================
+   SETTINGS HUB SPECIFIC STYLES
+   ======================================== */
+
+.delice-settings-nav {
+    background: var(--delice-bg);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 16px;
+    height: fit-content;
+    position: sticky;
+    top: 88px;
+}
+
+.delice-nav-section {
+    margin-bottom: 24px;
+}
+
+.delice-nav-section:last-child {
+    margin-bottom: 0;
+}
+
+.delice-nav-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--delice-text-light);
+    margin-bottom: 8px;
+    padding: 0 12px;
+}
+
+.delice-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--delice-text);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.delice-nav-item:hover {
+    background: var(--delice-bg-alt);
+}
+
+.delice-nav-item.active {
+    background: var(--delice-bg-alt);
+    color: var(--delice-primary);
+    font-weight: 500;
+}
+
+.delice-nav-icon {
+    width: 18px;
+    text-align: center;
+}
+
+/* Main Content */
+.delice-main-content {
+    background: var(--delice-bg);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 32px;
+}
+
+.delice-content-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--delice-border);
+}
+
+.delice-content-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.delice-content-desc {
+    font-size: 14px;
+    color: var(--delice-text-light);
+}
+
+/* Settings Sections */
+.delice-settings-section {
+    margin-bottom: 40px;
+}
+
+.delice-settings-section:last-child {
+    margin-bottom: 0;
+}
+
+.delice-section-header {
+    margin-bottom: 20px;
+}
+
+.delice-section-header-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.delice-section-desc {
+    font-size: 13px;
+    color: var(--delice-text-light);
+}
+
+/* Setting Row */
+.delice-setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--delice-border);
+}
+
+.delice-setting-row:last-child {
+    border-bottom: none;
+}
+
+.delice-setting-info {
+    flex: 1;
+}
+
+.delice-setting-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.delice-setting-hint {
+    font-size: 13px;
+    color: var(--delice-text-light);
+}
+
+.delice-setting-control {
+    margin-left: 20px;
+}
+
+/* Input Group */
+.delice-input-group {
+    margin-bottom: 20px;
+}
+
+.delice-input-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.delice-input-hint {
+    font-size: 12px;
+    color: var(--delice-text-light);
+    margin-top: 6px;
+}
+
+/* Language Radio Selection */
+.delice-lang-selector {
+    margin-bottom: 32px;
+}
+
+.delice-lang-radio-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.delice-lang-radio-card {
+    position: relative;
+    padding: 16px;
+    border: 2px solid var(--delice-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delice-lang-radio-card:hover {
+    border-color: var(--delice-primary);
+    background: var(--delice-bg-alt);
+}
+
+.delice-lang-radio-card.selected {
+    border-color: var(--delice-primary);
+    background: rgba(255, 107, 53, 0.05);
+}
+
+.delice-lang-radio-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.delice-lang-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.delice-lang-radio-icon {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--delice-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.delice-lang-radio-card.selected .delice-lang-radio-icon {
+    border-color: var(--delice-primary);
+    background: var(--delice-primary);
+}
+
+.delice-lang-radio-icon::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s;
+}
+
+.delice-lang-radio-card.selected .delice-lang-radio-icon::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.delice-lang-code {
+    font-size: 12px;
+    color: var(--delice-text-light);
+    margin-top: 4px;
+}
+
+/* Translation Fields */
+.delice-translation-fields {
+    background: var(--delice-bg-alt);
+    border: 1px solid var(--delice-border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 24px;
+}
+
+.delice-translation-header {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--delice-border);
+}
+
+.delice-translation-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.delice-translation-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.delice-translation-field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--delice-text-light);
+}
+
+.delice-translation-field input {
+    padding: 8px 10px;
+    font-size: 13px;
+    border: 1px solid var(--delice-border);
+    border-radius: 4px;
+}
+
+.delice-translation-field input:focus {
+    outline: none;
+    border-color: var(--delice-primary);
+}
+
+/* Button Group */
+.delice-btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--delice-border);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .delice-hybrid-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .delice-hybrid-container.two-col {
+        grid-template-columns: 1fr;
+    }
+    
+    .delice-ai-sidebar {
+        position: static;
+    }
+    
+    .delice-settings-nav {
+        position: static;
+    }
+    
+    .delice-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .delice-translation-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .delice-hybrid-header {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .delice-hybrid-container {
+        padding: 16px;
+    }
+    
+    .delice-stats-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .delice-lang-radio-group {
+        grid-template-columns: 1fr;
+    }
+}

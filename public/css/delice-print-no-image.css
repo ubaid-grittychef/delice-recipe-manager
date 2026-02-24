@@ -1,0 +1,363 @@
+/* ===== PRINT - NO IMAGE VERSION ===== */
+
+@media print {
+    /* Reset */
+    * {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Page setup */
+    @page {
+        margin: 0.5in;
+        size: letter;
+    }
+    
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+    
+    /* HIDE EVERYTHING */
+    body * {
+        display: none !important;
+    }
+    
+    /* SHOW ONLY RECIPE */
+    .delice-recipe-card,
+    .delice-recipe-card *,
+    .delice-recipe-container,
+    .delice-recipe-container * {
+        display: block !important;
+    }
+    
+    /* Flex elements */
+    .delice-recipe-card .delice-recipe-meta,
+    .delice-recipe-card .delice-recipe-nutrition-grid,
+    .delice-recipe-card .delice-recipe-ingredient,
+    .delice-recipe-card .delice-recipe-instruction,
+    .delice-recipe-container .delice-recipe-meta,
+    .delice-recipe-container .delice-recipe-nutrition-grid,
+    .delice-recipe-container .delice-recipe-ingredient,
+    .delice-recipe-container .delice-recipe-instruction {
+        display: flex !important;
+    }
+    
+    /* HIDE NON-ESSENTIAL CONTENT */
+    .delice-recipe-card .delice-recipe-description,
+    .delice-recipe-card .delice-recipe-image-wrapper,
+    .delice-recipe-card .delice-recipe-faqs,
+    .delice-recipe-card .delice-recipe-action-buttons,
+    .delice-recipe-card .delice-recipe-bottom-actions,
+    .delice-recipe-card .delice-recipe-copy-ingredients,
+    .delice-recipe-card .delice-recipe-ingredient-checkbox,
+    .delice-recipe-card .delice-recipe-review-section,
+    .delice-recipe-card .delice-recipe-footer,
+    .delice-recipe-card .delice-recipe-attribution-section,
+    .delice-recipe-card button,
+    .delice-recipe-container .delice-recipe-description,
+    .delice-recipe-container .delice-recipe-image-wrapper,
+    .delice-recipe-container .delice-recipe-faqs,
+    .delice-recipe-container .delice-recipe-action-buttons,
+    .delice-recipe-container .delice-recipe-bottom-actions,
+    .delice-recipe-container .delice-recipe-copy-ingredients,
+    .delice-recipe-container .delice-recipe-ingredient-checkbox,
+    .delice-recipe-container .delice-recipe-review-section,
+    .delice-recipe-container .delice-recipe-footer,
+    .delice-recipe-container .delice-recipe-attribution-section,
+    .delice-recipe-container button {
+        display: none !important;
+    }
+    
+    /* Container */
+    .delice-recipe-card,
+    .delice-recipe-container {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    /* === TITLE === */
+    .delice-recipe-header {
+        margin: 0 !important;
+        padding: 0 0 16px 0 !important;
+        text-align: center !important;
+        border-bottom: 2px solid #f0f0f0 !important;
+        page-break-after: avoid !important;
+    }
+    
+    .delice-recipe-title {
+        margin: 0 0 8px 0 !important;
+        padding: 0 !important;
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        color: #1a1a1a !important;
+        line-height: 1.2 !important;
+        page-break-after: avoid !important;
+    }
+    
+    /* === ATTRIBUTION - Simple text below title === */
+    .delice-recipe-title::after {
+        content: "Recipe by Émilie" !important;
+        display: block !important;
+        font-size: 12px !important;
+        font-weight: 400 !important;
+        color: #999 !important;
+        margin-top: 6px !important;
+    }
+    
+    /* === META CARDS === */
+    .delice-recipe-meta {
+        margin: 16px 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        flex-wrap: wrap !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+    }
+    
+    .delice-recipe-meta-item {
+        margin: 0 !important;
+        padding: 10px 12px !important;
+        border: 1.5px solid #e0e0e0 !important;
+        border-radius: 6px !important;
+        min-width: 80px !important;
+        text-align: center !important;
+        background: #fafafa !important;
+    }
+    
+    .delice-recipe-meta-label {
+        font-size: 9px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.6px !important;
+        color: #999 !important;
+        margin: 0 0 4px 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        font-weight: 600 !important;
+    }
+    
+    .delice-recipe-meta-value {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: #1a1a1a !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+    
+    /* === INGREDIENTS === */
+    .delice-recipe-ingredients {
+        margin: 0 !important;
+        padding: 16px 0 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .delice-recipe-ingredients h3 {
+        margin: 0 0 12px 0 !important;
+        padding: 0 0 8px 0 !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #1a1a1a !important;
+        border-bottom: 2px solid #FF6B35 !important;
+        page-break-after: avoid !important;
+    }
+    
+    .delice-recipe-ingredients-list {
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+    }
+    
+    .delice-recipe-ingredient {
+        margin: 0 !important;
+        padding: 8px 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: baseline !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        page-break-inside: avoid !important;
+        border-bottom: 1px solid #f5f5f5 !important;
+    }
+    
+    .delice-recipe-ingredient:last-child {
+        border-bottom: none !important;
+    }
+    
+    .delice-recipe-ingredient-name {
+        flex: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        color: #333 !important;
+    }
+    
+    .delice-recipe-ingredient-quantity {
+        margin: 0 0 0 16px !important;
+        padding: 0 !important;
+        font-weight: 700 !important;
+        color: #FF6B35 !important;
+        white-space: nowrap !important;
+    }
+    
+    /* === INSTRUCTIONS === */
+    .delice-recipe-instructions {
+        margin: 0 !important;
+        padding: 16px 0 !important;
+    }
+    
+    .delice-recipe-instructions h3 {
+        margin: 0 0 12px 0 !important;
+        padding: 0 0 8px 0 !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #1a1a1a !important;
+        border-bottom: 2px solid #FF6B35 !important;
+        page-break-after: avoid !important;
+    }
+    
+    .delice-recipe-instructions-list {
+        margin: 0 !important;
+        padding: 14px !important;
+        background: #fafafa !important;
+        border-radius: 8px !important;
+        counter-reset: step !important;
+    }
+    
+    .delice-recipe-instruction {
+        margin: 0 0 10px 0 !important;
+        padding: 12px !important;
+        display: flex !important;
+        gap: 14px !important;
+        background: white !important;
+        border-radius: 6px !important;
+        border: 1px solid #e8e8e8 !important;
+        page-break-inside: avoid !important;
+        counter-increment: step !important;
+    }
+    
+    .delice-recipe-instruction:last-child {
+        margin-bottom: 0 !important;
+    }
+    
+    .delice-recipe-instruction::before {
+        content: counter(step) !important;
+        min-width: 32px !important;
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #FF6B35 !important;
+        color: white !important;
+        border-radius: 50% !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        flex-shrink: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .delice-recipe-instruction-text {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        line-height: 1.7 !important;
+        color: #333 !important;
+    }
+    
+    /* === NOTES === */
+    .delice-recipe-notes {
+        margin: 0 0 16px 0 !important;
+        padding: 14px !important;
+        background: #fffbf0 !important;
+        border-left: 4px solid #FF6B35 !important;
+        border-radius: 6px !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .delice-recipe-notes h4 {
+        margin: 0 0 8px 0 !important;
+        padding: 0 !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: #1a1a1a !important;
+    }
+    
+    .delice-recipe-notes p {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 13px !important;
+        line-height: 1.7 !important;
+        color: #555 !important;
+    }
+    
+    /* === NUTRITION === */
+    .delice-recipe-nutrition {
+        margin: 0 !important;
+        padding: 16px 0 0 0 !important;
+    }
+    
+    .delice-recipe-nutrition h4 {
+        margin: 0 0 12px 0 !important;
+        padding: 0 0 8px 0 !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #1a1a1a !important;
+        text-align: center !important;
+        border-bottom: 2px solid #FF6B35 !important;
+        page-break-after: avoid !important;
+    }
+    
+    .delice-recipe-nutrition-grid {
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .delice-recipe-nutrition-item {
+        margin: 0 !important;
+        padding: 10px 12px !important;
+        border: 1.5px solid #e0e0e0 !important;
+        border-radius: 6px !important;
+        min-width: 80px !important;
+        text-align: center !important;
+        background: #fafafa !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .delice-recipe-nutrition-label {
+        margin: 0 0 4px 0 !important;
+        padding: 0 !important;
+        font-size: 9px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.6px !important;
+        color: #999 !important;
+        display: block !important;
+        font-weight: 600 !important;
+    }
+    
+    .delice-recipe-nutrition-value {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #FF6B35 !important;
+        display: block !important;
+    }
+    
+    /* Remove all effects */
+    * {
+        box-shadow: none !important;
+        transition: none !important;
+        transform: none !important;
+        animation: none !important;
+    }
+}

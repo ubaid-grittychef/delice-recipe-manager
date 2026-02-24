@@ -1,0 +1,161 @@
+/* ===== NUCLEAR OVERRIDE - MAXIMUM SPECIFICITY ===== */
+
+/* BUTTONS - MINIMAL STYLE */
+html body .delice-recipe-container .delice-recipe-action-buttons .delice-recipe-action-button,
+html body .delice-recipe-container .delice-recipe-action-buttons .delice-recipe-print-btn,
+html body .delice-recipe-container .delice-recipe-action-buttons .delice-recipe-share-btn,
+html body .delice-recipe-container .delice-recipe-action-buttons button,
+html body .delice-recipe-action-buttons .delice-recipe-action-button,
+html body .delice-recipe-action-buttons .delice-recipe-print-btn,
+html body .delice-recipe-action-button,
+html body .delice-recipe-print-btn,
+html body button.delice-recipe-print-btn,
+body .delice-recipe-action-button,
+body .delice-recipe-print-btn,
+.delice-recipe-action-button,
+.delice-recipe-print-btn,
+button.delice-recipe-print-btn {
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    min-width: auto !important;
+    transform: none !important;
+    text-shadow: none !important;
+}
+
+html body .delice-recipe-action-button:hover,
+html body .delice-recipe-print-btn:hover,
+body .delice-recipe-action-button:hover,
+body .delice-recipe-print-btn:hover,
+.delice-recipe-action-button:hover,
+.delice-recipe-print-btn:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #000 !important;
+    border-color: #000 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* FAQ - COMPLETE OVERRIDE WITH WHITE BACKGROUND */
+html body .delice-recipe-faqs,
+body .delice-recipe-faqs,
+.delice-recipe-faqs {
+    background: white !important;
+    background-color: white !important;
+    padding: 32px 20px !important;
+}
+
+html body .delice-recipe-modern-faq-item,
+body .delice-recipe-modern-faq-item,
+.delice-recipe-modern-faq-item {
+    background: white !important;
+    background-color: white !important;
+    margin-bottom: 10px !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+}
+
+html body .delice-recipe-modern-faq-question,
+body .delice-recipe-modern-faq-question,
+.delice-recipe-modern-faq-question,
+button.delice-recipe-modern-faq-question {
+    width: 100% !important;
+    background: white !important;
+    background-color: white !important;
+    padding: 14px 16px !important;
+    color: #1a1a1a !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    text-align: left !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+}
+
+html body .delice-recipe-modern-faq-question:hover,
+body .delice-recipe-modern-faq-question:hover,
+.delice-recipe-modern-faq-question:hover {
+    background: #f8f8f8 !important;
+    background-color: #f8f8f8 !important;
+}
+
+html body .faq-open .delice-recipe-modern-faq-question,
+body .faq-open .delice-recipe-modern-faq-question,
+.faq-open .delice-recipe-modern-faq-question {
+    background: #f8f8f8 !important;
+    background-color: #f8f8f8 !important;
+}
+
+html body .delice-recipe-modern-faq-toggle,
+body .delice-recipe-modern-faq-toggle,
+.delice-recipe-modern-faq-toggle {
+    font-size: 20px !important;
+    font-weight: 300 !important;
+    color: #666 !important;
+    transition: transform 0.2s ease !important;
+    display: inline-block !important;
+}
+
+html body .faq-open .delice-recipe-modern-faq-toggle,
+body .faq-open .delice-recipe-modern-faq-toggle,
+.faq-open .delice-recipe-modern-faq-toggle {
+    transform: rotate(45deg) !important;
+}
+
+html body .delice-recipe-modern-faq-answer,
+body .delice-recipe-modern-faq-answer,
+.delice-recipe-modern-faq-answer {
+    max-height: 0 !important;
+    overflow: hidden !important;
+    transition: max-height 0.3s ease !important;
+    background: #fafafa !important;
+    background-color: #fafafa !important;
+}
+
+html body .faq-open .delice-recipe-modern-faq-answer,
+body .faq-open .delice-recipe-modern-faq-answer,
+.faq-open .delice-recipe-modern-faq-answer {
+    max-height: 1000px !important;
+}
+
+html body .delice-recipe-modern-faq-answer p,
+body .delice-recipe-modern-faq-answer p,
+.delice-recipe-modern-faq-answer p {
+    padding: 14px 16px !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    color: #666 !important;
+    border-top: 1px solid #e0e0e0 !important;
+    background: #fafafa !important;
+    background-color: #fafafa !important;
+}
+
+/* REMOVE ANY ORANGE BACKGROUNDS */
+html body .delice-recipe-modern-faq-item[style*="background"],
+body .delice-recipe-modern-faq-item[style*="background"],
+.delice-recipe-modern-faq-item[style*="background"] {
+    background: white !important;
+    background-color: white !important;
+}
+
+html body .delice-recipe-modern-faq-question[style*="background"],
+body .delice-recipe-modern-faq-question[style*="background"],
+.delice-recipe-modern-faq-question[style*="background"] {
+    background: white !important;
+    background-color: white !important;
+}

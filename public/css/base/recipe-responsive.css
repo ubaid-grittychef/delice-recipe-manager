@@ -1,0 +1,64 @@
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .delice-recipe-grid { 
+    grid-template-columns: 1fr; 
+  }
+  
+  .delice-recipe-meta-mobile {
+    flex-direction: column;
+  }
+  
+  .delice-recipe-meta-item-mobile {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .delice-recipe-section-container-mobile {
+    display: block;
+  }
+  
+  .delice-recipe-body-mobile {
+    display: block;
+  }
+  
+  .delice-recipe-sidebar-mobile {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .delice-recipe-container {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .delice-recipe-card {
+    box-shadow: none;
+  }
+  
+  .delice-recipe-grid {
+    display: block;
+  }
+  
+  .delice-recipe-ingredients,
+  .delice-recipe-instructions {
+    max-height: none;
+    overflow: visible;
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  .delice-recipe-print-button,
+  .delice-recipe-rating-controls {
+    display: none;
+  }
+  
+  /* Ensure ingredients show checkboxes properly in print */
+  .delice-recipe-ingredient-checkbox {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

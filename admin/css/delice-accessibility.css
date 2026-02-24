@@ -1,0 +1,75 @@
+/**
+ * Delice Recipe Manager - Accessibility Styles
+ * WCAG 2.1 Level AA Compliant
+ */
+
+/* Screen Reader Only Text */
+.screen-reader-text {
+    position: absolute !important;
+    left: -10000px !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+}
+
+/* Skip Links */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #FF6B35;
+    color: white;
+    padding: 8px 16px;
+    z-index: 100000;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Focus States - CRITICAL for accessibility */
+.delice-btn:focus,
+button:focus,
+.delice-input:focus,
+input:focus,
+select:focus,
+textarea:focus,
+.delice-toggle:focus,
+a:focus,
+[role="button"]:focus {
+    outline: 2px solid #FF6B35 !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2) !important;
+}
+
+/* Required Fields */
+.required {
+    color: #E53E3E;
+}
+
+/* Error States */
+[aria-invalid="true"] {
+    border-color: #E53E3E !important;
+}
+
+.error-message {
+    color: #E53E3E;
+    font-size: 14px;
+}
+
+/* ARIA Live Regions */
+[aria-live="polite"],
+[aria-live="assertive"] {
+    position: fixed;
+    top: 32px;
+    right: 20px;
+    z-index: 100000;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

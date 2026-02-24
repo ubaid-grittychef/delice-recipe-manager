@@ -1,0 +1,547 @@
+/**
+ * Delice Recipe Manager - Modern Admin Design System
+ * Complete minimalist design with all features
+ */
+
+:root {
+    /* Colors */
+    --delice-primary: #FF6B35;
+    --delice-primary-light: #ff8f66;
+    --delice-primary-dark: #e55528;
+    --delice-bg: #ffffff;
+    --delice-bg-alt: #fafafa;
+    --delice-border: #e8e8e8;
+    --delice-text: #1a1a1a;
+    --delice-text-light: #737373;
+    --delice-success: #22c55e;
+    --delice-warning: #f59e0b;
+    --delice-error: #ef4444;
+    --delice-info: #3b82f6;
+    
+    /* Spacing */
+    --delice-space-xs: 4px;
+    --delice-space-sm: 8px;
+    --delice-space-md: 16px;
+    --delice-space-lg: 24px;
+    --delice-space-xl: 32px;
+    
+    /* Border Radius */
+    --delice-radius: 6px;
+    
+    /* Typography */
+    --delice-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Reset WordPress Admin Styles */
+.delice-admin-wrap {
+    margin: 0 0 0 -20px;
+    padding: 0;
+    background: var(--delice-bg);
+}
+
+.delice-admin-wrap * {
+    box-sizing: border-box;
+}
+
+/* Top Navigation */
+.delice-admin-nav {
+    border-bottom: 1px solid var(--delice-border);
+    background: var(--delice-bg);
+    position: sticky;
+    top: 32px;
+    z-index: 100;
+    margin-left: 0;
+}
+
+.delice-admin-nav__inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--delice-space-lg);
+    display: flex;
+    align-items: center;
+    height: 56px;
+}
+
+.delice-admin-logo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--delice-text);
+    margin-right: 48px;
+}
+
+.delice-admin-tabs {
+    display: flex;
+    gap: var(--delice-space-lg);
+    flex: 1;
+    overflow-x: auto;
+}
+
+.delice-admin-tab {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--delice-text-light);
+    background: none;
+    border: none;
+    padding: 16px 0;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.delice-admin-tab:hover {
+    color: var(--delice-text);
+}
+
+.delice-admin-tab.active {
+    color: var(--delice-primary);
+    border-bottom-color: var(--delice-primary);
+}
+
+/* Content Area */
+.delice-admin-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--delice-space-xl) var(--delice-space-lg);
+}
+
+.delice-admin-pane {
+    display: none;
+}
+
+.delice-admin-pane.active {
+    display: block;
+}
+
+/* Page Header */
+.delice-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--delice-space-xl);
+    flex-wrap: wrap;
+    gap: var(--delice-space-md);
+}
+
+.delice-page-title {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--delice-text);
+    margin: 0;
+}
+
+.delice-page-subtitle {
+    font-size: 14px;
+    color: var(--delice-text-light);
+    margin: 4px 0 0 0;
+}
+
+/* Stats Grid */
+.delice-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--delice-space-md);
+    margin-bottom: var(--delice-space-xl);
+}
+
+.delice-stat-card {
+    background: var(--delice-bg-alt);
+    border-radius: var(--delice-radius);
+    padding: 20px;
+    border-left: 3px solid var(--stat-color);
+}
+
+.delice-stat-card--primary { --stat-color: var(--delice-primary); }
+.delice-stat-card--success { --stat-color: var(--delice-success); }
+.delice-stat-card--warning { --stat-color: var(--delice-warning); }
+.delice-stat-card--info { --stat-color: var(--delice-info); }
+
+.delice-stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--delice-text);
+}
+
+.delice-stat-label {
+    font-size: 12px;
+    color: var(--delice-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: var(--delice-space-sm);
+    display: block;
+}
+
+.delice-stat-trend {
+    font-size: 13px;
+    color: var(--delice-success);
+    margin-top: var(--delice-space-sm);
+    display: block;
+}
+
+/* Section Box */
+.delice-section {
+    background: var(--delice-bg);
+    border: 1px solid var(--delice-border);
+    border-radius: var(--delice-radius);
+    padding: var(--delice-space-lg);
+    margin-bottom: var(--delice-space-lg);
+}
+
+.delice-section-header {
+    margin-bottom: 20px;
+    padding-bottom: var(--delice-space-md);
+    border-bottom: 1px solid var(--delice-border);
+}
+
+.delice-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--delice-text);
+}
+
+.delice-section-desc {
+    font-size: 13px;
+    color: var(--delice-text-light);
+    margin: 4px 0 0 0;
+}
+
+/* Form Elements */
+.delice-form-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.delice-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--delice-space-sm);
+}
+
+.delice-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--delice-text);
+}
+
+.delice-input,
+.delice-select,
+.delice-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: var(--delice-font);
+    border: 1px solid var(--delice-border);
+    border-radius: var(--delice-radius);
+    background: var(--delice-bg);
+    transition: border-color 0.2s;
+}
+
+.delice-input:focus,
+.delice-select:focus,
+.delice-textarea:focus {
+    outline: none;
+    border-color: var(--delice-primary);
+}
+
+.delice-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.delice-hint {
+    font-size: 12px;
+    color: var(--delice-text-light);
+}
+
+/* Checkbox & Radio */
+.delice-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.delice-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: var(--delice-space-sm);
+    cursor: pointer;
+}
+
+.delice-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.delice-checkbox-label {
+    font-size: 14px;
+    color: var(--delice-text);
+    cursor: pointer;
+}
+
+/* Toggle Switch */
+.delice-toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.delice-toggle {
+    width: 40px;
+    height: 22px;
+    background: #d1d5db;
+    border-radius: 22px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.delice-toggle.active {
+    background: var(--delice-primary);
+}
+
+.delice-toggle-dot {
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.delice-toggle.active .delice-toggle-dot {
+    transform: translateX(18px);
+}
+
+/* Buttons */
+.delice-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--delice-radius);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.delice-btn-primary {
+    background: var(--delice-text);
+    color: white;
+}
+
+.delice-btn-primary:hover {
+    background: var(--delice-primary);
+    color: white;
+}
+
+.delice-btn-secondary {
+    background: var(--delice-bg-alt);
+    color: var(--delice-text);
+    border: 1px solid var(--delice-border);
+}
+
+.delice-btn-secondary:hover {
+    background: var(--delice-bg);
+    border-color: var(--delice-text-light);
+}
+
+.delice-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.delice-btn-danger {
+    background: var(--delice-error);
+    color: white;
+}
+
+.delice-btn-danger:hover {
+    background: #dc2626;
+}
+
+/* Table */
+.delice-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--delice-border);
+    border-radius: var(--delice-radius);
+}
+
+.delice-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.delice-table thead {
+    background: var(--delice-bg-alt);
+    border-bottom: 1px solid var(--delice-border);
+}
+
+.delice-table th {
+    text-align: left;
+    padding: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--delice-text-light);
+}
+
+.delice-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--delice-border);
+    font-size: 13px;
+}
+
+.delice-table tr:last-child td {
+    border-bottom: none;
+}
+
+.delice-table tbody tr:hover {
+    background: var(--delice-bg-alt);
+}
+
+/* Badge */
+.delice-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 3px;
+}
+
+.delice-badge-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.delice-badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.delice-badge-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.delice-badge-info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Language Grid */
+.delice-lang-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.delice-lang-card {
+    padding: 12px;
+    border: 1px solid var(--delice-border);
+    border-radius: var(--delice-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delice-lang-card:hover {
+    border-color: var(--delice-primary);
+    background: var(--delice-bg-alt);
+}
+
+.delice-lang-card.selected {
+    border-color: var(--delice-primary);
+    background: rgba(255, 107, 53, 0.05);
+}
+
+/* Grid Utilities */
+.delice-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--delice-space-md);
+}
+
+/* Loading Spinner */
+.delice-loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--delice-border);
+    border-top-color: var(--delice-primary);
+    border-radius: 50%;
+    animation: delice-spin 0.6s linear infinite;
+}
+
+@keyframes delice-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Notice */
+.delice-notice {
+    padding: 12px 16px;
+    border-radius: var(--delice-radius);
+    margin-bottom: var(--delice-space-md);
+    border-left: 3px solid;
+}
+
+.delice-notice-success {
+    background: #dcfce7;
+    border-color: var(--delice-success);
+    color: #166534;
+}
+
+.delice-notice-error {
+    background: #fee2e2;
+    border-color: var(--delice-error);
+    color: #991b1b;
+}
+
+.delice-notice-info {
+    background: #dbeafe;
+    border-color: var(--delice-info);
+    color: #1e40af;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .delice-admin-nav__inner {
+        padding: 0 var(--delice-space-md);
+    }
+    
+    .delice-admin-tabs {
+        gap: var(--delice-space-md);
+    }
+    
+    .delice-admin-content {
+        padding: var(--delice-space-md);
+    }
+    
+    .delice-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .delice-page-header {
+        flex-direction: column;
+    }
+    
+    .delice-table-wrap {
+        font-size: 12px;
+    }
+}
+
+/* Hide default WordPress stuff on our pages */
+.delice-admin-wrap .notice,
+.delice-admin-wrap .update-nag {
+    display: none;
+}

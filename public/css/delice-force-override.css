@@ -1,0 +1,158 @@
+/* NUCLEAR OPTION - FORCE OVERRIDE EVERYTHING */
+
+/* Attribution - Remove ALL borders with maximum specificity */
+.delice-recipe-card .delice-recipe-header .delice-recipe-attribution,
+.delice-recipe-container .delice-recipe-header .delice-recipe-attribution,
+div.delice-recipe-attribution,
+.delice-recipe-attribution {
+    border: 0 !important;
+    border-left: 0 !important;
+    border-left-width: 0 !important;
+    border-left-style: none !important;
+    border-left-color: transparent !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    text-align: center !important;
+    padding: 0 24px 20px 24px !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+.delice-recipe-card .delice-recipe-header .delice-recipe-attribution p,
+.delice-recipe-container .delice-recipe-header .delice-recipe-attribution p,
+.delice-recipe-attribution p,
+p.delice-recipe-attribution-text,
+.delice-recipe-attribution-text {
+    border: 0 !important;
+    border-left: 0 !important;
+    border-left-width: 0 !important;
+    border-left-style: none !important;
+    border-left-color: transparent !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 14px !important;
+    color: #666 !important;
+    line-height: 1.6 !important;
+    box-shadow: none !important;
+}
+
+/* Header - No borders */
+.delice-recipe-card .delice-recipe-header,
+.delice-recipe-container .delice-recipe-header,
+header.delice-recipe-header,
+.delice-recipe-header {
+    border: 0 !important;
+    border-left: 0 !important;
+    border-left-width: 0 !important;
+    border-left-style: none !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+}
+
+/* ATTRIBUTION WRAPPER - OUTSIDE HEADER */
+.delice-recipe-attribution-wrapper,
+div.delice-recipe-attribution-wrapper {
+    width: 100% !important;
+    background: white !important;
+    background-color: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    border-color: transparent !important;
+    border-left: 0 !important;
+    border-left-width: 0 !important;
+    border-left-style: none !important;
+    border-left-color: transparent !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* ATTRIBUTION - EVEN MORE SPECIFIC */
+.delice-recipe-attribution-wrapper .delice-recipe-attribution,
+div.delice-recipe-attribution-wrapper div.delice-recipe-attribution,
+.delice-recipe-card .delice-recipe-attribution-wrapper .delice-recipe-attribution {
+    text-align: center !important;
+    padding: 0 24px 20px 24px !important;
+    margin: 0 auto !important;
+    max-width: 900px !important;
+    border: 0 !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    border-color: transparent !important;
+    border-left: 0 !important;
+    border-left-width: 0 !important;
+    border-left-style: none !important;
+    border-left-color: transparent !important;
+    border-right: 0 !important;
+    border-right-width: 0 !important;
+    border-top: 0 !important;
+    border-top-width: 0 !important;
+    border-bottom: 0 !important;
+    border-bottom-width: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* ATTRIBUTION TEXT - ULTIMATE OVERRIDE */
+.delice-recipe-attribution-wrapper .delice-recipe-attribution p,
+.delice-recipe-attribution-wrapper p.delice-recipe-attribution-text,
+div.delice-recipe-attribution-wrapper div.delice-recipe-attribution p.delice-recipe-attribution-text {
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 14px !important;
+    color: #666 !important;
+    border: 0 !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    border-color: transparent !important;
+    border-left: 0 !important;
+    border-left-width: 0 !important;
+    border-left-style: none !important;
+    border-left-color: transparent !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    line-height: 1.6 !important;
+}
+
+/* ATTRIBUTION LINK */
+.delice-recipe-attribution-wrapper a.delice-recipe-attribution-link,
+.delice-recipe-attribution a.delice-recipe-attribution-link {
+    color: #FF6B35 !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    border: 0 !important;
+    border-left: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.delice-recipe-attribution-wrapper a.delice-recipe-attribution-link:hover,
+.delice-recipe-attribution a.delice-recipe-attribution-link:hover {
+    text-decoration: underline !important;
+}

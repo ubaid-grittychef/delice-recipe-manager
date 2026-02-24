@@ -1,0 +1,161 @@
+
+/* Recipe Rating Modal Styles */
+.delice-recipe-rating-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.delice-recipe-rating-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.delice-recipe-rating-modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.delice-recipe-rating-modal.active .delice-recipe-rating-modal-content {
+  transform: scale(1);
+}
+
+.delice-recipe-rating-modal h3 {
+  margin: 0 0 10px 0;
+  color: #1f2937;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.delice-recipe-rating-modal p {
+  margin: 0 0 25px 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.delice-recipe-rating-modal .delice-recipe-rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 25px 0;
+}
+
+.delice-recipe-rating-modal .delice-rating-star {
+  font-size: 32px;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px;
+}
+
+.delice-recipe-rating-modal .delice-rating-star:hover,
+.delice-recipe-rating-modal .delice-rating-star.hover {
+  color: #fbbf24;
+  transform: scale(1.1);
+}
+
+.delice-recipe-rating-modal .delice-rating-star.selected {
+  color: #f59e0b;
+  transform: scale(1.05);
+}
+
+.delice-recipe-rating-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.delice-recipe-rating-submit,
+.delice-recipe-rating-cancel {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.delice-recipe-rating-submit {
+  background: #f97316;
+  color: white;
+}
+
+.delice-recipe-rating-submit:hover {
+  background: #ea580c;
+  transform: translateY(-1px);
+}
+
+.delice-recipe-rating-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.delice-recipe-rating-cancel:hover {
+  background: #d1d5db;
+}
+
+/* Modal Message Styles */
+.delice-modal-message {
+  padding: 12px 16px;
+  margin: 0 0 16px 0;
+  border-radius: 8px;
+  font-weight: 500;
+  display: none;
+}
+
+.delice-modal-message.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.delice-modal-message.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Modal Body Lock */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .delice-recipe-rating-modal-content {
+    padding: 20px;
+    margin: 15px;
+  }
+  
+  .delice-recipe-rating-modal .delice-rating-star {
+    font-size: 28px;
+  }
+  
+  .delice-recipe-rating-buttons {
+    flex-direction: column;
+  }
+  
+  .delice-recipe-rating-submit,
+  .delice-recipe-rating-cancel {
+    width: 100%;
+  }
+}

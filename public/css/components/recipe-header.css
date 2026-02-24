@@ -1,0 +1,123 @@
+
+/* Recipe header & image */
+.delice-recipe-header { padding: 24px; }
+.delice-recipe-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #f97316; /* Updated to orange */
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.delice-recipe-image {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  background: #f8f8f8;
+}
+.delice-recipe-image.loading {
+  filter: blur(10px);
+}
+
+/* Meta bar - Compact design */
+.delice-recipe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 24px 18px;
+  padding: 12px;
+  background: #fff5eb; /* Light orange background */
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.delice-recipe-meta-item {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  min-width: 90px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.delice-recipe-meta-label { 
+  font-size: 11px; 
+  color: #64748b; 
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 500;
+}
+
+.delice-recipe-meta-value { 
+  font-size: 14px; 
+  color: #f97316; /* Updated to orange */
+  font-weight: 700; 
+}
+
+/* Add icons to meta items - Smaller size */
+.delice-recipe-meta-item::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 0 auto 4px;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.8;
+}
+
+.delice-recipe-meta-item.prep-time::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.delice-recipe-meta-item.cook-time::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 10V3L4 14h7v7l9-11h-7z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.delice-recipe-meta-item.total-time::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.delice-recipe-meta-item.servings::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.delice-recipe-meta-item.calories::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Mobile responsiveness for compact meta */
+@media (max-width: 768px) {
+  .delice-recipe-meta {
+    gap: 8px;
+    padding: 10px;
+    margin: 0 16px 16px;
+  }
+  
+  .delice-recipe-meta-item {
+    padding: 8px;
+    min-width: 80px;
+  }
+  
+  .delice-recipe-meta-label {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+  
+  .delice-recipe-meta-value {
+    font-size: 13px;
+  }
+  
+  .delice-recipe-meta-item::before {
+    width: 16px;
+    height: 16px;
+    margin-bottom: 3px;
+  }
+}
+
