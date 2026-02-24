@@ -403,13 +403,7 @@
                         <?php elseif ( 403 === $api_error ) : ?>
                             <span style="color:#d63638;">&#9888; <?php _e( 'GitHub token lacks permissions. It needs the <code>repo</code> or <code>contents:read</code> scope.', 'delice-recipe-manager' ); ?></span>
                         <?php elseif ( 404 === $api_error ) : ?>
-                            <span style="color:#d63638;">&#9888;
-                                <?php _e( 'No releases found on GitHub.', 'delice-recipe-manager' ); ?>
-                                <a href="https://github.com/ubaid-grittychef/delice-recipe-manager/releases/new" target="_blank" rel="noopener">
-                                    <?php _e( 'Create a release now &rarr;', 'delice-recipe-manager' ); ?>
-                                </a><br>
-                                <small><?php _e( 'Important: the release must be <strong>Published</strong> (not Draft). Pre-releases are supported. Tag it as <code>v1.2.0</code> and make sure the version in <code>delice-recipe-manager.php</code> matches.', 'delice-recipe-manager' ); ?></small>
-                            </span>
+                            <span style="color:#d63638;">&#9888; <?php _e( 'Repository or plugin file not found on the main branch. Check that the repository name is correct.', 'delice-recipe-manager' ); ?></span>
                         <?php else : ?>
                             <span style="color:#d63638;">&#9888; <?php printf( esc_html__( 'GitHub API error (HTTP %d). Click "Clear Cache &amp; Check Now" to retry.', 'delice-recipe-manager' ), $api_error ); ?></span>
                         <?php endif; ?>
@@ -448,7 +442,7 @@
                         <td>
                             <code>ubaid-grittychef/delice-recipe-manager</code>
                             <p class="description">
-                                <?php _e( 'Updates are fetched from the <strong>latest release</strong> on this repository. Tag your releases as <code>v1.2.0</code> or <code>1.2.0</code> — either format is supported.', 'delice-recipe-manager' ); ?>
+                                <?php _e( 'Updates are fetched directly from the <strong>main branch</strong>. To push an update: bump the <code>Version:</code> line in <code>delice-recipe-manager.php</code> and push to main. No releases or tags needed.', 'delice-recipe-manager' ); ?>
                             </p>
                         </td>
                     </tr>
