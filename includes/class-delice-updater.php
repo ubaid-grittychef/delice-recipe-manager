@@ -10,13 +10,18 @@
  * How it works:
  *  1. pre_set_site_transient_update_plugins  – Fetches the latest GitHub
  *     release, compares versions, and injects an update notice when a newer
- *     version is found.
- *  2. plugins_api                            – Supplies the "View details"
+ *     version is found (fires when WP rewrites the transient, ~every 12 h).
+ *  2. site_transient_update_plugins          – Re-injects the update on every
+ *     transient READ using only locally cached data, so the "Update Available"
+ *     badge appears immediately without waiting for the next WP update cycle.
+ *  3. plugins_api                            – Supplies the "View details"
  *     popup in the WP admin (changelog, version, etc.).
- *  3. upgrader_pre_download                  – For private repos, intercepts
+ *  4. upgrader_pre_download                  – For private repos, intercepts
  *     the download and adds the Authorization header so the zip can be
  *     fetched without making the repo public.
- *  4. upgrader_process_complete              – Clears the cached API response
+ *  5. upgrader_source_selection              – Renames the extracted GitHub
+ *     archive directory to match the expected plugin folder name.
+ *  6. upgrader_process_complete              – Clears the cached API response
  *     after a successful update.
  */
 
@@ -62,6 +67,7 @@ class Delice_GitHub_Updater {
         $this->cache_key   = 'delice_gh_updater_' . md5( $this->slug );
 
         add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_update' ) );
+        add_filter( 'site_transient_update_plugins',         array( $this, 'inject_update_on_read' ) );
         add_filter( 'plugins_api',                           array( $this, 'plugin_info' ), 20, 3 );
         add_filter( 'upgrader_pre_download',                 array( $this, 'pre_download' ), 10, 3 );
         add_filter( 'upgrader_source_selection',             array( $this, 'fix_source_directory' ), 10, 4 );
@@ -182,6 +188,62 @@ class Delice_GitHub_Updater {
         } else {
             // Ensure the plugin is not stuck in "needs update" from a stale transient.
             unset( $transient->response[ $this->slug ] );
+        }
+
+        return $transient;
+    }
+
+    /**
+     * Hook: site_transient_update_plugins  (READ filter)
+     *
+     * pre_set_site_transient_update_plugins only fires when WordPress
+     * rewrites the transient — roughly every 12 hours.  Between rewrites,
+     * WordPress reads the same stale transient on every admin page and the
+     * update badge never appears for our plugin even when a newer release
+     * exists on GitHub.
+     *
+     * This filter fires on every READ of the transient.  It re-injects the
+     * update entry from our locally cached release data (no new API call),
+     * so the "Update Available" badge and the "Update Now" button appear as
+     * soon as the GitHub release is first detected — no 12-hour wait.
+     *
+     * @param  object $transient  The update_plugins transient.
+     * @return object
+     */
+    public function inject_update_on_read( $transient ) {
+        if ( ! is_object( $transient ) ) {
+            return $transient;
+        }
+
+        $release = $this->get_release_info();
+        if ( ! $release ) {
+            return $transient;
+        }
+
+        $remote_version = ltrim( $release->tag_name, 'v' );
+
+        if ( version_compare( $this->version, $remote_version, '<' ) ) {
+            if ( ! isset( $transient->response ) ) {
+                $transient->response = array();
+            }
+            $transient->response[ $this->slug ] = (object) array(
+                'id'             => $this->slug,
+                'slug'           => dirname( $this->slug ),
+                'plugin'         => $this->slug,
+                'new_version'    => $remote_version,
+                'url'            => "https://github.com/{$this->github_user}/{$this->github_repo}",
+                'package'        => $release->zipball_url,
+                'icons'          => array(),
+                'banners'        => array(),
+                'tested'         => get_bloginfo( 'version' ),
+                'requires_php'   => '7.4',
+                'upgrade_notice' => ! empty( $release->name ) ? sanitize_text_field( $release->name ) : '',
+            );
+        } else {
+            // Ensure the plugin is not stuck showing a stale update badge.
+            if ( isset( $transient->response[ $this->slug ] ) ) {
+                unset( $transient->response[ $this->slug ] );
+            }
         }
 
         return $transient;
