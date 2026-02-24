@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name: WP Delicious Recipe
+ * GitHub Plugin URI: ubaid-grittychef/delice-recipe-manager
  * …
  */
 
