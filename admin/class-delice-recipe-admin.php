@@ -968,6 +968,16 @@ class Delice_Recipe_Admin {
      */
     public function show_settings_notices() {
         $page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+        // Notice after "Clear Cache & Check Now".
+        if ( isset( $_GET['delice_cache_cleared'] ) && '1' === $_GET['delice_cache_cleared'] && 'delice-recipe-settings' === $page ) {
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php _e( 'Update cache cleared. Fresh release data has been fetched from GitHub.', 'delice-recipe-manager' ); ?></p>
+            </div>
+            <?php
+        }
+
         if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] && $page === 'delice-recipe-settings' ) {
             ?>
             <div class="notice notice-success is-dismissible">

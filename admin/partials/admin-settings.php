@@ -365,10 +365,12 @@
                 </p>
 
                 <?php
-                // Show current update status.
-                $cache_key     = 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) );
-                $release       = get_transient( $cache_key );
-                $remote_ver    = $release ? ltrim( $release->tag_name, 'v' ) : null;
+                // Show current update status — always fetch live so clearing the
+                // cache immediately shows fresh data (result is re-cached for 12 h).
+                $release    = isset( $GLOBALS['delice_gh_updater'] )
+                    ? $GLOBALS['delice_gh_updater']->get_release_info()
+                    : get_transient( 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) ) );
+                $remote_ver = $release ? ltrim( $release->tag_name, 'v' ) : null;
                 $current_ver   = DELICE_RECIPE_VERSION;
                 $has_update    = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                 ?>

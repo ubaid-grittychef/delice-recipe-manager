@@ -25,7 +25,7 @@ define( 'DELICE_RECIPE_PLUGIN_FILE', __FILE__ );
  */
 function delice_recipe_init_updater() {
     require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-updater.php';
-    new Delice_GitHub_Updater(
+    $GLOBALS['delice_gh_updater'] = new Delice_GitHub_Updater(
         DELICE_RECIPE_PLUGIN_FILE,
         'ubaid-grittychef',         // GitHub username
         'delice-recipe-manager',    // GitHub repository

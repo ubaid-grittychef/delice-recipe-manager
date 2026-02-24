@@ -79,7 +79,7 @@ class Delice_GitHub_Updater {
      *
      * @return object|false  Decoded JSON release object, or false on failure.
      */
-    private function get_release_info() {
+    public function get_release_info() {
         $cached = get_transient( $this->cache_key );
         if ( false !== $cached ) {
             return $cached;
