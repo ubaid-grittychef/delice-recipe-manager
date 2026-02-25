@@ -41,7 +41,51 @@ $cuisine_terms = get_the_terms( $recipe_id, 'delice_cuisine' );
 $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 ?>
 
-<div class="delice-recipe-wrapper delice-modern delice-recipe-container" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
+<?php $drm_id = 'drm-' . absint( $recipe_id ); ?>
+<style>
+/* Scoped to this recipe instance — ID selector (1,x,0) beats any theme
+   class-or-element rule including Pixwell's #main / #content selectors. */
+#<?php echo $drm_id; ?> .delice-modern-layout {
+    display:         flex   !important;
+    flex-direction:  row    !important;
+    flex-wrap:       nowrap !important;
+    align-items:     flex-start !important;
+    gap:             24px   !important;
+    box-sizing:      border-box !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-sidebar {
+    width:           300px  !important;
+    min-width:       300px  !important;
+    max-width:       300px  !important;
+    flex:            0 0 300px !important;
+    float:           none   !important;
+    margin:          0      !important;
+    padding:         0      !important;
+    box-sizing:      border-box !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-main {
+    flex:            1 1 auto !important;
+    min-width:       0      !important;
+    max-width:       none   !important;
+    width:           auto   !important;
+    float:           none   !important;
+    margin:          0      !important;
+    padding:         0      !important;
+    box-sizing:      border-box !important;
+}
+@media (max-width: 680px) {
+    #<?php echo $drm_id; ?> .delice-modern-layout {
+        flex-direction: column !important;
+    }
+    #<?php echo $drm_id; ?> .delice-modern-sidebar {
+        width:     100% !important;
+        min-width: 0    !important;
+        max-width: none !important;
+        flex:      0 0 100% !important;
+    }
+}
+</style>
+<div id="<?php echo $drm_id; ?>" class="delice-recipe-wrapper delice-modern delice-recipe-container" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HERO ═══════════════════════════════════════════════════════════════ -->
     <div class="delice-modern-hero<?php echo $has_image && ! empty( $display_options['show_image'] ) ? ' delice-modern-hero--has-image' : ''; ?>">
