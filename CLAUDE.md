@@ -130,6 +130,34 @@ Elements rendered outside the main `.body` padding zone (notes, nutrition, FAQs)
 
 ---
 
+## 9. Use inline `<style>` with ID selectors for bulletproof layouts
+
+Class-chain selectors (even with `!important`) lose to theme ID selectors like
+`#main div { display: block !important }` because IDs outrank classes in
+specificity. The only guaranteed win is an **inline `<style>` block in the PHP
+template itself** with ID-scoped selectors. It renders after all external
+stylesheets so it wins on both specificity AND source order.
+
+```php
+<?php $uid = 'drm-' . absint( $recipe_id ); ?>
+<style>
+#<?php echo $uid; ?> .delice-modern-layout {
+    display: flex !important;
+    flex-direction: row !important;
+    /* ... */
+}
+@media (max-width: 680px) {
+    #<?php echo $uid; ?> .delice-modern-layout { flex-direction: column !important; }
+}
+</style>
+<div id="<?php echo $uid; ?>" class="delice-modern ...">
+```
+
+This pattern was required to fix the layout on the Pixwell theme, whose
+`#main` / `#content` ID selectors override any class-based rule.
+
+---
+
 ## Development branch
 
 All changes go to: `claude/wordpress-plugin-audit-daRbA`

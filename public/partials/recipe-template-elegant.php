@@ -73,7 +73,46 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 ?>
 
-<article class="delice-recipe-container delice-elegant" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
+<?php $dre_id = 'dre-' . absint( $recipe_id ); ?>
+<style>
+/* Scoped to this recipe instance — beats Pixwell's #main / #content rules */
+#<?php echo $dre_id; ?> .delice-elegant-body-layout {
+    display:         flex    !important;
+    flex-direction:  row     !important;
+    flex-wrap:       nowrap  !important;
+    align-items:     stretch !important;
+}
+#<?php echo $dre_id; ?> .delice-elegant-col-left {
+    width:           320px   !important;
+    min-width:       320px   !important;
+    flex:            0 0 320px !important;
+    float:           none    !important;
+    box-sizing:      border-box !important;
+}
+#<?php echo $dre_id; ?> .delice-elegant-col-right {
+    flex:            1 1 auto !important;
+    min-width:       0       !important;
+    float:           none    !important;
+    box-sizing:      border-box !important;
+}
+@media (max-width: 700px) {
+    #<?php echo $dre_id; ?> .delice-elegant-body-layout {
+        flex-direction: column !important;
+    }
+    #<?php echo $dre_id; ?> .delice-elegant-col-left {
+        width:        100% !important;
+        min-width:    0    !important;
+        flex:         0 0 100% !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--e-border-warm) !important;
+    }
+    #<?php echo $dre_id; ?> .delice-elegant-col-right {
+        width:     100% !important;
+        min-width: 0    !important;
+    }
+}
+</style>
+<article id="<?php echo $dre_id; ?>" class="delice-recipe-container delice-elegant" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
     <header class="delice-elegant-header">
