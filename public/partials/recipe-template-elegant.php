@@ -74,44 +74,6 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 ?>
 
 <?php $dre_id = 'dre-' . absint( $recipe_id ); ?>
-<style>
-/* Scoped to this recipe instance — beats Pixwell's #main / #content rules */
-#<?php echo $dre_id; ?> .delice-elegant-body-layout {
-    display:         flex    !important;
-    flex-direction:  row     !important;
-    flex-wrap:       nowrap  !important;
-    align-items:     stretch !important;
-}
-#<?php echo $dre_id; ?> .delice-elegant-col-left {
-    width:           320px   !important;
-    min-width:       320px   !important;
-    flex:            0 0 320px !important;
-    float:           none    !important;
-    box-sizing:      border-box !important;
-}
-#<?php echo $dre_id; ?> .delice-elegant-col-right {
-    flex:            1 1 auto !important;
-    min-width:       0       !important;
-    float:           none    !important;
-    box-sizing:      border-box !important;
-}
-@media (max-width: 700px) {
-    #<?php echo $dre_id; ?> .delice-elegant-body-layout {
-        flex-direction: column !important;
-    }
-    #<?php echo $dre_id; ?> .delice-elegant-col-left {
-        width:        100% !important;
-        min-width:    0    !important;
-        flex:         0 0 100% !important;
-        border-right: none !important;
-        border-bottom: 1px solid var(--e-border-warm) !important;
-    }
-    #<?php echo $dre_id; ?> .delice-elegant-col-right {
-        width:     100% !important;
-        min-width: 0    !important;
-    }
-}
-</style>
 <article id="<?php echo $dre_id; ?>" class="delice-recipe-container delice-elegant" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
@@ -376,21 +338,12 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
     ?>
 
     <div class="delice-elegant-body">
+        <!-- Ingredients first, ornamental divider, instructions below -->
+        <?php echo $ingredients_html; ?>
         <?php if ( $ingredients_html && $instructions_html ) : ?>
-            <!-- Both sections: render side-by-side in two columns -->
-            <div class="delice-elegant-body-layout">
-                <div class="delice-elegant-col-left">
-                    <?php echo $ingredients_html; ?>
-                </div>
-                <div class="delice-elegant-col-right">
-                    <?php echo $instructions_html; ?>
-                </div>
-            </div>
-        <?php else : ?>
-            <!-- Single section: render full-width -->
-            <?php echo $ingredients_html; ?>
-            <?php echo $instructions_html; ?>
+            <hr class="delice-elegant-divider delice-elegant-divider--ornamental">
         <?php endif; ?>
+        <?php echo $instructions_html; ?>
     </div><!-- /.delice-elegant-body -->
 
     <!-- ═══ NOTES ════════════════════════════════════════════════════════════ -->
