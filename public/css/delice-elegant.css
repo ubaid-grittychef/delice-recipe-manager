@@ -345,49 +345,12 @@
     opacity: .35;
 }
 
-/* ─── Body layout ────────────────────────────────────────────────────────────── */
+/* ─── Body layout — stacked: Ingredients above, Instructions below ──────────── */
 .delice-elegant-body {
     background: var(--e-cream);
-    /* No outer padding — individual columns or full-width sections own their
-       padding so the design can mix side-by-side and stacked sections cleanly. */
 }
 
-/*
- * Side-by-side two-column layout used when BOTH ingredients and instructions
- * are present.  High-specificity (0,3,0) + !important beats theme overrides.
- */
-.delice-elegant .delice-elegant-body .delice-elegant-body-layout {
-    display:        flex !important;
-    flex-direction: row  !important;
-    flex-wrap:      nowrap !important;
-    align-items:    stretch !important;
-}
-
-/* Left column — Ingredients */
-.delice-elegant .delice-elegant-body .delice-elegant-col-left {
-    width:      320px !important;
-    min-width:  320px !important;
-    flex:       0 0 320px !important;
-    padding:    36px 28px 36px 48px !important;
-    background: var(--e-cream-2) !important;
-    border-right: 1px solid var(--e-border-warm) !important;
-    box-sizing: border-box !important;
-}
-
-/* Right column — Instructions */
-.delice-elegant .delice-elegant-body .delice-elegant-col-right {
-    flex:       1 1 auto !important;
-    min-width:  0 !important;
-    padding:    36px 48px 36px 32px !important;
-    box-sizing: border-box !important;
-}
-
-/* Sections inside columns need no bottom margin — columns handle spacing */
-.delice-elegant-body-layout .delice-elegant-section {
-    margin-bottom: 0;
-}
-
-/* Full-width fallback when only one section exists */
+/* All sections in the body get equal horizontal and vertical padding */
 .delice-elegant-body > .delice-elegant-section {
     padding:       36px 48px;
     margin-bottom: 0;
@@ -1020,25 +983,7 @@
         margin: 0 -24px;
     }
 
-    /* Stack columns vertically on mobile */
-    .delice-elegant .delice-elegant-body .delice-elegant-body-layout {
-        flex-direction: column !important;
-    }
-
-    .delice-elegant .delice-elegant-body .delice-elegant-col-left,
-    .delice-elegant .delice-elegant-body .delice-elegant-col-right {
-        width:     100% !important;
-        min-width: 0    !important;
-        flex:      0 0 100% !important;
-        padding:   24px !important;
-    }
-
-    .delice-elegant .delice-elegant-body .delice-elegant-col-left {
-        border-right:  none !important;
-        border-bottom: 1px solid var(--e-border-warm) !important;
-    }
-
-    /* Full-width single-section fallback on mobile */
+    /* Reduce section padding on mobile */
     .delice-elegant-body > .delice-elegant-section {
         padding: 24px !important;
     }
