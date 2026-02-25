@@ -29,7 +29,7 @@
                 </div>
                 
                 <form id="delice-recipe-ai-form">
-                    <?php wp_nonce_field('delice_recipe_ai_generate', 'delice_recipe_ai_nonce'); ?>
+                    <?php wp_nonce_field('delice_recipe_nonce', 'delice_recipe_ai_nonce'); ?>
                     
                     <div class="delice-recipe-generator-fields">
                         <div class="delice-recipe-generator-field">
