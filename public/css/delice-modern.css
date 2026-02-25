@@ -331,6 +331,21 @@
     align-items: start;
 }
 
+/* Reset theme styles on semantic HTML elements used inside the layout */
+.delice-modern aside.delice-modern-sidebar,
+.delice-modern main.delice-modern-main {
+    /* Cancel any theme float/width/padding/background on <aside> and <main> */
+    float: none !important;
+    width: auto !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    /* Prevent grid blowout */
+    min-width: 0;
+    box-sizing: border-box;
+}
+
 /* ─── Sections ─────────────────────────────────────────────────────────────── */
 .delice-modern-section {
     background: var(--m-white);
@@ -416,9 +431,16 @@
 
 /* ─── Ingredients list ─────────────────────────────────────────────────────── */
 .delice-modern-ingredients-list {
-    list-style: none;
-    margin: 0;
-    padding: 8px 0 12px;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 8px 0 12px !important;
+}
+
+/* Kill any theme bullet added via ::before/::after on list items */
+.delice-modern-ingredients-list li.delice-modern-ingredient::before,
+.delice-modern-ingredients-list li.delice-modern-ingredient::after {
+    display: none !important;
+    content: none !important;
 }
 
 .delice-modern-ingredient {
@@ -512,10 +534,17 @@
 
 /* ─── Instruction steps ────────────────────────────────────────────────────── */
 .delice-modern-steps {
-    list-style: none;
-    margin: 0;
-    padding: 12px 20px 20px;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 12px 20px 20px !important;
     counter-reset: step-counter;
+}
+
+/* Kill any theme-injected numbers/bullets on steps */
+.delice-modern-steps li.delice-modern-step::before,
+.delice-modern-steps li.delice-modern-step::after {
+    display: none !important;
+    content: none !important;
 }
 
 .delice-modern-step {
