@@ -436,10 +436,12 @@ jQuery(document).ready(function($) {
             $('#approve-recipe').prop('checked', false);
             $('#delice-recipe-edit').prop('disabled', true);
             
-            // Get form data and nonce
-            const formData = form.serialize();
             const nonce = $('#delice_recipe_ai_nonce').val();
-            
+            const variations = [];
+            $('[name="variations[]"]:checked').each(function() {
+                variations.push($(this).val());
+            });
+
             // Send AJAX request
             $.ajax({
                 url: ajaxurl,
@@ -447,7 +449,10 @@ jQuery(document).ready(function($) {
                 data: {
                     action: 'delice_generate_recipe',
                     nonce: nonce,
-                    form_data: formData
+                    keywords: keyword,
+                    target_language: $('#target_language').val(),
+                    auto_publish: $('[name="auto_publish"]').is(':checked') ? '1' : '0',
+                    variations: variations
                 },
                 success: function(response) {
                     // Hide generating indicator
