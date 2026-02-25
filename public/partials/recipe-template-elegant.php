@@ -18,7 +18,11 @@ $attribution_settings = get_option( 'delice_recipe_attribution_settings', array(
 ) );
 
 $recipe_title   = get_the_title( $recipe_id );
-$recipe_excerpt = get_the_excerpt( $recipe_id );
+// Use get_post_field() to read the raw excerpt directly from the DB.
+// DO NOT use get_the_excerpt() here — it fires the get_the_excerpt filter
+// which calls wp_trim_excerpt() → apply_filters('the_content') →
+// display_recipe_content() → load_template() → this file again = infinite loop.
+$recipe_excerpt = get_post_field( 'post_excerpt', $recipe_id );
 
 /* Clean excerpt */
 if ( $recipe_excerpt ) {

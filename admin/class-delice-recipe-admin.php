@@ -77,6 +77,12 @@ class Delice_Recipe_Admin {
             
             // NEW: Enqueue hybrid modern CSS for new pages
             wp_enqueue_style('delice-hybrid-modern', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-hybrid-modern.css', array('delice-recipe-admin'), DELICE_RECIPE_VERSION, 'all');
+
+            // Enqueue public recipe CSS on the AI Generator page so the
+            // AJAX-injected recipe preview renders with the correct styles.
+            if ( strpos( $screen->id, 'delice-recipe-ai-generator' ) !== false ) {
+                wp_enqueue_style( 'delice-recipe-public-preview', DELICE_RECIPE_PLUGIN_URL . 'public/css/delice-recipe-public.css', array(), DELICE_RECIPE_VERSION, 'all' );
+            }
         }
     }
 
