@@ -67,31 +67,28 @@ function delice_ajax_generate_recipe() {
         set_time_limit(60);
         ini_set('memory_limit', '512M');
         
-        // Check nonce - FIXED: Match the nonce sent from JavaScript
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'delice_hybrid_nonce')) {
+        // Accept both nonces: delice-recipe-admin.js sends delice_recipe_nonce
+        // while delice-hybrid-modern.js sends delice_hybrid_nonce.
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if ( ! wp_verify_nonce($nonce, 'delice_hybrid_nonce') &&
+             ! wp_verify_nonce($nonce, 'delice_recipe_nonce') ) {
             wp_send_json_error(array('message' => __('Security verification failed. Please refresh the page and try again.', 'delice-recipe-manager')));
         }
-        
+
         // Check user permissions
         if (!current_user_can('edit_posts')) {
             wp_send_json_error(array('message' => __('You do not have the necessary permissions.', 'delice-recipe-manager')));
         }
-        
+
         // Get form data directly from POST (FormData sends as individual fields)
         $keywords_hidden = isset($_POST['keywords']) ? sanitize_text_field($_POST['keywords']) : '';
         $target_language = isset($_POST['target_language']) ? sanitize_text_field($_POST['target_language']) : 'en_US';
         $cuisine_type = isset($_POST['cuisine_type']) ? sanitize_text_field($_POST['cuisine_type']) : '';
         $recipe_type = isset($_POST['recipe_type']) ? sanitize_text_field($_POST['recipe_type']) : '';
         $variations = isset($_POST['variations']) ? (array)$_POST['variations'] : array();
-        
-        // Enhanced debugging
-        error_log('AJAX Request received - action: delice_generate_recipe');
-        error_log('Keywords: ' . $keywords_hidden);
-        error_log('Language: ' . $target_language);
-        
+
         // Validate keywords
         if (empty($keywords_hidden)) {
-            error_log('Validation failed: Empty keywords');
             wp_send_json_error(array('message' => __('Please enter at least one recipe keyword.', 'delice-recipe-manager')));
             return;
         }
@@ -114,16 +111,14 @@ function delice_ajax_generate_recipe() {
         $recipe_data = $ai->generate_recipe($prompt);
         
         if (is_wp_error($recipe_data)) {
-            error_log('Delice Recipe AI Error: ' . $recipe_data->get_error_message());
             wp_send_json_error(array('message' => $recipe_data->get_error_message()));
         }
-        
+
         // Create recipe post (published or draft) with language metadata
         $auto_publish = isset($_POST['auto_publish']) && $_POST['auto_publish'] === '1';
         $post_id = $ai->create_recipe_post($recipe_data, $auto_publish, $target_language);
-        
+
         if (is_wp_error($post_id)) {
-            error_log('Delice Recipe Post Error: ' . $post_id->get_error_message());
             wp_send_json_error(array('message' => $post_id->get_error_message()));
         }
         
@@ -155,11 +150,12 @@ function delice_ajax_generate_bulk_recipes() {
         set_time_limit(120);
         ini_set('memory_limit', '512M');
         
-        // Check nonce - FIXED: Match the nonce sent from JavaScript
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'delice_hybrid_nonce')) {
+        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        if ( ! wp_verify_nonce($nonce, 'delice_hybrid_nonce') &&
+             ! wp_verify_nonce($nonce, 'delice_recipe_nonce') ) {
             wp_send_json_error(array('message' => __('Security verification failed. Please refresh the page and try again.', 'delice-recipe-manager')));
         }
-        
+
         // Check user permissions
         if (!current_user_can('edit_posts')) {
             wp_send_json_error(array('message' => __('You do not have the necessary permissions.', 'delice-recipe-manager')));
