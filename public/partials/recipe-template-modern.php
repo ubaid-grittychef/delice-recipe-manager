@@ -42,49 +42,6 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 ?>
 
 <?php $drm_id = 'drm-' . absint( $recipe_id ); ?>
-<style>
-/* Scoped to this recipe instance — ID selector (1,x,0) beats any theme
-   class-or-element rule including Pixwell's #main / #content selectors. */
-#<?php echo $drm_id; ?> .delice-modern-layout {
-    display:         flex   !important;
-    flex-direction:  row    !important;
-    flex-wrap:       nowrap !important;
-    align-items:     flex-start !important;
-    gap:             24px   !important;
-    box-sizing:      border-box !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-sidebar {
-    width:           300px  !important;
-    min-width:       300px  !important;
-    max-width:       300px  !important;
-    flex:            0 0 300px !important;
-    float:           none   !important;
-    margin:          0      !important;
-    padding:         0      !important;
-    box-sizing:      border-box !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-main {
-    flex:            1 1 auto !important;
-    min-width:       0      !important;
-    max-width:       none   !important;
-    width:           auto   !important;
-    float:           none   !important;
-    margin:          0      !important;
-    padding:         0      !important;
-    box-sizing:      border-box !important;
-}
-@media (max-width: 680px) {
-    #<?php echo $drm_id; ?> .delice-modern-layout {
-        flex-direction: column !important;
-    }
-    #<?php echo $drm_id; ?> .delice-modern-sidebar {
-        width:     100% !important;
-        min-width: 0    !important;
-        max-width: none !important;
-        flex:      0 0 100% !important;
-    }
-}
-</style>
 <div id="<?php echo $drm_id; ?>" class="delice-recipe-wrapper delice-modern delice-recipe-container" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HERO ═══════════════════════════════════════════════════════════════ -->
@@ -273,182 +230,132 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
     <!-- ═══ BODY ══════════════════════════════════════════════════════════════ -->
     <div class="delice-modern-body">
 
+        <!-- ── Ingredients ───────────────────────────────────────────────────── -->
         <?php if ( ! empty( $ingredients ) ) : ?>
-            <div class="delice-modern-layout">
-
-                <!-- ── Ingredients sidebar ──────────────────────────────────── -->
-                <div class="delice-modern-sidebar">
-
-                    <div class="delice-modern-section">
-                        <div class="delice-modern-section-header">
-                            <h3 class="delice-modern-section-title">
-                                <span class="delice-modern-section-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
-                                    </svg>
-                                </span>
-                                <?php echo esc_html( $lang_texts['ingredients'] ); ?>
-                            </h3>
-                            <button class="delice-recipe-copy-ingredients delice-modern-copy-btn" type="button">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                </svg>
-                                <?php echo esc_html( $lang_texts['copy'] ); ?>
-                            </button>
-                        </div>
-
-                        <ul class="delice-modern-ingredients-list">
-                            <?php foreach ( $ingredients as $ing ) :
-                                $ing_id = 'ingr-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
-                            ?>
-                                <li class="delice-modern-ingredient delice-recipe-ingredient">
-                                    <label class="delice-modern-ingredient-label" for="<?php echo esc_attr( $ing_id ); ?>">
-                                        <input type="checkbox" class="delice-recipe-ingredient-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
-                                        <span class="delice-modern-checkbox-mark" aria-hidden="true"></span>
-                                        <span class="delice-modern-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
-                                    </label>
-                                    <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
-                                        <span class="delice-modern-ingredient-qty">
-                                            <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div><!-- /.delice-modern-section (ingredients) -->
-
-                    <?php if ( ! empty( $nutrition ) ) : ?>
-                        <div class="delice-modern-section delice-modern-nutrition">
-                            <h3 class="delice-modern-section-title">
-                                <span class="delice-modern-section-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
-                                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
-                                        <line x1="6" y1="1" x2="6" y2="4"/>
-                                        <line x1="10" y1="1" x2="10" y2="4"/>
-                                        <line x1="14" y1="1" x2="14" y2="4"/>
-                                    </svg>
-                                </span>
-                                <?php echo esc_html( $lang_texts['nutrition'] ?? __( 'Nutrition', 'delice-recipe-manager' ) ); ?>
-                            </h3>
-                            <div class="delice-modern-nutrition-grid">
-                                <?php
-                                $nutrition_icons = array(
-                                    'calories' => '🔥',
-                                    'protein'  => '💪',
-                                    'fat'      => '🥑',
-                                    'carbs'    => '🌾',
-                                    'fiber'    => '🌿',
-                                    'sugar'    => '🍬',
-                                    'sodium'   => '🧂',
-                                );
-                                foreach ( $nutrition as $nutrient => $val ) : ?>
-                                    <div class="delice-modern-nutrient">
-                                        <span class="delice-modern-nutrient-icon" aria-hidden="true"><?php echo $nutrition_icons[ $nutrient ] ?? '•'; ?></span>
-                                        <span class="delice-modern-nutrient-value"><?php echo esc_html( $val ); ?><small>g</small></span>
-                                        <span class="delice-modern-nutrient-label"><?php echo esc_html( ucfirst( $nutrient ) ); ?></span>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div><!-- /.delice-modern-nutrition -->
-                    <?php endif; ?>
-
-                </div><!-- /.delice-modern-sidebar -->
-
-                <!-- ── Instructions main ───────────────────────────────────── -->
-                <div class="delice-modern-main">
-
-                    <?php if ( ! empty( $instructions ) ) : ?>
-                        <div class="delice-modern-section">
-                            <h3 class="delice-modern-section-title">
-                                <span class="delice-modern-section-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="8" y1="6" x2="21" y2="6"/>
-                                        <line x1="8" y1="12" x2="21" y2="12"/>
-                                        <line x1="8" y1="18" x2="21" y2="18"/>
-                                        <line x1="3" y1="6" x2="3.01" y2="6"/>
-                                        <line x1="3" y1="12" x2="3.01" y2="12"/>
-                                        <line x1="3" y1="18" x2="3.01" y2="18"/>
-                                    </svg>
-                                </span>
-                                <?php echo esc_html( $lang_texts['instructions'] ); ?>
-                            </h3>
-                            <ol class="delice-modern-steps">
-                                <?php foreach ( $instructions as $idx => $step ) :
-                                    $text = preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' );
-                                    $text = trim( $text );
-                                ?>
-                                    <li class="delice-modern-step">
-                                        <div class="delice-modern-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></div>
-                                        <div class="delice-modern-step-body">
-                                            <p class="delice-modern-step-text"><?php echo esc_html( $text ); ?></p>
-                                        </div>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ol>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ( ! empty( $notes ) ) : ?>
-                        <div class="delice-modern-section delice-modern-notes">
-                            <h3 class="delice-modern-section-title">
-                                <span class="delice-modern-section-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                        <polyline points="14 2 14 8 20 8"/>
-                                        <line x1="16" y1="13" x2="8" y2="13"/>
-                                        <line x1="16" y1="17" x2="8" y2="17"/>
-                                        <polyline points="10 9 9 9 8 9"/>
-                                    </svg>
-                                </span>
-                                <?php echo esc_html( $lang_texts['notes'] ); ?>
-                            </h3>
-                            <div class="delice-modern-notes-text"><?php echo esc_html( $notes ); ?></div>
-                        </div>
-                    <?php endif; ?>
-
-                </div><!-- /.delice-modern-main -->
-            </div><!-- /.delice-modern-layout -->
-
-        <?php else : ?>
-            <!-- Full-width instructions when there are no ingredients -->
-            <?php if ( ! empty( $instructions ) ) : ?>
-                <div class="delice-modern-section">
+            <div class="delice-modern-section">
+                <div class="delice-modern-section-header">
                     <h3 class="delice-modern-section-title">
                         <span class="delice-modern-section-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="8" y1="6" x2="21" y2="6"/>
-                                <line x1="8" y1="12" x2="21" y2="12"/>
-                                <line x1="8" y1="18" x2="21" y2="18"/>
-                                <line x1="3" y1="6" x2="3.01" y2="6"/>
-                                <line x1="3" y1="12" x2="3.01" y2="12"/>
-                                <line x1="3" y1="18" x2="3.01" y2="18"/>
+                                <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
                             </svg>
                         </span>
-                        <?php echo esc_html( $lang_texts['instructions'] ); ?>
+                        <?php echo esc_html( $lang_texts['ingredients'] ); ?>
                     </h3>
-                    <ol class="delice-modern-steps">
-                        <?php foreach ( $instructions as $idx => $step ) :
-                            $text = trim( preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' ) );
-                        ?>
-                            <li class="delice-modern-step">
-                                <div class="delice-modern-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></div>
-                                <div class="delice-modern-step-body">
-                                    <p class="delice-modern-step-text"><?php echo esc_html( $text ); ?></p>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ol>
+                    <button class="delice-recipe-copy-ingredients delice-modern-copy-btn" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        <?php echo esc_html( $lang_texts['copy'] ); ?>
+                    </button>
                 </div>
-            <?php endif; ?>
+                <ul class="delice-modern-ingredients-list">
+                    <?php foreach ( $ingredients as $ing ) :
+                        $ing_id = 'ingr-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
+                    ?>
+                        <li class="delice-modern-ingredient delice-recipe-ingredient">
+                            <label class="delice-modern-ingredient-label" for="<?php echo esc_attr( $ing_id ); ?>">
+                                <input type="checkbox" class="delice-recipe-ingredient-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
+                                <span class="delice-modern-checkbox-mark" aria-hidden="true"></span>
+                                <span class="delice-modern-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
+                            </label>
+                            <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
+                                <span class="delice-modern-ingredient-qty">
+                                    <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
+                                </span>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div><!-- /.delice-modern-section (ingredients) -->
+        <?php endif; ?>
 
-            <?php if ( ! empty( $notes ) ) : ?>
-                <div class="delice-modern-section delice-modern-notes">
-                    <h3 class="delice-modern-section-title"><?php echo esc_html( $lang_texts['notes'] ); ?></h3>
-                    <div class="delice-modern-notes-text"><?php echo esc_html( $notes ); ?></div>
+        <!-- ── Instructions ──────────────────────────────────────────────────── -->
+        <?php if ( ! empty( $instructions ) ) : ?>
+            <div class="delice-modern-section">
+                <h3 class="delice-modern-section-title">
+                    <span class="delice-modern-section-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"/>
+                            <line x1="8" y1="12" x2="21" y2="12"/>
+                            <line x1="8" y1="18" x2="21" y2="18"/>
+                            <line x1="3" y1="6" x2="3.01" y2="6"/>
+                            <line x1="3" y1="12" x2="3.01" y2="12"/>
+                            <line x1="3" y1="18" x2="3.01" y2="18"/>
+                        </svg>
+                    </span>
+                    <?php echo esc_html( $lang_texts['instructions'] ); ?>
+                </h3>
+                <ol class="delice-modern-steps">
+                    <?php foreach ( $instructions as $idx => $step ) :
+                        $text = trim( preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' ) );
+                    ?>
+                        <li class="delice-modern-step">
+                            <div class="delice-modern-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></div>
+                            <div class="delice-modern-step-body">
+                                <p class="delice-modern-step-text"><?php echo esc_html( $text ); ?></p>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+            </div>
+        <?php endif; ?>
+
+        <!-- ── Nutrition ──────────────────────────────────────────────────────── -->
+        <?php if ( ! empty( $nutrition ) ) : ?>
+            <div class="delice-modern-section delice-modern-nutrition">
+                <h3 class="delice-modern-section-title">
+                    <span class="delice-modern-section-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                            <line x1="6" y1="1" x2="6" y2="4"/>
+                            <line x1="10" y1="1" x2="10" y2="4"/>
+                            <line x1="14" y1="1" x2="14" y2="4"/>
+                        </svg>
+                    </span>
+                    <?php echo esc_html( $lang_texts['nutrition'] ?? __( 'Nutrition', 'delice-recipe-manager' ) ); ?>
+                </h3>
+                <div class="delice-modern-nutrition-grid">
+                    <?php
+                    $nutrition_icons = array(
+                        'calories' => '🔥',
+                        'protein'  => '💪',
+                        'fat'      => '🥑',
+                        'carbs'    => '🌾',
+                        'fiber'    => '🌿',
+                        'sugar'    => '🍬',
+                        'sodium'   => '🧂',
+                    );
+                    foreach ( $nutrition as $nutrient => $val ) : ?>
+                        <div class="delice-modern-nutrient">
+                            <span class="delice-modern-nutrient-icon" aria-hidden="true"><?php echo $nutrition_icons[ $nutrient ] ?? '•'; ?></span>
+                            <span class="delice-modern-nutrient-value"><?php echo esc_html( $val ); ?><small>g</small></span>
+                            <span class="delice-modern-nutrient-label"><?php echo esc_html( ucfirst( $nutrient ) ); ?></span>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-            <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- ── Notes ─────────────────────────────────────────────────────────── -->
+        <?php if ( ! empty( $notes ) ) : ?>
+            <div class="delice-modern-section delice-modern-notes">
+                <h3 class="delice-modern-section-title">
+                    <span class="delice-modern-section-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                    </span>
+                    <?php echo esc_html( $lang_texts['notes'] ); ?>
+                </h3>
+                <div class="delice-modern-notes-text"><?php echo esc_html( $notes ); ?></div>
+            </div>
         <?php endif; ?>
 
         <!-- ── FAQs ──────────────────────────────────────────────────────── -->

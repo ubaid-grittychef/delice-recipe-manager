@@ -324,41 +324,6 @@
     background: var(--m-bg);
 }
 
-/*
- * High-specificity (0,4,0) flexbox layout.
- * Four chained class selectors beats any sane theme rule, and flexbox is
- * more resilient than grid when themes forcibly set display on div elements.
- */
-.delice-recipe-wrapper.delice-modern .delice-modern-body .delice-modern-layout {
-    display:         flex !important;
-    flex-direction:  row  !important;
-    flex-wrap:       nowrap !important;
-    align-items:     flex-start !important;
-    gap:             24px !important;
-    box-sizing:      border-box !important;
-}
-
-.delice-recipe-wrapper.delice-modern .delice-modern-body .delice-modern-sidebar {
-    width:     300px !important;
-    min-width: 300px !important;
-    max-width: 300px !important;
-    flex:      0 0 300px !important;
-    float:     none !important;
-    margin:    0 !important;
-    padding:   0 !important;
-    box-sizing: border-box !important;
-}
-
-.delice-recipe-wrapper.delice-modern .delice-modern-body .delice-modern-main {
-    flex:      1 1 auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    width:     auto !important;
-    float:     none !important;
-    margin:    0 !important;
-    padding:   0 !important;
-    box-sizing: border-box !important;
-}
 
 /* ─── Sections ─────────────────────────────────────────────────────────────── */
 .delice-modern-section {
@@ -1026,16 +991,6 @@
 
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 680px) {
-    .delice-recipe-wrapper.delice-modern .delice-modern-body .delice-modern-layout {
-        flex-direction: column !important;
-    }
-    .delice-recipe-wrapper.delice-modern .delice-modern-body .delice-modern-sidebar {
-        width:     100% !important;
-        min-width: 0    !important;
-        max-width: none !important;
-        flex:      0 0 100% !important;
-    }
-
     .delice-modern-hero-content {
         padding: 24px 20px 20px;
     }
@@ -1131,11 +1086,4 @@
         text-shadow: none;
     }
 
-    .delice-recipe-wrapper.delice-modern .delice-modern-body .delice-modern-layout {
-        flex-direction: row !important;
-    }
-    .delice-recipe-wrapper.delice-modern .delice-modern-body .delice-modern-sidebar {
-        width: 50% !important;
-        flex: 0 0 50% !important;
-    }
 }
