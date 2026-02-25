@@ -11,8 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// 1) Load the public CSS so the preview matches front-end
-echo '<link rel="stylesheet" href="' . esc_url( DELICE_RECIPE_PLUGIN_URL . 'public/css/delice-recipe-public.css' ) . '" type="text/css" />';
+// Public CSS is enqueued on the AI Generator admin page via class-delice-recipe-admin.php
+// so no inline <link> tag is needed here.
 
 // 2) Ensure data arrays
 if ( empty( $recipe_data['ingredients'] ) || ! is_array( $recipe_data['ingredients'] ) ) {

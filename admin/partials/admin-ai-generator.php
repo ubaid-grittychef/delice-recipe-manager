@@ -372,10 +372,13 @@ jQuery(document).ready(function($) {
      */
     function initAiGenerator() {
         const form = $('#delice-recipe-ai-form');
-        
+
         if (!form.length) {
             return;
         }
+
+        // Cache skeleton HTML once so it survives being replaced by preview content.
+        const skeletonHtml = $('#delice-recipe-preview .delice-recipe-skeleton-loading').clone();
         
         // Toggle between single and bulk mode
         $('#generation_mode').on('change', function() {
@@ -429,8 +432,8 @@ jQuery(document).ready(function($) {
             $('#delice-recipe-result').show();
             $('#delice-recipe-bulk-results').hide();
             
-            // Show skeleton loading
-            $('#delice-recipe-preview').html($('.delice-recipe-skeleton-loading').clone());
+            // Show skeleton loading (use cached clone so it works on every regeneration)
+            $('#delice-recipe-preview').html(skeletonHtml.clone());
             
             // Reset approval
             $('#approve-recipe').prop('checked', false);
