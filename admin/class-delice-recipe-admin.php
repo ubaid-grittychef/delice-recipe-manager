@@ -82,6 +82,11 @@ class Delice_Recipe_Admin {
             // AJAX-injected recipe preview renders with the correct styles.
             if ( strpos( $screen->id, 'delice-recipe-ai-generator' ) !== false ) {
                 wp_enqueue_style( 'delice-recipe-public-preview', DELICE_RECIPE_PLUGIN_URL . 'public/css/delice-recipe-public.css', array(), DELICE_RECIPE_VERSION, 'all' );
+                // Also load the template-specific CSS files so the modern/elegant
+                // preview renders correctly (on the front-end these are loaded by
+                // class-delice-recipe-templates.php, but admin skips that path).
+                wp_enqueue_style( 'delice-recipe-modern-preview', DELICE_RECIPE_PLUGIN_URL . 'public/css/delice-modern.css', array(), DELICE_RECIPE_VERSION, 'all' );
+                wp_enqueue_style( 'delice-recipe-elegant-preview', DELICE_RECIPE_PLUGIN_URL . 'public/css/delice-elegant.css', array(), DELICE_RECIPE_VERSION, 'all' );
             }
         }
     }

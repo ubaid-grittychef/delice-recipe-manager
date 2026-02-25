@@ -274,67 +274,84 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
     <hr class="delice-elegant-divider">
 
     <!-- ═══ BODY ══════════════════════════════════════════════════════════════ -->
+    <?php
+    /* Capture ingredients and instructions HTML separately so we can decide
+       whether to wrap them side-by-side or stack them. */
+
+    ob_start();
+    if ( ! empty( $ingredients ) ) : ?>
+        <section class="delice-elegant-section delice-elegant-ingredients">
+            <h3 class="delice-elegant-section-title">
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                <?php echo esc_html( $lang_texts['ingredients'] ); ?>
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            </h3>
+            <ul class="delice-elegant-ingredients-list">
+                <?php foreach ( $ingredients as $ing ) :
+                    $ing_id = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
+                ?>
+                    <li class="delice-elegant-ingredient delice-recipe-ingredient">
+                        <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
+                            <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
+                            <span class="delice-elegant-check-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </span>
+                            <span class="delice-elegant-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
+                        </label>
+                        <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
+                            <span class="delice-elegant-ingredient-qty">
+                                <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
+                            </span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </section>
+    <?php endif;
+    $ingredients_html = ob_get_clean();
+
+    ob_start();
+    if ( ! empty( $instructions ) ) : ?>
+        <section class="delice-elegant-section delice-elegant-instructions">
+            <h3 class="delice-elegant-section-title">
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+                <?php echo esc_html( $lang_texts['instructions'] ); ?>
+                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            </h3>
+            <ol class="delice-elegant-steps">
+                <?php foreach ( $instructions as $idx => $step ) :
+                    $text = preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' );
+                    $text = trim( $text );
+                ?>
+                    <li class="delice-elegant-step">
+                        <span class="delice-elegant-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></span>
+                        <p class="delice-elegant-step-text"><?php echo esc_html( $text ); ?></p>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        </section>
+    <?php endif;
+    $instructions_html = ob_get_clean();
+    ?>
+
     <div class="delice-elegant-body">
-
-        <!-- ── Ingredients ──────────────────────────────────────────────────── -->
-        <?php if ( ! empty( $ingredients ) ) : ?>
-            <section class="delice-elegant-section delice-elegant-ingredients">
-                <h3 class="delice-elegant-section-title">
-                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-                    <?php echo esc_html( $lang_texts['ingredients'] ); ?>
-                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-                </h3>
-
-                <ul class="delice-elegant-ingredients-list">
-                    <?php foreach ( $ingredients as $ing ) :
-                        $ing_id = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
-                    ?>
-                        <li class="delice-elegant-ingredient delice-recipe-ingredient">
-                            <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
-                                <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
-                                <span class="delice-elegant-check-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                        <polyline points="20 6 9 17 4 12"/>
-                                    </svg>
-                                </span>
-                                <span class="delice-elegant-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
-                            </label>
-                            <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
-                                <span class="delice-elegant-ingredient-qty">
-                                    <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
-                                </span>
-                            <?php endif; ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </section>
+        <?php if ( $ingredients_html && $instructions_html ) : ?>
+            <!-- Both sections: render side-by-side in two columns -->
+            <div class="delice-elegant-body-layout">
+                <div class="delice-elegant-col-left">
+                    <?php echo $ingredients_html; ?>
+                </div>
+                <div class="delice-elegant-col-right">
+                    <?php echo $instructions_html; ?>
+                </div>
+            </div>
+        <?php else : ?>
+            <!-- Single section: render full-width -->
+            <?php echo $ingredients_html; ?>
+            <?php echo $instructions_html; ?>
         <?php endif; ?>
-
-        <hr class="delice-elegant-divider delice-elegant-divider--ornamental">
-
-        <!-- ── Instructions ─────────────────────────────────────────────────── -->
-        <?php if ( ! empty( $instructions ) ) : ?>
-            <section class="delice-elegant-section delice-elegant-instructions">
-                <h3 class="delice-elegant-section-title">
-                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-                    <?php echo esc_html( $lang_texts['instructions'] ); ?>
-                    <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-                </h3>
-
-                <ol class="delice-elegant-steps">
-                    <?php foreach ( $instructions as $idx => $step ) :
-                        $text = preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' );
-                        $text = trim( $text );
-                    ?>
-                        <li class="delice-elegant-step">
-                            <span class="delice-elegant-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></span>
-                            <p class="delice-elegant-step-text"><?php echo esc_html( $text ); ?></p>
-                        </li>
-                    <?php endforeach; ?>
-                </ol>
-            </section>
-        <?php endif; ?>
-
     </div><!-- /.delice-elegant-body -->
 
     <!-- ═══ NOTES ════════════════════════════════════════════════════════════ -->
