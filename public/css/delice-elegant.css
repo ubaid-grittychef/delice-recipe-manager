@@ -112,8 +112,10 @@
 .delice-elegant-hero-image {
     position: relative;
     overflow: hidden;
-    border-radius: var(--e-radius-sm);
-    margin: 0 0 0;
+    /* Negative margin to escape the header's 48px horizontal padding so the
+       image stretches edge-to-edge inside the card */
+    margin: 0 -48px;
+    border-radius: 0;
     line-height: 0;
 }
 
@@ -123,7 +125,7 @@
     object-fit: cover;
     object-position: center;
     display: block;
-    border-radius: var(--e-radius-sm);
+    border-radius: 0;
     transition: transform .6s ease;
 }
 
@@ -233,7 +235,8 @@
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap;
-    padding: 20px 24px;
+    /* Match the 48px horizontal padding used by the header and body */
+    padding: 20px 48px;
     background: var(--e-cream-2);
     border-bottom: 1px solid var(--e-border-warm);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -526,12 +529,12 @@
     line-height: 1.8;
     color: var(--e-text);
     font-family: Georgia, "Times New Roman", serif;
-    padding-top: 8px;
+    padding-top: 4px;
 }
 
 /* ─── Notes ─────────────────────────────────────────────────────────────────── */
 .delice-elegant-notes {
-    padding: 0 48px;
+    padding: 28px 48px;
 }
 
 .delice-elegant-notes-text {
@@ -548,7 +551,7 @@
 
 /* ─── Nutrition ─────────────────────────────────────────────────────────────── */
 .delice-elegant-nutrition {
-    padding: 0 48px;
+    padding: 28px 48px;
 }
 
 .delice-elegant-nutrition-grid {
@@ -601,7 +604,7 @@
 
 /* ─── FAQs ──────────────────────────────────────────────────────────────────── */
 .delice-elegant-faqs {
-    padding: 0 48px;
+    padding: 28px 48px;
 }
 
 .delice-elegant-faq-list {
@@ -970,6 +973,11 @@
         padding: 28px 24px 0;
     }
 
+    /* Hero image negative margin must match the mobile header padding */
+    .delice-elegant-hero-image {
+        margin: 0 -24px;
+    }
+
     .delice-elegant-body {
         padding: 24px;
     }
@@ -977,7 +985,7 @@
     .delice-elegant-notes,
     .delice-elegant-nutrition,
     .delice-elegant-faqs {
-        padding: 0 24px;
+        padding: 20px 24px;
     }
 
     .delice-elegant-reviews {
@@ -1011,7 +1019,7 @@
     }
 
     .delice-elegant-actions {
-        padding: 14px 16px;
+        padding: 14px 24px;
     }
 
     .delice-elegant-btn span {

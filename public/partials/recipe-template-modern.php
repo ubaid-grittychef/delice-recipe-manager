@@ -233,7 +233,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
             <div class="delice-modern-layout">
 
                 <!-- ── Ingredients sidebar ──────────────────────────────────── -->
-                <aside class="delice-modern-sidebar">
+                <div class="delice-modern-sidebar">
 
                     <div class="delice-modern-section">
                         <div class="delice-modern-section-header">
@@ -310,10 +310,10 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                         </div><!-- /.delice-modern-nutrition -->
                     <?php endif; ?>
 
-                </aside><!-- /.delice-modern-sidebar -->
+                </div><!-- /.delice-modern-sidebar -->
 
                 <!-- ── Instructions main ───────────────────────────────────── -->
-                <main class="delice-modern-main">
+                <div class="delice-modern-main">
 
                     <?php if ( ! empty( $instructions ) ) : ?>
                         <div class="delice-modern-section">
@@ -364,7 +364,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                         </div>
                     <?php endif; ?>
 
-                </main><!-- /.delice-modern-main -->
+                </div><!-- /.delice-modern-main -->
             </div><!-- /.delice-modern-layout -->
 
         <?php else : ?>

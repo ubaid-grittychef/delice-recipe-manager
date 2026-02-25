@@ -325,26 +325,30 @@
 }
 
 .delice-modern-layout {
-    display: grid;
+    display: grid !important;
     grid-template-columns: 300px 1fr;
     gap: 24px;
     align-items: start;
 }
 
-/* Reset theme styles on semantic HTML elements used inside the layout */
-.delice-modern aside.delice-modern-sidebar,
-.delice-modern main.delice-modern-main {
-    /* Cancel any theme float/width/padding/background on <aside> and <main> */
+/* Reset theme styles on layout columns — use class-only selectors (no element
+   prefix) so they win regardless of whether the theme targets <aside>/<main> */
+.delice-modern .delice-modern-sidebar,
+.delice-modern .delice-modern-main {
     float: none !important;
     width: auto !important;
     max-width: none !important;
     padding: 0 !important;
     margin: 0 !important;
     background: transparent !important;
+    display: block !important;
     /* Prevent grid blowout */
     min-width: 0;
     box-sizing: border-box;
 }
+
+.delice-modern .delice-modern-sidebar { grid-column: 1; }
+.delice-modern .delice-modern-main    { grid-column: 2; }
 
 /* ─── Sections ─────────────────────────────────────────────────────────────── */
 .delice-modern-section {
