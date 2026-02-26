@@ -109,6 +109,9 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 /* ── FAQs ── */
 #<?php echo $drm_id; ?> .delice-modern-faq-question    { display: flex !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 12px !important; padding: 14px 20px !important; background: none !important; border: none !important; text-align: left !important; }
 #<?php echo $drm_id; ?> .delice-modern-faq-icon        { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 24px !important; height: 24px !important; min-width: 24px !important; border-radius: 50% !important; }
+/* FAQ accordion — must use !important to beat Pixwell #main div { display:block !important } */
+#<?php echo $drm_id; ?> .delice-recipe-modern-faq-answer { display: none !important; }
+#<?php echo $drm_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; }
 
 /* ── Semantic elements (theme styles footer/section/article directly) ── */
 #<?php echo $drm_id; ?> footer.delice-modern-footer    { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; padding: 16px 24px !important; margin: 0 !important; border-top: none !important; }
