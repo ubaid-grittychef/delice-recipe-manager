@@ -65,14 +65,22 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
 #<?php echo $drd_id; ?> .delice-recipe-modern-faq-answer { display: none !important; }
 #<?php echo $drd_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; }
 
+/* ── Two-column grid: ingredients (left) + instructions (right) ── */
+#<?php echo $drd_id; ?> .delice-recipe-grid { display: grid !important; grid-template-columns: 2fr 3fr !important; gap: 28px !important; margin-bottom: 40px !important; align-items: start !important; }
+#<?php echo $drd_id; ?> .delice-recipe-grid section.delice-recipe-ingredients,
+#<?php echo $drd_id; ?> .delice-recipe-grid section.delice-recipe-instructions { margin: 0 !important; }
+
 /* ── Semantic elements (theme styles header/section/footer directly) ── */
 #<?php echo $drd_id; ?> header.delice-recipe-header { display: block !important; padding: 0 !important; margin: 0 !important; border: none !important; }
-#<?php echo $drd_id; ?> section.delice-recipe-ingredients,
-#<?php echo $drd_id; ?> section.delice-recipe-instructions,
 #<?php echo $drd_id; ?> section.delice-recipe-nutrition,
 #<?php echo $drd_id; ?> section.delice-recipe-faqs,
 #<?php echo $drd_id; ?> section.delice-recipe-review-section { display: block !important; margin: 0 !important; border: none !important; }
 #<?php echo $drd_id; ?> footer.delice-recipe-footer { display: block !important; margin: 0 !important; border-top: none !important; padding: 12px 0 !important; }
+
+/* ── Responsive grid ── */
+@media (max-width: 768px) {
+    #<?php echo $drd_id; ?> .delice-recipe-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+}
 </style>
 <div class="delice-recipe-card">
 <div id="<?php echo $drd_id; ?>" class="delice-recipe-container" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
@@ -286,6 +294,9 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
       <?php endif; ?>
     </div>
 
+  <!-- Ingredients + Instructions (two-column grid) -->
+  <div class="delice-recipe-grid">
+
   <!-- Ingredients -->
   <section class="delice-recipe-ingredients">
     <h3><?php echo esc_html( $lang_texts['ingredients'] ); ?></h3>
@@ -305,7 +316,7 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
             </li>
           <?php endforeach; ?>
         </ul>
-        
+
         <button class="delice-recipe-copy-ingredients" type="button">
           <?php echo esc_html( $lang_texts['copy'] ); ?>
         </button>
@@ -334,6 +345,8 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
         <p><?php esc_html_e( 'No instructions available.', 'delice-recipe-manager' ); ?></p>
       <?php endif; ?>
   </section>
+
+  </div><!-- /.delice-recipe-grid -->
 
   <!-- Notes -->
   <?php if ( ! empty( $notes ) ) : ?>
