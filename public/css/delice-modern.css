@@ -603,7 +603,7 @@
 
 .delice-modern-nutrition-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     gap: 1px;
     background: var(--m-bg);
     padding: 1px;
