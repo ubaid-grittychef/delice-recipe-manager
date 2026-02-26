@@ -51,10 +51,17 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
 #<?php echo $drd_id; ?> button        { font-family: inherit !important; cursor: pointer !important; }
 
 /* ── Ingredient list (re-declare padding after global li reset) ── */
-#<?php echo $drd_id; ?> .delice-recipe-ingredient { padding: 6px 0 !important; margin: 0 !important; border: none !important; background: none !important; display: flex !important; align-items: center !important; gap: 8px !important; }
+#<?php echo $drd_id; ?> .delice-recipe-ingredient { padding: 10px 0 !important; margin: 0 !important; border: none !important; border-bottom: 1px solid #f0f0f0 !important; background: none !important; display: flex !important; align-items: center !important; gap: 10px !important; }
+#<?php echo $drd_id; ?> .delice-recipe-ingredient:last-child { border-bottom: none !important; }
 #<?php echo $drd_id; ?> .delice-recipe-ingredient-checkbox { position: absolute !important; opacity: 0 !important; width: 0 !important; height: 0 !important; pointer-events: none !important; }
 
-/* ── FAQ accordion — must use !important to beat Pixwell #main div { display:block !important } ── */
+/* ── Instructions — explicit step-num span, not CSS counter (li::before reset kills counter) ── */
+#<?php echo $drd_id; ?> .delice-recipe-instruction { display: flex !important; align-items: flex-start !important; gap: 16px !important; padding: 14px 0 !important; margin: 0 !important; border: none !important; border-bottom: 1px solid #f0f0f0 !important; background: none !important; }
+#<?php echo $drd_id; ?> .delice-recipe-instruction:last-child { border-bottom: none !important; }
+#<?php echo $drd_id; ?> .delice-recipe-step-num { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 32px !important; height: 32px !important; min-width: 32px !important; border-radius: 50% !important; background: #f97316 !important; color: #fff !important; font-weight: 700 !important; font-size: 14px !important; margin-top: 1px !important; }
+#<?php echo $drd_id; ?> .delice-recipe-instruction-text { margin: 0 !important; line-height: 1.6 !important; flex: 1 !important; min-width: 0 !important; font-size: 15px !important; padding-top: 4px !important; }
+
+/* ── FAQ accordion ── */
 #<?php echo $drd_id; ?> .delice-recipe-modern-faq-answer { display: none !important; }
 #<?php echo $drd_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; }
 
@@ -312,14 +319,13 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
       <h3><?php echo esc_html( $lang_texts['instructions'] ); ?></h3>
       <?php if ( ! empty( $instructions ) && is_array( $instructions ) ) : ?>
         <ol class="delice-recipe-instructions-list">
-          <?php foreach ( $instructions as $index => $step ) : 
-            // Aggressively remove ALL number patterns from start of text
+          <?php foreach ( $instructions as $index => $step ) :
             $step_text = $step['text'] ?? '';
-            $step_text = preg_replace('/^(\d+[\.\)\:]\s*)+/', '', $step_text); // Remove "1. " "1) " "1: "
-            $step_text = preg_replace('/^(Step\s+)?\d+[\.\)\:]\s*/i', '', $step_text); // Remove "Step 1. "
-            $step_text = trim($step_text);
+            $step_text = preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step_text );
+            $step_text = trim( $step_text );
           ?>
             <li class="delice-recipe-instruction">
+              <span class="delice-recipe-step-num" aria-hidden="true"><?php echo absint( $index + 1 ); ?></span>
               <span class="delice-recipe-instruction-text"><?php echo esc_html( $step_text ); ?></span>
             </li>
           <?php endforeach; ?>
@@ -384,69 +390,7 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
     </section>
   <?php endif; ?>
 
-  <!-- Print/Share Buttons at Bottom -->
-  <div class="delice-recipe-bottom-actions">
-    <!-- Print Button -->
-    <button class="delice-recipe-print-btn delice-recipe-action-button">
-      <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-        <polyline points="6,9 6,2 18,2 18,9"></polyline>
-        <path d="M6,18H4a2,2,0,0,1-2-2V11a2,2,0,0,1,2-2H20a2,2,0,0,1,2,2v5a2,2,0,0,1-2,2H18"></path>
-        <polyline points="6,14 18,14 18,22 6,22 6,14"></polyline>
-      </svg>
-      <span class="delice-recipe-action-button-text"><?php echo esc_html( $lang_texts['print'] ); ?></span>
-    </button>
-
-    <!-- Share Button with dropdown -->
-    <div class="delice-recipe-share-dropdown">
-      <button class="delice-recipe-share-btn delice-recipe-action-button">
-        <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-          <circle cx="18" cy="5" r="3"></circle>
-          <circle cx="6" cy="12" r="3"></circle>
-          <circle cx="18" cy="19" r="3"></circle>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-        </svg>
-        <span class="delice-recipe-action-button-text"><?php echo esc_html( $lang_texts['share'] ); ?></span>
-      </button>
-      
-      <div class="delice-recipe-share-menu">
-        <a href="#" class="delice-recipe-share-item" data-platform="facebook">
-          <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-          </svg>
-          <?php esc_html_e('Facebook', 'delice-recipe-manager'); ?>
-        </a>
-        <a href="#" class="delice-recipe-share-item" data-platform="twitter">
-          <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-          </svg>
-          <?php esc_html_e('Twitter', 'delice-recipe-manager'); ?>
-        </a>
-        <a href="#" class="delice-recipe-share-item" data-platform="pinterest">
-          <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-          <?php esc_html_e('Pinterest', 'delice-recipe-manager'); ?>
-        </a>
-        <a href="#" class="delice-recipe-share-item" data-platform="whatsapp">
-          <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-          </svg>
-          <?php esc_html_e('WhatsApp', 'delice-recipe-manager'); ?>
-        </a>
-        <a href="#" class="delice-recipe-share-item" data-platform="email">
-          <svg class="delice-recipe-share-item-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"></path>
-            <polyline points="22,6 12,13 2,6"></polyline>
-          </svg>
-          <?php esc_html_e('Email', 'delice-recipe-manager'); ?>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Enhanced Reviews Section - Positioned after FAQs -->
+  <!-- Reviews Section -->
   <?php if ($reviews_enabled) : ?>
     <section id="reviewSection-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-review-section">
       <div class="delice-recipe-review-header">
@@ -457,25 +401,25 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
       <!-- Selected Rating Display (shows after popup rating) -->
       <div class="delice-selected-rating-display">
         <div class="delice-rating-selected-info">
-          <span class="delice-rating-label"><?php _e('Your Rating:', 'delice-recipe-manager'); ?></span>
+          <span class="delice-rating-label"><?php esc_html_e( 'Your Rating:', 'delice-recipe-manager' ); ?></span>
           <div class="delice-rating-stars-display">
-            <?php for ($i = 1; $i <= 5; $i++): ?>
-              <i class="fas fa-star delice-display-star" data-rating="<?php echo $i; ?>"></i>
+            <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+              <span class="delice-display-star" data-rating="<?php echo esc_attr( $i ); ?>">★</span>
             <?php endfor; ?>
           </div>
-          <span class="delice-rating-text"><?php _e('Thank you for rating!', 'delice-recipe-manager'); ?></span>
+          <span class="delice-rating-text"><?php esc_html_e( 'Thank you for rating!', 'delice-recipe-manager' ); ?></span>
         </div>
       </div>
 
-      <!-- Rating Stars (hidden after popup rating) -->
+      <!-- Rating Stars -->
       <div class="delice-recipe-rating-container">
-        <label class="delice-recipe-rating-label"><?php _e('Your Rating:', 'delice-recipe-manager'); ?></label>
-        <div class="delice-recipe-rating-stars" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-          <?php for ($i = 1; $i <= 5; $i++): ?>
-            <i class="fas fa-star delice-rating-star" data-rating="<?php echo $i; ?>"></i>
+        <label class="delice-recipe-rating-label"><?php esc_html_e( 'Your Rating:', 'delice-recipe-manager' ); ?></label>
+        <div class="delice-recipe-rating-stars" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
+          <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+            <span class="delice-rating-star" data-rating="<?php echo esc_attr( $i ); ?>">★</span>
           <?php endfor; ?>
         </div>
-        <span class="delice-recipe-rating-text"><?php _e('Click to rate', 'delice-recipe-manager'); ?></span>
+        <span class="delice-recipe-rating-text"><?php esc_html_e( 'Click to rate', 'delice-recipe-manager' ); ?></span>
       </div>
 
       <!-- Review Form -->
@@ -498,29 +442,32 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
             <?php _e('Add a Photo (Optional):', 'delice-recipe-manager'); ?>
           </label>
           <div class="delice-recipe-file-upload-wrapper">
-            <input 
-              type="file" 
-              id="review-image-<?php echo esc_attr($recipe_id); ?>"
-              name="review_image" 
-              accept="image/*"
-            />
+            <input type="file" id="review-image-<?php echo esc_attr( $recipe_id ); ?>" name="review_image" accept="image/*">
             <div class="delice-recipe-file-upload-text">
-              <i class="fas fa-camera"></i>
-              <span><?php _e('Choose photo or drag & drop', 'delice-recipe-manager'); ?></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:26px;height:26px;stroke:#94a3b8">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              <span><?php esc_html_e( 'Choose photo or drag & drop', 'delice-recipe-manager' ); ?></span>
             </div>
           </div>
         </div>
         
         <button type="submit" class="delice-recipe-review-submit">
-          <i class="fas fa-paper-plane"></i>
-          <?php _e('Submit Review', 'delice-recipe-manager'); ?>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:16px;height:16px;stroke:#fff">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          <?php esc_html_e( 'Submit Review', 'delice-recipe-manager' ); ?>
         </button>
       </form>
 
       <!-- Success Message -->
       <div class="delice-recipe-review-success">
-        <i class="fas fa-check-circle"></i>
-        <p><?php _e('Thank you for your review! It has been submitted successfully.', 'delice-recipe-manager'); ?></p>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:22px;height:22px;flex-shrink:0;stroke:#22c55e">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <p><?php esc_html_e( 'Thank you for your review! It has been submitted successfully.', 'delice-recipe-manager' ); ?></p>
       </div>
     </section>
 
