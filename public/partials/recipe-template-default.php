@@ -33,8 +33,42 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
 ));
 ?>
 
+<?php $drd_id = 'drd-' . absint( $recipe_id ); ?>
+<style>
+/* ── Specificity shield: ID-scoped rules beat Pixwell #main/#content overrides ── */
+#<?php echo $drd_id; ?>,
+#<?php echo $drd_id; ?> * { box-sizing: border-box !important; }
+
+/* ── Global element-level resets ── */
+#<?php echo $drd_id; ?> ul,
+#<?php echo $drd_id; ?> ol            { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+#<?php echo $drd_id; ?> li            { padding: 0 !important; margin: 0 !important; background: none !important; border: none !important; }
+#<?php echo $drd_id; ?> li::before,
+#<?php echo $drd_id; ?> li::after     { content: none !important; display: none !important; }
+#<?php echo $drd_id; ?> p             { margin-top: 0 !important; margin-bottom: 0 !important; }
+#<?php echo $drd_id; ?> svg           { display: inline-block !important; max-width: none !important; overflow: visible !important; flex-shrink: 0 !important; }
+#<?php echo $drd_id; ?> img           { display: block !important; max-width: 100% !important; height: auto !important; }
+#<?php echo $drd_id; ?> button        { font-family: inherit !important; cursor: pointer !important; }
+
+/* ── Ingredient list (re-declare padding after global li reset) ── */
+#<?php echo $drd_id; ?> .delice-recipe-ingredient { padding: 6px 0 !important; margin: 0 !important; border: none !important; background: none !important; display: flex !important; align-items: center !important; gap: 8px !important; }
+#<?php echo $drd_id; ?> .delice-recipe-ingredient-checkbox { position: absolute !important; opacity: 0 !important; width: 0 !important; height: 0 !important; pointer-events: none !important; }
+
+/* ── FAQ accordion — must use !important to beat Pixwell #main div { display:block !important } ── */
+#<?php echo $drd_id; ?> .delice-recipe-modern-faq-answer { display: none !important; }
+#<?php echo $drd_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; }
+
+/* ── Semantic elements (theme styles header/section/footer directly) ── */
+#<?php echo $drd_id; ?> header.delice-recipe-header { display: block !important; padding: 0 !important; margin: 0 !important; border: none !important; }
+#<?php echo $drd_id; ?> section.delice-recipe-ingredients,
+#<?php echo $drd_id; ?> section.delice-recipe-instructions,
+#<?php echo $drd_id; ?> section.delice-recipe-nutrition,
+#<?php echo $drd_id; ?> section.delice-recipe-faqs,
+#<?php echo $drd_id; ?> section.delice-recipe-review-section { display: block !important; margin: 0 !important; border: none !important; }
+#<?php echo $drd_id; ?> footer.delice-recipe-footer { display: block !important; margin: 0 !important; border-top: none !important; padding: 12px 0 !important; }
+</style>
 <div class="delice-recipe-card">
-<div class="delice-recipe-container" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
+<div id="<?php echo $drd_id; ?>" class="delice-recipe-container" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
   <!-- Header -->
   <header class="delice-recipe-header">
     <?php if (!$hide_title) : ?>

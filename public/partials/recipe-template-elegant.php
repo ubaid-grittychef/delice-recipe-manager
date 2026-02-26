@@ -145,6 +145,9 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 /* ── FAQs ── */
 #<?php echo $dre_id; ?> .delice-elegant-faq-question   { display: flex !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 14px !important; padding: 16px 20px !important; background: none !important; border: none !important; text-align: left !important; }
 #<?php echo $dre_id; ?> .delice-elegant-faq-toggle     { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 26px !important; height: 26px !important; min-width: 26px !important; border-radius: 50% !important; }
+/* FAQ accordion — must use !important to beat Pixwell #main div { display:block !important } */
+#<?php echo $dre_id; ?> .delice-recipe-modern-faq-answer { display: none !important; }
+#<?php echo $dre_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; }
 
 /* ── Semantic elements (theme styles article/header/section/footer directly) ── */
 #<?php echo $dre_id; ?> footer.delice-elegant-footer   { display: flex !important; align-items: center !important; justify-content: center !important; flex-wrap: wrap !important; gap: 8px !important; padding: 18px 24px !important; margin: 0 !important; border-top: none !important; }
