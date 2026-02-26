@@ -1,76 +1,70 @@
 
-/* Recipe Action Buttons Styles */
+/* ─── Recipe Action Buttons ───────────────────────────────────────────────────
+   Print · Share · Copy — neutral outline style so Rate stands out as the CTA
+   ──────────────────────────────────────────────────────────────────────────── */
+
 .delice-recipe-action-buttons {
   display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin: 24px 0;
-  padding: 20px;
-  background: #ffffff;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  padding: 16px 20px;
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 
+/* ── Base button — neutral outline (print & share) ── */
 .delice-recipe-action-button {
-  display: flex;
-  flex-direction: row;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: #f97316;
-  color: white;
-  border: none;
+  gap: 7px;
+  padding: 9px 18px;
+  background: #fff;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
   border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
   font-weight: 600;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  min-width: 120px;
-  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
-  justify-content: center;
+  font-size: .825rem;
+  letter-spacing: .01em;
+  transition: all .18s ease;
+  white-space: nowrap;
 }
 
 .delice-recipe-action-button:hover {
-  background: #ea580c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-  color: white;
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
   text-decoration: none;
 }
 
 .delice-recipe-action-button:active {
-  transform: translateY(0);
+  transform: none;
+  box-shadow: none;
+  background: #f1f5f9;
 }
 
 .delice-recipe-action-button-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   stroke-width: 2;
   flex-shrink: 0;
 }
 
 .delice-recipe-action-button-text {
-  font-size: 13px;
+  font-size: .825rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
-/* Rating Button Specific Styles */
-.delice-recipe-action-button.rating-button {
-  background: #f59e0b;
-}
-
-.delice-recipe-action-button.rating-button:hover {
-  background: #d97706;
-}
-
-/* Share Dropdown with Glassmorphism */
+/* ── Share Dropdown ── */
 .delice-recipe-share-dropdown {
   position: relative;
   display: inline-block;
@@ -78,171 +72,181 @@
 
 .delice-recipe-share-menu {
   position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-  padding: 8px;
-  margin-top: 8px;
-  min-width: 200px;
+  top: calc(100% + 6px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  padding: 6px;
+  min-width: 175px;
   z-index: 9999;
   display: none;
-  opacity: 0;
-  transform: translateX(-50%) translateY(-8px);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .delice-recipe-share-menu.active {
   display: block;
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
 }
 
 .delice-recipe-share-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 10px;
+  padding: 10px 12px;
   color: #374151;
   text-decoration: none;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
-  font-size: 14px;
+  border-radius: 7px;
+  transition: background .15s;
+  font-size: .85rem;
+  font-weight: 500;
 }
 
 .delice-recipe-share-item:hover {
   background: #f8fafc;
-  color: #374151;
+  color: #0f172a;
   text-decoration: none;
 }
 
 .delice-recipe-share-item-icon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   stroke-width: 2;
+  flex-shrink: 0;
 }
 
-/* Rating Modal */
+/* ── Rating Button — primary CTA, stands out from outline buttons ── */
+/* (Base color handled by recipe-reviews.css .delice-recipe-rate-btn;
+    this just sizes it to match the bar) */
+.delice-recipe-action-buttons .delice-recipe-rate-btn {
+  padding: 9px 18px !important;
+  font-size: .825rem !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+
+/* ── Rating Modal ── */
 .delice-recipe-rating-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0,0,0,.5);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1001;
+  z-index: 10001;
+  backdrop-filter: blur(2px);
 }
 
-.delice-recipe-rating-modal.active {
-  display: flex;
-}
+.delice-recipe-rating-modal.active { display: flex; }
 
 .delice-recipe-rating-modal-content {
-  background: white;
-  padding: 32px;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  padding: 36px;
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.2);
   text-align: center;
-  max-width: 400px;
+  max-width: 380px;
   width: 90%;
 }
 
 .delice-recipe-rating-modal-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 16px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+  letter-spacing: -.02em;
 }
 
 .delice-recipe-rating-stars-large {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin: 24px 0;
+  gap: 6px;
+  margin: 20px 0;
 }
 
 .delice-recipe-rating-star-large {
-  width: 40px;
-  height: 40px;
+  font-size: 2.75rem;
   color: #d1d5db;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color .15s, transform .15s;
+  line-height: 1;
+  display: inline-block;
 }
 
 .delice-recipe-rating-star-large:hover,
 .delice-recipe-rating-star-large.active {
   color: #f59e0b;
+  transform: scale(1.15);
+}
+
+.delice-recipe-rating-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .delice-recipe-rating-submit {
-  background: #f97316;
-  color: white;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #fff;
   border: none;
-  padding: 12px 24px;
+  padding: 11px 28px;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: .9rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-right: 12px;
+  transition: all .2s;
+  box-shadow: 0 3px 10px rgba(249,115,22,.3);
 }
 
 .delice-recipe-rating-submit:hover {
-  background: #ea580c;
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(249,115,22,.4);
 }
 
 .delice-recipe-rating-cancel {
-  background: #6b7280;
-  color: white;
-  border: none;
-  padding: 12px 24px;
+  background: #f1f5f9;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+  padding: 11px 20px;
   border-radius: 8px;
   font-weight: 600;
+  font-size: .9rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all .2s;
 }
 
 .delice-recipe-rating-cancel:hover {
-  background: #4b5563;
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .delice-recipe-action-buttons {
-    flex-direction: column;
-    gap: 12px;
-    padding: 16px;
-  }
-  
-  .delice-recipe-action-button {
-    width: 100%;
-    justify-content: center;
-    min-width: auto;
-  }
-  
-  .delice-recipe-action-button-icon {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .delice-recipe-action-button-text {
-    font-size: 12px;
-  }
+/* ── Print — hide all action buttons ── */
+@media print {
+  .delice-recipe-action-buttons,
+  .delice-recipe-action-button,
+  .delice-recipe-share-dropdown,
+  .delice-recipe-rating-modal { display: none !important; }
 }
 
-@media (max-width: 480px) {
+/* ── Responsive ── */
+@media (max-width: 640px) {
   .delice-recipe-action-buttons {
-    padding: 12px;
+    gap: 8px;
+    padding: 12px 14px;
   }
-  
+
   .delice-recipe-action-button {
-    padding: 10px 16px;
+    padding: 8px 13px;
+    font-size: .8rem;
+  }
+
+  .delice-recipe-action-button-text { display: none; }
+  .delice-recipe-action-button-icon { width: 18px; height: 18px; }
+
+  /* Keep text on rate button since it's the primary CTA */
+  .delice-recipe-action-buttons .delice-recipe-rate-btn .delice-recipe-action-button-text {
+    display: inline !important;
   }
 }

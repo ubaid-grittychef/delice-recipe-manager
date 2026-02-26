@@ -35,6 +35,13 @@ class Delice_Recipe_Schema {
         static $hooked = false;
         if ( ! $hooked ) {
             add_action( 'wp_head', array( $this, 'output_recipe_schema' ), 100 );
+            add_action( 'wp_head', array( $this, 'output_recipe_meta_tags' ), 5 );
+            // Yoast SEO integration
+            add_filter( 'wpseo_title',    array( $this, 'filter_yoast_title' ) );
+            add_filter( 'wpseo_metadesc', array( $this, 'filter_yoast_metadesc' ) );
+            // RankMath integration
+            add_filter( 'rank_math/frontend/title',       array( $this, 'filter_yoast_title' ) );
+            add_filter( 'rank_math/frontend/description', array( $this, 'filter_yoast_metadesc' ) );
             $hooked = true;
         }
     }
@@ -173,9 +180,22 @@ class Delice_Recipe_Schema {
             }
 
             if ( has_post_thumbnail( $recipe_id ) ) {
-                $img    = wp_get_attachment_image_src( get_post_thumbnail_id( $recipe_id ), 'full' );
-                $schema['image'] = $img[0];
+                $thumb_id = get_post_thumbnail_id( $recipe_id );
+                // Provide all three aspect ratios Google uses in different SERP contexts.
+                $img_full   = wp_get_attachment_image_src( $thumb_id, 'full' );
+                $img_16x9   = wp_get_attachment_image_src( $thumb_id, array( 1200, 675 ) );
+                $img_4x3    = wp_get_attachment_image_src( $thumb_id, array( 1200, 900 ) );
+                $img_1x1    = wp_get_attachment_image_src( $thumb_id, array( 1200, 1200 ) );
+                $urls = array_unique( array_filter( array(
+                    $img_16x9 ? $img_16x9[0] : null,
+                    $img_4x3  ? $img_4x3[0]  : null,
+                    $img_1x1  ? $img_1x1[0]  : null,
+                    $img_full ? $img_full[0]  : null,
+                ) ) );
+                $schema['image'] = count( $urls ) === 1 ? reset( $urls ) : array_values( $urls );
             }
+
+            $schema['dateModified'] = get_the_modified_date( 'c', $recipe_id );
 
             if ( $prep_time )  {
                 $schema['prepTime'] = 'PT' . intval( $prep_time ) . 'M';
@@ -454,6 +474,126 @@ class Delice_Recipe_Schema {
         foreach ( $ids as $id ) {
             $this->output_single_recipe_schema( $id );
         }
+    }
+
+    /**
+     * Output <meta name="description"> for recipe pages.
+     * Runs at priority 5 so it appears before the main schema block.
+     * Defers to Yoast/RankMath when those plugins are active.
+     */
+    public function output_recipe_meta_tags() {
+        // Skip if a dedicated SEO plugin handles meta tags.
+        if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
+            return;
+        }
+
+        $recipe_id = $this->get_current_recipe_id();
+        if ( ! $recipe_id ) {
+            return;
+        }
+
+        $description = $this->build_recipe_description( $recipe_id );
+        if ( empty( $description ) ) {
+            return;
+        }
+
+        echo '<meta name="description" content="' . esc_attr( $description ) . '">' . "\n";
+    }
+
+    /**
+     * Filter Yoast SEO title for recipe single pages.
+     */
+    public function filter_yoast_title( $title ) {
+        $recipe_id = $this->get_current_recipe_id();
+        if ( ! $recipe_id ) {
+            return $title;
+        }
+        $recipe_title = get_the_title( $recipe_id );
+        $site_name    = get_bloginfo( 'name' );
+        return $recipe_title . ' Recipe | ' . $site_name;
+    }
+
+    /**
+     * Filter Yoast/RankMath meta description for recipe single pages.
+     */
+    public function filter_yoast_metadesc( $desc ) {
+        // Only override if the description is empty or the default.
+        if ( ! empty( $desc ) ) {
+            return $desc;
+        }
+        $recipe_id = $this->get_current_recipe_id();
+        if ( ! $recipe_id ) {
+            return $desc;
+        }
+        return $this->build_recipe_description( $recipe_id );
+    }
+
+    /**
+     * Return the current recipe ID if we are on a recipe page.
+     */
+    private function get_current_recipe_id() {
+        if ( ! is_singular() ) {
+            return 0;
+        }
+        $post_id = get_the_ID();
+        if ( ! $post_id ) {
+            return 0;
+        }
+        if ( get_post_type( $post_id ) === 'delice_recipe' ) {
+            return $post_id;
+        }
+        return 0;
+    }
+
+    /**
+     * Build a concise meta description from recipe data.
+     * Format: "[Recipe Name] – [excerpt/description]. [time] · [servings]."
+     */
+    private function build_recipe_description( $recipe_id ) {
+        $post        = get_post( $recipe_id );
+        $title       = get_the_title( $recipe_id );
+        $prep_time   = get_post_meta( $recipe_id, '_delice_recipe_prep_time', true );
+        $cook_time   = get_post_meta( $recipe_id, '_delice_recipe_cook_time', true );
+        $servings    = get_post_meta( $recipe_id, '_delice_recipe_servings', true );
+        $total_time  = get_post_meta( $recipe_id, '_delice_recipe_total_time', true );
+
+        // Raw description: prefer excerpt, fall back to trimmed content.
+        $desc = '';
+        if ( $post && ! empty( $post->post_excerpt ) ) {
+            $desc = $post->post_excerpt;
+        } elseif ( $post && ! empty( $post->post_content ) ) {
+            $desc = wp_trim_words( wp_strip_all_tags( $post->post_content ), 25, '' );
+        }
+
+        // Build details suffix.
+        $details = array();
+        if ( $total_time ) {
+            $details[] = 'Ready in ' . intval( $total_time ) . ' min';
+        } elseif ( $prep_time || $cook_time ) {
+            $mins = intval( $prep_time ) + intval( $cook_time );
+            if ( $mins ) {
+                $details[] = 'Ready in ' . $mins . ' min';
+            }
+        }
+        if ( $servings ) {
+            $details[] = 'Serves ' . $servings;
+        }
+
+        $parts = array();
+        if ( ! empty( $desc ) ) {
+            $parts[] = rtrim( $desc, '.' ) . '.';
+        }
+        if ( ! empty( $details ) ) {
+            $parts[] = implode( ' · ', $details ) . '.';
+        }
+
+        $full = implode( ' ', $parts );
+        // Trim to 155 chars for search result display.
+        if ( mb_strlen( $full ) > 155 ) {
+            $full = mb_substr( $full, 0, 152 ) . '...';
+        }
+
+        return $full;
     }
 }
 }

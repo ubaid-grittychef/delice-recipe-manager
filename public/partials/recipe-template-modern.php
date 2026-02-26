@@ -78,6 +78,9 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 /* ── Body & sections ── */
 #<?php echo $drm_id; ?> .delice-modern-body            { padding: 28px 24px !important; background: #f8fafc !important; }
 #<?php echo $drm_id; ?> .delice-modern-section         { display: block !important; overflow: hidden !important; margin-bottom: 20px !important; border-radius: 12px !important; }
+/* ── Two-column layout: ingredients (left) + instructions (right) ── */
+#<?php echo $drm_id; ?> .delice-modern-cols            { display: grid !important; grid-template-columns: 2fr 3fr !important; gap: 20px !important; align-items: start !important; margin-bottom: 20px !important; }
+#<?php echo $drm_id; ?> .delice-modern-cols .delice-modern-section { margin-bottom: 0 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-header  { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 18px 20px 14px !important; margin: 0 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-title   { display: flex !important; align-items: center !important; gap: 10px !important; padding: 18px 20px 14px !important; margin: 0 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-header .delice-modern-section-title { padding: 0 !important; border-bottom: none !important; }
@@ -123,7 +126,6 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 #<?php echo $drm_id; ?> section.delice-modern-reviews  { margin: 24px 0 0 !important; padding: 0 !important; border: none !important; display: block !important; overflow: hidden !important; border-radius: 12px !important; }
 #<?php echo $drm_id; ?> .delice-modern-review-form     { display: flex !important; flex-direction: column !important; gap: 16px !important; padding: 16px 28px 24px !important; }
 #<?php echo $drm_id; ?> .delice-modern-submit-btn      { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; border-radius: 8px !important; padding: 13px 28px !important; }
-#<?php echo $drm_id; ?> .delice-modern-reviews .delice-recipe-rating-container { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 12px !important; padding: 20px 28px 0 !important; }
 
 /* ── Responsive ── */
 @media (max-width: 680px) {
@@ -131,6 +133,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
     #<?php echo $drm_id; ?> .delice-modern-toolbar  { flex-direction: column !important; align-items: flex-start !important; padding: 12px 16px !important; }
     #<?php echo $drm_id; ?> .delice-modern-actions  { width: 100% !important; justify-content: flex-start !important; }
     #<?php echo $drm_id; ?> .delice-modern-body     { padding: 16px !important; }
+    #<?php echo $drm_id; ?> .delice-modern-cols     { grid-template-columns: 1fr !important; gap: 16px !important; }
 }
 </style>
 <div id="<?php echo $drm_id; ?>" class="delice-recipe-wrapper delice-modern delice-recipe-container" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
@@ -141,9 +144,9 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
         <?php if ( $has_image && ! empty( $display_options['show_image'] ) ) : ?>
             <div class="delice-modern-hero-image">
                 <?php echo get_the_post_thumbnail( $recipe_id, 'large', array(
-                    'class'   => 'delice-modern-img',
-                    'loading' => 'lazy',
-                    'alt'     => esc_attr( $recipe_title ),
+                    'class'        => 'delice-modern-img',
+                    'fetchpriority' => 'high',
+                    'alt'          => esc_attr( $recipe_title ),
                 ) ); ?>
                 <div class="delice-modern-hero-gradient"></div>
             </div>
@@ -321,9 +324,16 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
     <!-- ═══ BODY ══════════════════════════════════════════════════════════════ -->
     <div class="delice-modern-body">
 
+        <?php
+        $has_ing  = ! empty( $ingredients );
+        $has_inst = ! empty( $instructions );
+        $two_col  = $has_ing && $has_inst;
+        if ( $two_col ) echo '<div class="delice-modern-cols">';
+        ?>
+
         <!-- ── Ingredients ───────────────────────────────────────────────────── -->
-        <?php if ( ! empty( $ingredients ) ) : ?>
-            <div class="delice-modern-section">
+        <?php if ( $has_ing ) : ?>
+            <div class="delice-modern-section delice-modern-section--ingredients">
                 <div class="delice-modern-section-header">
                     <h3 class="delice-modern-section-title">
                         <span class="delice-modern-section-icon" aria-hidden="true">
@@ -363,8 +373,8 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
         <?php endif; ?>
 
         <!-- ── Instructions ──────────────────────────────────────────────────── -->
-        <?php if ( ! empty( $instructions ) ) : ?>
-            <div class="delice-modern-section">
+        <?php if ( $has_inst ) : ?>
+            <div class="delice-modern-section delice-modern-section--instructions">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -393,9 +403,11 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
             </div>
         <?php endif; ?>
 
+        <?php if ( $two_col ) echo '</div><!-- /.delice-modern-cols -->'; ?>
+
         <!-- ── Nutrition ──────────────────────────────────────────────────────── -->
         <?php if ( ! empty( $nutrition ) ) : ?>
-            <div class="delice-modern-section delice-modern-nutrition">
+            <div class="delice-modern-section delice-modern-section--nutrition delice-modern-nutrition">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -432,7 +444,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 
         <!-- ── Notes ─────────────────────────────────────────────────────────── -->
         <?php if ( ! empty( $notes ) ) : ?>
-            <div class="delice-modern-section delice-modern-notes">
+            <div class="delice-modern-section delice-modern-section--notes delice-modern-notes">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -451,7 +463,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 
         <!-- ── FAQs ──────────────────────────────────────────────────────── -->
         <?php if ( ! empty( $faqs ) ) : ?>
-            <div class="delice-modern-section delice-modern-faqs">
+            <div class="delice-modern-section delice-modern-section--faqs delice-modern-faqs">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -493,9 +505,9 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
     <?php if ( $reviews_enabled ) : ?>
         <section id="reviewSection-<?php echo esc_attr( $recipe_id ); ?>" class="delice-modern-reviews delice-recipe-review-section">
 
-            <div class="delice-modern-reviews-header">
-                <h3><?php esc_html_e( 'Rate & Review', 'delice-recipe-manager' ); ?></h3>
-                <p><?php esc_html_e( 'Share your experience and help others discover this recipe.', 'delice-recipe-manager' ); ?></p>
+            <div class="delice-recipe-review-header">
+                <h3><?php esc_html_e( 'Did You Make This Recipe?', 'delice-recipe-manager' ); ?></h3>
+                <p class="delice-recipe-review-subtitle"><?php esc_html_e( 'Share your experience and help others discover this recipe.', 'delice-recipe-manager' ); ?></p>
             </div>
 
             <!-- Selected rating display (shown after modal rating) -->

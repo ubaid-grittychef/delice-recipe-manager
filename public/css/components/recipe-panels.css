@@ -1,154 +1,100 @@
 
-/* Simple Card-Based Design */
+/* ─── Ingredient & Instruction Panel Styles ──────────────────────────────────
+   These are base styles for the default template panels.
+   The inline ID-scoped shield in the PHP template takes priority for layout.
+   ──────────────────────────────────────────────────────────────────────────── */
 
-/* Simple Card-Based Design for Ingredients and Instructions */
+/* Panel section wrappers */
+.delice-recipe-ingredients,
+.delice-recipe-instructions {
+  background: #fff5eb;
+  border: 1px solid #ffe0c8;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 0;
+}
 
-/* Ingredients Cards */
+.delice-recipe-ingredients h3,
+.delice-recipe-instructions h3 {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(249, 115, 22, 0.2);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* Ingredient list — simple rows (no per-item cards) */
 .delice-recipe-ingredients-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .delice-recipe-ingredient {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  border-radius: 12px;
-  padding: 16px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid #f0ebe3;
+  transition: background .15s;
 }
 
-.delice-recipe-ingredient:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.15);
-  border-color: rgba(249, 115, 22, 0.3);
-}
-
-.delice-recipe-ingredient-checkbox {
-  width: 20px;
-  height: 20px;
-  accent-color: #f97316;
-  margin: 0;
+.delice-recipe-ingredient:last-child {
+  border-bottom: none;
 }
 
 .delice-recipe-ingredient-name {
   flex: 1;
-  font-weight: 500;
-  color: #1f2937;
+  font-size: .9rem;
+  color: #374151;
+  line-height: 1.4;
 }
 
 .delice-recipe-ingredient-quantity {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: white;
-  padding: 4px 12px;
+  color: #fff;
+  padding: 3px 10px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: .78rem;
   font-weight: 600;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* Instructions Cards */
+/* Instruction list — flex rows with step-num circle */
 .delice-recipe-instructions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   list-style: none;
   margin: 0;
   padding: 0;
-  counter-reset: step-counter;
 }
 
 .delice-recipe-instruction {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  border-radius: 12px;
-  padding: 20px;
-  position: relative;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  counter-increment: step-counter;
-}
-
-.delice-recipe-instruction:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.15);
-  border-color: rgba(249, 115, 22, 0.3);
-}
-
-.delice-recipe-instruction::before {
-  content: counter(step-counter);
-  position: absolute;
-  left: -12px;
-  top: 20px;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0ebe3;
+}
+
+.delice-recipe-instruction:last-child {
+  border-bottom: none;
 }
 
 .delice-recipe-instruction-text {
-  color: #1f2937;
-  line-height: 1.6;
-  margin-left: 24px;
+  flex: 1;
+  font-size: .9rem;
+  line-height: 1.65;
+  color: #374151;
+  padding-top: 5px;
 }
 
-/* Section Styling */
-.delice-recipe-ingredients,
-.delice-recipe-instructions {
-  background: rgba(255, 245, 235, 0.6);
-  border: 1px solid rgba(249, 115, 22, 0.1);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.delice-recipe-ingredients h3,
-.delice-recipe-instructions h3 {
-  color: #f97316;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid rgba(249, 115, 22, 0.2);
-}
-
-/* Mobile Responsive */
+/* Mobile */
 @media (max-width: 768px) {
-  .delice-recipe-ingredients-list {
-    grid-template-columns: 1fr;
-  }
-  
-  .delice-recipe-ingredient {
-    padding: 12px;
-  }
-  
-  .delice-recipe-instruction {
-    padding: 16px;
-    margin-left: 16px;
-  }
-  
-  .delice-recipe-instruction::before {
-    left: -8px;
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-  }
-  
-  .delice-recipe-instruction-text {
-    margin-left: 12px;
+  .delice-recipe-ingredients,
+  .delice-recipe-instructions {
+    padding: 20px;
   }
 }

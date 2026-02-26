@@ -318,22 +318,56 @@
     flex-shrink: 0;
 }
 
-/* ─── Body (two-column layout) ─────────────────────────────────────────────── */
+/* ─── Body layout ───────────────────────────────────────────────────────────── */
 .delice-modern-body {
     padding: 28px 24px;
     background: var(--m-bg);
 }
 
+/* Two-column layout for ingredients + instructions */
+.delice-modern-cols {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 20px;
+    align-items: start;
+    margin-bottom: 20px;
+}
+
+.delice-modern-cols .delice-modern-section {
+    margin-bottom: 0;
+    height: 100%;
+}
 
 /* ─── Sections ─────────────────────────────────────────────────────────────── */
 .delice-modern-section {
     background: var(--m-white);
     border-radius: var(--m-radius);
     border: 1px solid var(--m-border);
+    border-left: 4px solid transparent;
     overflow: hidden;
     box-shadow: var(--m-shadow);
     margin-bottom: 20px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
+
+.delice-modern-section:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+}
+
+/* ─── Section-type accent colors ────────────────────────────────────────────── */
+.delice-modern-section--ingredients { border-left-color: #f97316; }
+.delice-modern-section--instructions { border-left-color: #0ea5e9; }
+.delice-modern-section--notes        { border-left-color: #a3e635; }
+.delice-modern-section--nutrition    { border-left-color: #22c55e; }
+.delice-modern-section--faqs         { border-left-color: #a78bfa; }
+
+/* Section title colored per type */
+.delice-modern-section--ingredients .delice-modern-section-title { color: #ea580c; }
+.delice-modern-section--instructions .delice-modern-section-title { color: #0284c7; }
+.delice-modern-section--notes        .delice-modern-section-title { color: #65a30d; }
+.delice-modern-section--nutrition    .delice-modern-section-title { color: #16a34a; }
+.delice-modern-section--faqs         .delice-modern-section-title { color: #7c3aed; }
 
 .delice-modern-section-header {
     display: flex;
@@ -744,58 +778,9 @@
     box-shadow: var(--m-shadow);
 }
 
-.delice-modern-reviews-header {
-    padding: 24px 28px 20px;
-    background: linear-gradient(135deg, var(--m-dark) 0%, var(--m-dark-2) 100%);
-    text-align: center;
-}
+/* Warm orange header from recipe-reviews.css handles the header — no dark override here */
 
-.delice-modern-reviews-header h3 {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #fff;
-    margin: 0 0 6px;
-    letter-spacing: -.02em;
-}
-
-.delice-modern-reviews-header p {
-    font-size: .85rem;
-    color: rgba(255,255,255,.65);
-    margin: 0;
-}
-
-.delice-modern-reviews .delice-recipe-rating-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px 28px 0;
-    flex-wrap: wrap;
-}
-
-.delice-modern-reviews .delice-recipe-rating-label {
-    font-size: .875rem;
-    font-weight: 600;
-    color: var(--m-dark);
-}
-
-.delice-modern-reviews .delice-rating-star {
-    font-size: 1.8rem;
-    color: var(--m-border);
-    cursor: pointer;
-    transition: color .15s, transform .15s;
-    display: inline-block;
-}
-
-.delice-modern-reviews .delice-rating-star:hover,
-.delice-modern-reviews .delice-rating-star.active {
-    color: #f59e0b;
-    transform: scale(1.15);
-}
-
-.delice-modern-reviews .delice-recipe-rating-text {
-    font-size: .8rem;
-    color: var(--m-slate-light);
-}
+/* Rating container and stars — use recipe-reviews.css base styles */
 
 .delice-modern-review-form {
     padding: 16px 28px 24px;
@@ -1006,6 +991,11 @@
 
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 680px) {
+    .delice-modern-cols {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
     .delice-modern-hero-content {
         padding: 24px 20px 20px;
     }
