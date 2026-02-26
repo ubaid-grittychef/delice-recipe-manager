@@ -103,7 +103,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 #<?php echo $drm_id; ?> .delice-modern-step-text       { margin: 0 !important; line-height: 1.7 !important; }
 
 /* ── Nutrition ── */
-#<?php echo $drm_id; ?> .delice-modern-nutrition-grid  { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px !important; }
+#<?php echo $drm_id; ?> .delice-modern-nutrition-grid  { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important; gap: 1px !important; }
 #<?php echo $drm_id; ?> .delice-modern-nutrient        { display: flex !important; flex-direction: column !important; align-items: center !important; padding: 14px 10px !important; text-align: center !important; gap: 3px !important; background: #fff !important; }
 
 /* ── FAQs ── */

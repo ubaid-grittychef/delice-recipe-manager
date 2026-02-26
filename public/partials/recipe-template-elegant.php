@@ -111,8 +111,10 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 #<?php echo $dre_id; ?> .delice-elegant-actions        { display: flex !important; align-items: center !important; justify-content: center !important; flex-wrap: wrap !important; gap: 10px !important; padding: 20px 48px !important; margin: 0 !important; }
 #<?php echo $dre_id; ?> .delice-elegant-btn            { display: inline-flex !important; align-items: center !important; gap: 7px !important; padding: 10px 18px !important; border-radius: 24px !important; white-space: nowrap !important; }
 
-/* ── Section titles ── */
-#<?php echo $dre_id; ?> .delice-elegant-section-title  { display: flex !important; align-items: center !important; justify-content: center !important; gap: 10px !important; margin: 0 0 24px !important; }
+/* ── Section titles — magazine-style with flanking rules ── */
+#<?php echo $dre_id; ?> .delice-elegant-section-title  { display: flex !important; align-items: center !important; gap: 12px !important; margin: 0 0 24px !important; font-size: 1.05rem !important; font-weight: 700 !important; color: #166534 !important; text-transform: uppercase !important; letter-spacing: .06em !important; }
+#<?php echo $dre_id; ?> .delice-elegant-section-title::before,
+#<?php echo $dre_id; ?> .delice-elegant-section-title::after { content: '' !important; flex: 1 !important; border-top: 1px solid #d6d0c4 !important; }
 
 /* ── Body sections ── */
 #<?php echo $dre_id; ?> .delice-elegant-body           { display: block !important; background: #faf7f2 !important; }
@@ -126,6 +128,8 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 /* ── Ingredients (re-declare padding after global li reset) ── */
 #<?php echo $dre_id; ?> .delice-elegant-ingredients-list { list-style: none !important; display: grid !important; grid-template-columns: repeat(2, 1fr) !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; border-radius: 8px !important; }
 #<?php echo $dre_id; ?> .delice-elegant-ingredient     { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; padding: 11px 16px !important; margin: 0 !important; border: none !important; border-bottom: 1px solid #e7e5e4 !important; background: #fff !important; }
+#<?php echo $dre_id; ?> .delice-elegant-ingredient:last-child,
+#<?php echo $dre_id; ?> .delice-elegant-ingredient:nth-last-child(2):nth-child(odd) { border-bottom: none !important; }
 #<?php echo $dre_id; ?> .delice-elegant-ingredient-inner{ display: flex !important; align-items: center !important; gap: 9px !important; flex: 1 !important; min-width: 0 !important; cursor: pointer !important; }
 #<?php echo $dre_id; ?> .delice-elegant-checkbox       { position: absolute !important; opacity: 0 !important; width: 0 !important; height: 0 !important; pointer-events: none !important; }
 #<?php echo $dre_id; ?> .delice-elegant-check-icon     { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 20px !important; height: 20px !important; min-width: 20px !important; border-radius: 4px !important; }
@@ -135,7 +139,8 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 /* ── Steps (re-declare after global li reset) ── */
 #<?php echo $dre_id; ?> .delice-elegant-steps          { list-style: none !important; display: flex !important; flex-direction: column !important; gap: 20px !important; margin: 0 !important; padding: 0 !important; }
 #<?php echo $dre_id; ?> .delice-elegant-step           { display: flex !important; align-items: flex-start !important; gap: 18px !important; padding: 0 !important; margin: 0 !important; border: none !important; background: none !important; }
-#<?php echo $dre_id; ?> .delice-elegant-step-num       { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 38px !important; height: 38px !important; min-width: 38px !important; border-radius: 50% !important; margin-top: 2px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-step-num       { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 38px !important; height: 38px !important; min-width: 38px !important; border-radius: 50% !important; border: none !important; background: #166534 !important; color: #fff !important; box-shadow: 0 2px 8px rgba(22,101,52,.3) !important; margin-top: 2px !important; transition: background .2s !important; }
+#<?php echo $dre_id; ?> .delice-elegant-step:hover .delice-elegant-step-num { background: #b45309 !important; box-shadow: 0 2px 10px rgba(180,83,9,.35) !important; }
 #<?php echo $dre_id; ?> .delice-elegant-step-text      { margin: 0 !important; line-height: 1.8 !important; padding-top: 4px !important; }
 
 /* ── Nutrition ── */
