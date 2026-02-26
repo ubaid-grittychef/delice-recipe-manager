@@ -74,6 +74,72 @@ $dietary_terms = get_the_terms( $recipe_id, 'delice_dietary' );
 ?>
 
 <?php $dre_id = 'dre-' . absint( $recipe_id ); ?>
+<style>
+/* ── Specificity shield: ID-scoped rules beat Pixwell #main/#content overrides ── */
+#<?php echo $dre_id; ?>,
+#<?php echo $dre_id; ?> * { box-sizing: border-box !important; }
+#<?php echo $dre_id; ?> { max-width: 860px !important; margin: 0 auto !important; overflow: hidden !important; display: block !important; }
+
+/* Header & hero image */
+#<?php echo $dre_id; ?> .delice-elegant-header         { padding: 40px 48px 0 !important; text-align: center !important; background: var(--e-cream) !important; }
+#<?php echo $dre_id; ?> .delice-elegant-hero-image     { overflow: hidden !important; margin: 0 -48px !important; display: block !important; }
+#<?php echo $dre_id; ?> .delice-elegant-img            { width: 100% !important; display: block !important; max-height: 480px !important; object-fit: cover !important; }
+#<?php echo $dre_id; ?> .delice-elegant-difficulty-badge { position: absolute !important; }
+
+/* Byline */
+#<?php echo $dre_id; ?> .delice-elegant-byline         { display: flex !important; align-items: center !important; justify-content: center !important; flex-wrap: wrap !important; gap: 8px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-byline-item    { display: inline-flex !important; align-items: center !important; gap: 5px !important; }
+
+/* Meta bar */
+#<?php echo $dre_id; ?> .delice-elegant-meta           { display: flex !important; align-items: stretch !important; flex-wrap: wrap !important; }
+#<?php echo $dre_id; ?> .delice-elegant-meta-item      { display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; min-width: 100px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-meta-item > div{ display: flex !important; flex-direction: column !important; gap: 2px !important; }
+
+/* Actions */
+#<?php echo $dre_id; ?> .delice-elegant-actions        { display: flex !important; align-items: center !important; justify-content: center !important; flex-wrap: wrap !important; gap: 10px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-btn            { display: inline-flex !important; align-items: center !important; gap: 7px !important; }
+
+/* Section titles */
+#<?php echo $dre_id; ?> .delice-elegant-section-title  { display: flex !important; align-items: center !important; justify-content: center !important; gap: 10px !important; }
+
+/* Ingredients */
+#<?php echo $dre_id; ?> .delice-elegant-ingredients-list { list-style: none !important; display: grid !important; grid-template-columns: repeat(2, 1fr) !important; margin: 0 !important; padding: 0 !important; }
+#<?php echo $dre_id; ?> .delice-elegant-ingredient     { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-ingredient-inner{ display: flex !important; align-items: center !important; gap: 9px !important; flex: 1 !important; min-width: 0 !important; }
+#<?php echo $dre_id; ?> .delice-elegant-check-icon     { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+
+/* Steps */
+#<?php echo $dre_id; ?> .delice-elegant-steps          { list-style: none !important; display: flex !important; flex-direction: column !important; gap: 20px !important; margin: 0 !important; padding: 0 !important; }
+#<?php echo $dre_id; ?> .delice-elegant-step           { display: flex !important; align-items: flex-start !important; gap: 18px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-step-num       { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+
+/* Nutrition */
+#<?php echo $dre_id; ?> .delice-elegant-nutrition-grid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important; gap: 1px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-nutrient       { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important; }
+
+/* FAQs */
+#<?php echo $dre_id; ?> .delice-elegant-faq-question   { display: flex !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 14px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-faq-toggle     { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+
+/* Reviews */
+#<?php echo $dre_id; ?> .delice-elegant-reviews .delice-recipe-rating-container { display: flex !important; align-items: center !important; flex-wrap: wrap !important; justify-content: center !important; }
+#<?php echo $dre_id; ?> .delice-elegant-review-form    { display: flex !important; flex-direction: column !important; gap: 18px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-submit-btn     { display: inline-flex !important; align-items: center !important; justify-content: center !important; align-self: center !important; }
+
+/* Footer */
+#<?php echo $dre_id; ?> .delice-elegant-footer         { display: flex !important; align-items: center !important; justify-content: center !important; flex-wrap: wrap !important; gap: 8px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-tag            { display: inline-flex !important; align-items: center !important; }
+
+/* Share dropdown */
+#<?php echo $dre_id; ?> .delice-elegant-share-wrap     { position: relative !important; }
+
+/* Responsive */
+@media (max-width: 700px) {
+    #<?php echo $dre_id; ?> .delice-elegant-header     { padding: 28px 24px 0 !important; }
+    #<?php echo $dre_id; ?> .delice-elegant-hero-image { margin: 0 -24px !important; }
+    #<?php echo $dre_id; ?> .delice-elegant-ingredients-list { grid-template-columns: 1fr !important; }
+}
+</style>
 <article id="<?php echo $dre_id; ?>" class="delice-recipe-container delice-elegant" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->

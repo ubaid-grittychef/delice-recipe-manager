@@ -42,6 +42,73 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 ?>
 
 <?php $drm_id = 'drm-' . absint( $recipe_id ); ?>
+<style>
+/* ── Specificity shield: ID-scoped rules beat Pixwell #main/#content overrides ── */
+#<?php echo $drm_id; ?>,
+#<?php echo $drm_id; ?> * { box-sizing: border-box !important; }
+#<?php echo $drm_id; ?> { max-width: 960px !important; margin: 0 auto !important; overflow: hidden !important; display: block !important; }
+
+/* Hero */
+#<?php echo $drm_id; ?> .delice-modern-hero            { display: flex !important; align-items: flex-end !important; position: relative !important; }
+#<?php echo $drm_id; ?> .delice-modern-hero-image      { position: absolute !important; inset: 0 !important; overflow: hidden !important; }
+#<?php echo $drm_id; ?> .delice-modern-img             { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
+#<?php echo $drm_id; ?> .delice-modern-hero-content    { position: relative !important; z-index: 1 !important; width: 100% !important; }
+#<?php echo $drm_id; ?> .delice-modern-meta-badges     { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+#<?php echo $drm_id; ?> .delice-modern-badge           { display: flex !important; flex-direction: column !important; align-items: center !important; }
+
+/* Toolbar */
+#<?php echo $drm_id; ?> .delice-modern-toolbar         { display: flex !important; align-items: center !important; justify-content: space-between !important; flex-wrap: wrap !important; }
+#<?php echo $drm_id; ?> .delice-modern-author          { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 10px !important; }
+#<?php echo $drm_id; ?> .delice-modern-author-avatar   { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-author-info     { display: flex !important; flex-direction: column !important; gap: 1px !important; }
+#<?php echo $drm_id; ?> .delice-modern-actions         { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px !important; }
+#<?php echo $drm_id; ?> .delice-modern-action-btn      { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
+
+/* Sections */
+#<?php echo $drm_id; ?> .delice-modern-section-header  { display: flex !important; align-items: center !important; justify-content: space-between !important; }
+#<?php echo $drm_id; ?> .delice-modern-section-title   { display: flex !important; align-items: center !important; gap: 10px !important; }
+#<?php echo $drm_id; ?> .delice-modern-section-icon    { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-copy-btn        { display: inline-flex !important; align-items: center !important; }
+
+/* Ingredients */
+#<?php echo $drm_id; ?> .delice-modern-ingredients-list { list-style: none !important; padding: 8px 0 12px !important; margin: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-ingredient      { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; }
+#<?php echo $drm_id; ?> .delice-modern-ingredient-label{ display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; min-width: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-checkbox-mark   { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+
+/* Steps */
+#<?php echo $drm_id; ?> .delice-modern-steps           { list-style: none !important; margin: 0 !important; padding: 12px 20px 20px !important; }
+#<?php echo $drm_id; ?> .delice-modern-step            { display: flex !important; align-items: flex-start !important; gap: 16px !important; }
+#<?php echo $drm_id; ?> .delice-modern-step-num        { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-step-body       { flex: 1 !important; min-width: 0 !important; }
+
+/* Nutrition */
+#<?php echo $drm_id; ?> .delice-modern-nutrition-grid  { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 1px !important; }
+#<?php echo $drm_id; ?> .delice-modern-nutrient        { display: flex !important; flex-direction: column !important; align-items: center !important; }
+
+/* FAQs */
+#<?php echo $drm_id; ?> .delice-modern-faq-question    { display: flex !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 12px !important; }
+#<?php echo $drm_id; ?> .delice-modern-faq-icon        { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+
+/* Footer */
+#<?php echo $drm_id; ?> .delice-modern-footer          { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; }
+#<?php echo $drm_id; ?> .delice-modern-footer-tag      { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
+
+/* Reviews */
+#<?php echo $drm_id; ?> .delice-modern-reviews         { display: block !important; }
+#<?php echo $drm_id; ?> .delice-modern-reviews .delice-recipe-rating-container { display: flex !important; align-items: center !important; flex-wrap: wrap !important; }
+#<?php echo $drm_id; ?> .delice-modern-review-form     { display: flex !important; flex-direction: column !important; gap: 16px !important; }
+#<?php echo $drm_id; ?> .delice-modern-submit-btn      { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+
+/* Share dropdown */
+#<?php echo $drm_id; ?> .delice-modern-share-wrap      { position: relative !important; }
+
+/* Responsive */
+@media (max-width: 680px) {
+    #<?php echo $drm_id; ?> .delice-modern-toolbar  { flex-direction: column !important; align-items: flex-start !important; }
+    #<?php echo $drm_id; ?> .delice-modern-actions  { width: 100% !important; justify-content: flex-start !important; }
+}
+</style>
 <div id="<?php echo $drm_id; ?>" class="delice-recipe-wrapper delice-modern delice-recipe-container" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HERO ═══════════════════════════════════════════════════════════════ -->
