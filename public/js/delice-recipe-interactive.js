@@ -1,94 +1,162 @@
 /**
- * Delice Recipe Interactive - Clean & Simple
+ * Delice Recipe Interactive
+ *
+ * Uses direct binding (not document delegation) so theme handlers that call
+ * e.stopPropagation() on ancestor elements cannot swallow our events.
+ *
+ * Uses element.style.setProperty('display', '...', 'important') for FAQ
+ * show/hide so that inline-style !important wins the CSS cascade regardless
+ * of how many ID-chained selectors the active theme uses.
  */
-(function($) {
+(function ($) {
     'use strict';
 
-    // FAQ Toggle
-    $(document).on('click', '.delice-recipe-modern-faq-question', function(e) {
-        e.preventDefault();
-        const $item = $(this).closest('.delice-recipe-modern-faq-item');
-        const isOpen = $item.hasClass('faq-open');
+    /* ── FAQ Accordion ─────────────────────────────────────────────────────── */
 
-        // Close all
-        $('.delice-recipe-modern-faq-item').removeClass('faq-open');
+    function initFAQ() {
+        var questions = document.querySelectorAll('.delice-recipe-modern-faq-question');
+        if (!questions.length) return;
 
-        // Toggle this one
-        if (!isOpen) {
-            $item.addClass('faq-open');
-        }
-    });
-
-    // Copy Ingredients — delegated binding so it works on all rendered cards
-    $(document).on('click', '.delice-recipe-copy-ingredients', function() {
-        const $btn = $(this);
-        // Scope ingredient collection to this specific recipe card only
-        const $card = $btn.closest('[data-recipe-id]');
-        const $source = $card.length ? $card : $(document);
-
-        const ingredients = [];
-        $source.find('.delice-recipe-ingredient-name').each(function() {
-            ingredients.push($(this).text().trim());
+        // Force-hide every answer via inline style so the external CSS
+        // max-height:0 / display:none approach can't be beaten by theme overrides.
+        document.querySelectorAll('.delice-recipe-modern-faq-answer').forEach(function (ans) {
+            ans.style.setProperty('display', 'none', 'important');
+            ans.style.setProperty('overflow', 'hidden', 'important');
         });
 
-        const text = ingredients.join('\n');
+        // Direct binding — no delegation so stopPropagation() on ancestors is irrelevant.
+        questions.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var faqItem = this.closest('.delice-recipe-modern-faq-item');
+                if (!faqItem) return;
 
-        // Visual feedback on the button itself
-        const originalHtml = $btn.html();
-        $btn.prop('disabled', true);
+                var isOpen = faqItem.classList.contains('faq-open');
 
-        function onCopied() {
-            $btn.html('<span>&#10003; Copied!</span>');
-            setTimeout(function() {
-                $btn.html(originalHtml).prop('disabled', false);
-            }, 1800);
-            showMessage('Copied!');
-        }
+                // Close every open item on the page.
+                document.querySelectorAll('.delice-recipe-modern-faq-item').forEach(function (item) {
+                    item.classList.remove('faq-open');
+                    var btn = item.querySelector('.delice-recipe-modern-faq-question');
+                    if (btn) btn.setAttribute('aria-expanded', 'false');
+                    var ans = item.querySelector('.delice-recipe-modern-faq-answer');
+                    if (ans) {
+                        ans.style.setProperty('display', 'none', 'important');
+                        ans.style.setProperty('overflow', 'hidden', 'important');
+                    }
+                });
 
-        function onFailed() {
-            $btn.prop('disabled', false);
-            showMessage('Copy failed');
-        }
-
-        if (window.isSecureContext && navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(onCopied, onFailed);
-        } else {
-            // Fallback for HTTP or older browsers
-            try {
-                const $textarea = $('<textarea>').val(text).css({
-                    position: 'fixed', top: '-9999px', left: '-9999px'
-                }).appendTo('body');
-                $textarea[0].select();
-                document.execCommand('copy');
-                $textarea.remove();
-                onCopied();
-            } catch (err) {
-                onFailed();
-            }
-        }
-    });
-
-    // Save ingredient checkboxes
-    $(document).on('change', '.delice-recipe-ingredient-checkbox', function() {
-        const id = $(this).attr('id');
-        const checked = $(this).prop('checked');
-        localStorage.setItem('ingredient_' + id, checked ? '1' : '0');
-    });
-
-    // Restore checkboxes on page load
-    $('.delice-recipe-ingredient-checkbox').each(function() {
-        const id = $(this).attr('id');
-        const saved = localStorage.getItem('ingredient_' + id);
-        if (saved === '1') {
-            $(this).prop('checked', true);
-        }
-    });
-
-    // Show message
-    function showMessage(text) {
-        const $msg = $('<div class="delice-copy-message">' + text + '</div>');
-        $('body').append($msg);
-        setTimeout(function() { $msg.fadeOut(function() { $msg.remove(); }); }, 2000);
+                // If this item was closed, open it now.
+                if (!isOpen) {
+                    faqItem.classList.add('faq-open');
+                    this.setAttribute('aria-expanded', 'true');
+                    var answer = faqItem.querySelector('.delice-recipe-modern-faq-answer');
+                    if (answer) {
+                        // Use inline style !important so it beats any theme rule
+                        // (inline style specificity always wins the cascade).
+                        answer.style.setProperty('display', 'block', 'important');
+                        answer.style.setProperty('overflow', 'visible', 'important');
+                    }
+                }
+            });
+        });
     }
+
+    /* ── Copy Ingredients ─────────────────────────────────────────────────── */
+
+    function initCopyIngredients() {
+        var buttons = document.querySelectorAll('.delice-recipe-copy-ingredients');
+        if (!buttons.length) return;
+
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var $btn  = $(this);
+                // Scope ingredient lookup to THIS recipe card only.
+                var $card = $btn.closest('[data-recipe-id]');
+                var $root = $card.length ? $card : $(document);
+
+                var ingredients = [];
+                $root.find('.delice-recipe-ingredient-name').each(function () {
+                    var t = $(this).text().trim();
+                    if (t) ingredients.push(t);
+                });
+
+                var text        = ingredients.join('\n');
+                var originalHtml = $btn.html();
+                $btn.prop('disabled', true);
+
+                function onCopied() {
+                    $btn.html('<span>&#10003; Copied!</span>');
+                    setTimeout(function () {
+                        $btn.html(originalHtml).prop('disabled', false);
+                    }, 1800);
+                    showMessage('Copied!');
+                }
+
+                function onFailed() {
+                    $btn.prop('disabled', false);
+                    showMessage('Copy failed');
+                }
+
+                if (window.isSecureContext && navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(onCopied, onFailed);
+                } else {
+                    // Fallback for HTTP or browsers without Clipboard API.
+                    try {
+                        var ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+                        document.body.appendChild(ta);
+                        ta.focus();
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        onCopied();
+                    } catch (err) {
+                        onFailed();
+                    }
+                }
+            });
+        });
+    }
+
+    /* ── Ingredient Checkboxes ────────────────────────────────────────────── */
+
+    function initCheckboxes() {
+        var checkboxes = document.querySelectorAll('.delice-recipe-ingredient-checkbox');
+        if (!checkboxes.length) return;
+
+        // Restore saved state.
+        checkboxes.forEach(function (cb) {
+            var id = cb.getAttribute('id');
+            if (id && localStorage.getItem('ingredient_' + id) === '1') {
+                cb.checked = true;
+            }
+        });
+
+        // Persist state on change — direct binding.
+        checkboxes.forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                var id = this.getAttribute('id');
+                if (id) localStorage.setItem('ingredient_' + id, this.checked ? '1' : '0');
+            });
+        });
+    }
+
+    /* ── Toast helper ─────────────────────────────────────────────────────── */
+
+    function showMessage(text) {
+        var $msg = $('<div class="delice-copy-message">' + text + '</div>');
+        $('body').append($msg);
+        setTimeout(function () { $msg.fadeOut(function () { $msg.remove(); }); }, 2000);
+    }
+
+    /* ── Boot ─────────────────────────────────────────────────────────────── */
+
+    // Script is enqueued in the footer so the DOM is already parsed, but wrap
+    // in $() to handle edge cases where it runs before DOMContentLoaded.
+    $(function () {
+        initFAQ();
+        initCopyIngredients();
+        initCheckboxes();
+    });
 
 })(jQuery);
