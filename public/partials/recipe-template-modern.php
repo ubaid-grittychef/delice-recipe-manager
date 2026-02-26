@@ -79,7 +79,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 #<?php echo $drm_id; ?> .delice-modern-body            { padding: 28px 24px !important; background: #f8fafc !important; }
 #<?php echo $drm_id; ?> .delice-modern-section         { display: block !important; overflow: hidden !important; margin-bottom: 20px !important; border-radius: 12px !important; }
 /* ── Two-column layout: ingredients (left) + instructions (right) ── */
-#<?php echo $drm_id; ?> .delice-modern-cols            { display: grid !important; grid-template-columns: 2fr 3fr !important; gap: 20px !important; align-items: start !important; margin-bottom: 20px !important; }
+#<?php echo $drm_id; ?> .delice-modern-cols            { display: flex !important; flex-direction: column !important; gap: 20px !important; margin-bottom: 20px !important; }
 #<?php echo $drm_id; ?> .delice-modern-cols .delice-modern-section { margin-bottom: 0 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-header  { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 18px 20px 14px !important; margin: 0 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-title   { display: flex !important; align-items: center !important; gap: 10px !important; padding: 18px 20px 14px !important; margin: 0 !important; }
