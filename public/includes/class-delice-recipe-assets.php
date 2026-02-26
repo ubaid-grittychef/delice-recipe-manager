@@ -153,57 +153,49 @@ class Delice_Recipe_Assets extends Delice_Recipe_Asset_Loader {
                 margin-top: 1.5em;
             }
             .delice-recipe-modern-faq-item {
-                margin-bottom: 1.2em;
-                border-bottom: 1px solid #f0f0f0;
-                padding-bottom: 1.2em;
+                margin-bottom: 8px;
+                border: 1px solid #e8e8e8;
                 border-radius: 8px;
-                transition: background-color 0.2s ease;
-            }
-            .delice-recipe-modern-faq-item:hover {
-                background-color: #f8f9fa;
-                padding: 0.8em;
-                margin-bottom: 1em;
+                overflow: hidden;
+                background: white;
             }
             .delice-recipe-modern-faq-question {
-                font-size: 1.15em;
-                color: #2c3e50;
-                margin-bottom: 0.5em;
+                width: 100%;
+                background: transparent;
+                font-size: 1em;
+                color: #1a1a1a;
                 font-weight: 600;
                 cursor: pointer;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 0.8em 0;
-                border-radius: 6px;
-                transition: all 0.2s ease;
-            }
-            .delice-recipe-modern-faq-question:hover {
-                color: #3498db;
-                background-color: rgba(52, 152, 219, 0.05);
-                padding: 0.8em 1em;
+                padding: 14px 18px;
+                border: none;
+                text-align: left;
+                gap: 12px;
             }
             .delice-recipe-modern-faq-toggle {
-                width: 28px;
-                height: 28px;
-                font-size: 1.4em;
-                line-height: 28px;
-                text-align: center;
-                font-weight: bold;
-                background-color: #3498db;
-                color: white;
-                border-radius: 50%;
-                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                min-width: 24px;
+                width: 24px;
+                height: 24px;
+                font-size: 18px;
+                line-height: 1;
+                color: #FF6B35;
+                transition: transform 0.25s ease;
+            }
+            .faq-open .delice-recipe-modern-faq-toggle {
+                transform: rotate(45deg);
             }
             .delice-recipe-modern-faq-answer {
-                padding: 1em 0 1.2em;
                 color: #555;
-                font-size: 1em;
-                line-height: 1.6;
-                background-color: #f8f9fa;
-                margin: 0.5em 0;
-                padding: 1em 1.2em;
-                border-radius: 8px;
-                border-left: 4px solid #3498db;
+                font-size: 0.9375em;
+                line-height: 1.7;
+                background-color: #fafafa;
+                border-top: 1px solid #e8e8e8;
             }
             
             /* Responsive design for FAQ section */
