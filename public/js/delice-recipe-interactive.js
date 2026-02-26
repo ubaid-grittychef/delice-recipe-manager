@@ -91,15 +91,7 @@
                     showMessage('Copied!');
                 }
 
-                function onFailed() {
-                    $btn.prop('disabled', false);
-                    showMessage('Copy failed');
-                }
-
-                if (window.isSecureContext && navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(onCopied, onFailed);
-                } else {
-                    // Fallback for HTTP or browsers without Clipboard API.
+                function execCommandFallback() {
                     try {
                         var ta = document.createElement('textarea');
                         ta.value = text;
@@ -107,12 +99,21 @@
                         document.body.appendChild(ta);
                         ta.focus();
                         ta.select();
-                        document.execCommand('copy');
+                        var ok = document.execCommand('copy');
                         document.body.removeChild(ta);
-                        onCopied();
+                        if (ok) { onCopied(); } else { onFailed(); }
                     } catch (err) {
                         onFailed();
                     }
+                }
+
+                // Try the modern Clipboard API first; if it rejects (e.g. permission
+                // denied when logged in, or clipboard blocked by browser policy) fall
+                // back to the legacy execCommand approach rather than just showing an error.
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(onCopied, execCommandFallback);
+                } else {
+                    execCommandFallback();
                 }
             });
         });
