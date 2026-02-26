@@ -516,7 +516,6 @@
     list-style: none !important;
     margin: 0 !important;
     padding: 12px 20px 20px !important;
-    counter-reset: step-counter;
 }
 
 /* Kill any theme-injected numbers/bullets on steps */
@@ -529,21 +528,21 @@
 .delice-modern-step {
     display: flex;
     gap: 16px;
-    padding: 14px 0;
-    border-bottom: 1px dashed var(--m-bg);
+    padding: 12px 0;
     align-items: flex-start;
+    position: relative;
 }
 
 .delice-modern-step:last-child {
-    border-bottom: none;
     padding-bottom: 4px;
 }
 
+/* Step number circle — orange gradient matches brand */
 .delice-modern-step-num {
     width: 36px;
     height: 36px;
     min-width: 36px;
-    background: var(--m-dark);
+    background: linear-gradient(135deg, var(--m-orange) 0%, var(--m-orange-dark) 100%);
     color: #fff;
     border-radius: 50%;
     font-size: .85rem;
@@ -554,11 +553,26 @@
     flex-shrink: 0;
     margin-top: 1px;
     letter-spacing: -.01em;
-    box-shadow: 0 2px 6px rgba(15,23,42,.3);
+    box-shadow: 0 2px 8px rgba(249,115,22,.35);
+    position: relative;
+    z-index: 1;
+}
+
+/* Connector line between steps — drawn on the step-num div ::after (not li, which is reset) */
+.delice-modern-step:not(:last-child) .delice-modern-step-num::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 26px;   /* matches the 12px top-padding + 12px bottom-padding of next step ≈ 24–28px */
+    background: linear-gradient(to bottom, rgba(249,115,22,.4), transparent);
 }
 
 .delice-modern-step-body {
     flex: 1;
+    min-width: 0;
 }
 
 .delice-modern-step-text {
@@ -566,6 +580,7 @@
     line-height: 1.7;
     color: var(--m-slate);
     margin: 0;
+    padding-top: 6px;
 }
 
 /* ─── Notes ─────────────────────────────────────────────────────────────────── */
@@ -1065,25 +1080,58 @@
 
 /* ─── Print ──────────────────────────────────────────────────────────────────── */
 @media print {
+    /* Hide non-content elements */
+    .delice-modern-hero-gradient,
+    .delice-modern-toolbar .delice-modern-actions,
+    .delice-modern-action-btn,
+    .delice-modern-copy-btn,
+    .delice-modern-reviews,
+    .delice-modern-reviews-display,
+    .delice-modern-footer { display: none !important; }
+
     .delice-modern {
         box-shadow: none;
         max-width: 100%;
+        background: #fff;
     }
 
-    .delice-modern-hero-gradient {
-        display: none;
+    /* Override dark hero — print it as white area */
+    .delice-modern-hero {
+        background: #fff !important;
+        min-height: auto !important;
+        display: block !important;
     }
 
-    .delice-modern-hero-content .delice-modern-meta-badges,
-    .delice-modern-toolbar .delice-modern-actions,
-    .delice-modern-reviews,
-    .delice-modern-reviews-display {
-        display: none !important;
+    .delice-modern-hero-content {
+        background: #fff !important;
+        padding: 12px 0 16px !important;
     }
 
     .delice-modern-title {
-        color: #000;
-        text-shadow: none;
+        color: #0f172a !important;
+        text-shadow: none !important;
+        -webkit-text-fill-color: #0f172a !important;
     }
 
+    .delice-modern-badge {
+        background: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
+        backdrop-filter: none !important;
+    }
+
+    .delice-modern-badge-label,
+    .delice-modern-badge-value { color: #374151 !important; }
+
+    /* Show all FAQ answers when printing */
+    .delice-recipe-modern-faq-answer {
+        display: block !important;
+        overflow: visible !important;
+    }
+
+    .delice-modern-section,
+    .delice-modern-body {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        box-shadow: none;
+    }
 }

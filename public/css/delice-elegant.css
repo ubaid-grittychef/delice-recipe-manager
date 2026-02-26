@@ -1100,14 +1100,28 @@
         background: #fff;
     }
 
+    /* Hide non-content elements */
     .delice-elegant-actions,
     .delice-elegant-reviews,
     .delice-elegant-reviews-display,
-    .delice-elegant-footer {
-        display: none !important;
+    .delice-elegant-footer { display: none !important; }
+
+    /* Remove decorative hero gradient overlay */
+    .delice-elegant-hero-image::after { display: none !important; }
+
+    /* Show all FAQ answers when printing */
+    .delice-recipe-modern-faq-answer {
+        display: block !important;
+        overflow: visible !important;
     }
 
     .delice-elegant-ingredients-list {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .delice-elegant-section,
+    .delice-elegant-body {
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 }
