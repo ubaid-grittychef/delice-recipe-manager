@@ -324,18 +324,16 @@
     background: var(--m-bg);
 }
 
-/* Two-column layout for ingredients + instructions */
+/* Single-column stacked layout: ingredients above instructions */
 .delice-modern-cols {
-    display: grid;
-    grid-template-columns: 2fr 3fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-    align-items: start;
     margin-bottom: 20px;
 }
 
 .delice-modern-cols .delice-modern-section {
     margin-bottom: 0;
-    height: 100%;
 }
 
 /* ─── Sections ─────────────────────────────────────────────────────────────── */

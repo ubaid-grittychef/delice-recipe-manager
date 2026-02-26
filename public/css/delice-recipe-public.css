@@ -75,13 +75,12 @@
 
 /* Meta bar styles moved to recipe-header.css component */
 
-/* Two-column grid: ingredients (left) + instructions (right) */
+/* Single-column stacked layout: ingredients above instructions */
 .delice-recipe-grid {
-  display: grid !important;
-  grid-template-columns: 2fr 3fr !important;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 28px !important;
   margin-bottom: 40px !important;
-  align-items: start !important;
 }
 
 /* Panel base styles */
