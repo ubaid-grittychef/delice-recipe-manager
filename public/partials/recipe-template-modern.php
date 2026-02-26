@@ -144,9 +144,9 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
         <?php if ( $has_image && ! empty( $display_options['show_image'] ) ) : ?>
             <div class="delice-modern-hero-image">
                 <?php echo get_the_post_thumbnail( $recipe_id, 'large', array(
-                    'class'   => 'delice-modern-img',
-                    'loading' => 'lazy',
-                    'alt'     => esc_attr( $recipe_title ),
+                    'class'        => 'delice-modern-img',
+                    'fetchpriority' => 'high',
+                    'alt'          => esc_attr( $recipe_title ),
                 ) ); ?>
                 <div class="delice-modern-hero-gradient"></div>
             </div>
@@ -333,7 +333,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 
         <!-- ── Ingredients ───────────────────────────────────────────────────── -->
         <?php if ( $has_ing ) : ?>
-            <div class="delice-modern-section">
+            <div class="delice-modern-section delice-modern-section--ingredients">
                 <div class="delice-modern-section-header">
                     <h3 class="delice-modern-section-title">
                         <span class="delice-modern-section-icon" aria-hidden="true">
@@ -374,7 +374,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 
         <!-- ── Instructions ──────────────────────────────────────────────────── -->
         <?php if ( $has_inst ) : ?>
-            <div class="delice-modern-section">
+            <div class="delice-modern-section delice-modern-section--instructions">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -407,7 +407,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 
         <!-- ── Nutrition ──────────────────────────────────────────────────────── -->
         <?php if ( ! empty( $nutrition ) ) : ?>
-            <div class="delice-modern-section delice-modern-nutrition">
+            <div class="delice-modern-section delice-modern-section--nutrition delice-modern-nutrition">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -444,7 +444,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 
         <!-- ── Notes ─────────────────────────────────────────────────────────── -->
         <?php if ( ! empty( $notes ) ) : ?>
-            <div class="delice-modern-section delice-modern-notes">
+            <div class="delice-modern-section delice-modern-section--notes delice-modern-notes">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -463,7 +463,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
 
         <!-- ── FAQs ──────────────────────────────────────────────────────── -->
         <?php if ( ! empty( $faqs ) ) : ?>
-            <div class="delice-modern-section delice-modern-faqs">
+            <div class="delice-modern-section delice-modern-section--faqs delice-modern-faqs">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

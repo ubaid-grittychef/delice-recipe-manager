@@ -343,10 +343,31 @@
     background: var(--m-white);
     border-radius: var(--m-radius);
     border: 1px solid var(--m-border);
+    border-left: 4px solid transparent;
     overflow: hidden;
     box-shadow: var(--m-shadow);
     margin-bottom: 20px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
+
+.delice-modern-section:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+}
+
+/* ─── Section-type accent colors ────────────────────────────────────────────── */
+.delice-modern-section--ingredients { border-left-color: #f97316; }
+.delice-modern-section--instructions { border-left-color: #0ea5e9; }
+.delice-modern-section--notes        { border-left-color: #a3e635; }
+.delice-modern-section--nutrition    { border-left-color: #22c55e; }
+.delice-modern-section--faqs         { border-left-color: #a78bfa; }
+
+/* Section title colored per type */
+.delice-modern-section--ingredients .delice-modern-section-title { color: #ea580c; }
+.delice-modern-section--instructions .delice-modern-section-title { color: #0284c7; }
+.delice-modern-section--notes        .delice-modern-section-title { color: #65a30d; }
+.delice-modern-section--nutrition    .delice-modern-section-title { color: #16a34a; }
+.delice-modern-section--faqs         .delice-modern-section-title { color: #7c3aed; }
 
 .delice-modern-section-header {
     display: flex;

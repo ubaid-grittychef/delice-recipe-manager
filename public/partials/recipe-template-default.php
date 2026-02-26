@@ -98,8 +98,8 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
     <?php if ( !empty($display_options['show_image']) && has_post_thumbnail( $recipe_id ) ) : ?>
       <div class="delice-recipe-image-wrapper">
         <?php echo get_the_post_thumbnail( $recipe_id, 'large', [
-          'class'   => 'delice-recipe-image',
-          'loading' => 'lazy',
+          'class'         => 'delice-recipe-image',
+          'fetchpriority' => 'high',
         ] ); ?>
       </div>
     <?php endif; ?>
@@ -298,8 +298,11 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
   <div class="delice-recipe-grid">
 
   <!-- Ingredients -->
-  <section class="delice-recipe-ingredients">
-    <h3><?php echo esc_html( $lang_texts['ingredients'] ); ?></h3>
+  <div class="delice-recipe-ingredients">
+    <div class="delice-recipe-panel-header">
+      <h3><?php echo esc_html( $lang_texts['ingredients'] ); ?></h3>
+    </div>
+    <div class="delice-recipe-panel-body">
       <?php if ( ! empty( $ingredients ) && is_array( $ingredients ) ) : ?>
         <ul class="delice-recipe-ingredients-list">
           <?php foreach ( $ingredients as $ing ) : ?>
@@ -323,11 +326,15 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
       <?php else : ?>
         <p><?php esc_html_e( 'No ingredients available.', 'delice-recipe-manager' ); ?></p>
       <?php endif; ?>
-  </section>
+    </div>
+  </div>
 
   <!-- Instructions -->
-  <section class="delice-recipe-instructions">
+  <div class="delice-recipe-instructions">
+    <div class="delice-recipe-panel-header">
       <h3><?php echo esc_html( $lang_texts['instructions'] ); ?></h3>
+    </div>
+    <div class="delice-recipe-panel-body">
       <?php if ( ! empty( $instructions ) && is_array( $instructions ) ) : ?>
         <ol class="delice-recipe-instructions-list">
           <?php foreach ( $instructions as $index => $step ) :
@@ -344,7 +351,8 @@ $attribution_settings = get_option('delice_recipe_attribution_settings', array(
       <?php else : ?>
         <p><?php esc_html_e( 'No instructions available.', 'delice-recipe-manager' ); ?></p>
       <?php endif; ?>
-  </section>
+    </div>
+  </div>
 
   </div><!-- /.delice-recipe-grid -->
 
