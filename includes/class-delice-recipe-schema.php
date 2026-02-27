@@ -36,6 +36,8 @@ class Delice_Recipe_Schema {
         if ( ! $hooked ) {
             add_action( 'wp_head', array( $this, 'output_recipe_schema' ), 100 );
             add_action( 'wp_head', array( $this, 'output_recipe_meta_tags' ), 5 );
+            add_action( 'wp_head', array( $this, 'output_hero_preload' ), 1 );
+            add_action( 'wp_head', array( $this, 'output_og_meta_tags' ), 4 );
             // Yoast SEO integration
             add_filter( 'wpseo_title',    array( $this, 'filter_yoast_title' ) );
             add_filter( 'wpseo_metadesc', array( $this, 'filter_yoast_metadesc' ) );
@@ -335,6 +337,29 @@ class Delice_Recipe_Schema {
                 }
             }
 
+            // suitableForDiet — map stored dietary meta to schema.org Diet types.
+            $dietary_meta = get_post_meta( $recipe_id, '_delice_recipe_dietary', true );
+            if ( ! empty( $dietary_meta ) && is_array( $dietary_meta ) ) {
+                $diet_map = array(
+                    'vegetarian'  => 'https://schema.org/VegetarianDiet',
+                    'vegan'       => 'https://schema.org/VeganDiet',
+                    'gluten-free' => 'https://schema.org/GlutenFreeDiet',
+                    'low-carb'    => 'https://schema.org/LowCalorieDiet',
+                    'low-fat'     => 'https://schema.org/LowFatDiet',
+                    'low-lactose' => 'https://schema.org/LowLactoseDiet',
+                    'low-salt'    => 'https://schema.org/LowSaltDiet',
+                );
+                $suitable = array();
+                foreach ( $dietary_meta as $diet_key ) {
+                    if ( isset( $diet_map[ $diet_key ] ) ) {
+                        $suitable[] = $diet_map[ $diet_key ];
+                    }
+                }
+                if ( ! empty( $suitable ) ) {
+                    $schema['suitableForDiet'] = count( $suitable ) === 1 ? $suitable[0] : $suitable;
+                }
+            }
+
             // Add FAQPage schema if FAQs exist
             if (!empty($faqs)) {
                 // Create FAQPage schema
@@ -451,6 +476,16 @@ class Delice_Recipe_Schema {
         echo "\n<!-- Delice Recipe Schema.org markup for recipe #{$recipe_id} -->\n";
         echo '<script type="application/ld+json">' . $json . '</script>' . "\n";
 
+        // BreadcrumbList schema
+        $breadcrumb_schema = $this->build_breadcrumb_schema( $recipe_id );
+        if ( ! empty( $breadcrumb_schema ) ) {
+            $bc_json = wp_json_encode( $breadcrumb_schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
+            if ( $bc_json !== false && json_last_error() === JSON_ERROR_NONE ) {
+                echo "\n<!-- Delice Recipe BreadcrumbList schema for recipe #{$recipe_id} -->\n";
+                echo '<script type="application/ld+json">' . $bc_json . '</script>' . "\n";
+            }
+        }
+
         // Output FAQ schema if exists (for this specific recipe)
         if (isset($this->faq_schema) && !empty($this->faq_schema['mainEntity'])) {
             $json = wp_json_encode($this->faq_schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
@@ -543,6 +578,141 @@ class Delice_Recipe_Schema {
             return $post_id;
         }
         return 0;
+    }
+
+    /**
+     * Output <link rel="preload"> for the recipe hero image.
+     * Runs at wp_head priority 1 — before any stylesheets — for maximum LCP benefit.
+     */
+    public function output_hero_preload() {
+        $recipe_id = $this->get_current_recipe_id();
+        if ( ! $recipe_id || ! has_post_thumbnail( $recipe_id ) ) {
+            return;
+        }
+        $thumb_id = get_post_thumbnail_id( $recipe_id );
+        $img      = wp_get_attachment_image_src( $thumb_id, 'large' );
+        if ( empty( $img[0] ) ) {
+            return;
+        }
+        echo '<link rel="preload" as="image" href="' . esc_url( $img[0] ) . '" fetchpriority="high">' . "\n";
+    }
+
+    /**
+     * Output Open Graph + Twitter Card meta tags for recipe pages.
+     * Runs at wp_head priority 4. Skipped when Yoast or RankMath is active.
+     */
+    public function output_og_meta_tags() {
+        if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
+            return;
+        }
+        $recipe_id = $this->get_current_recipe_id();
+        if ( ! $recipe_id ) {
+            return;
+        }
+
+        $title       = get_the_title( $recipe_id );
+        $url         = get_permalink( $recipe_id );
+        $description = $this->build_recipe_description( $recipe_id );
+        $image_url   = '';
+        $img_w       = '';
+        $img_h       = '';
+
+        if ( has_post_thumbnail( $recipe_id ) ) {
+            $thumb_id = get_post_thumbnail_id( $recipe_id );
+            $img      = wp_get_attachment_image_src( $thumb_id, array( 1200, 630 ) );
+            if ( ! empty( $img[0] ) ) {
+                $image_url = $img[0];
+                $img_w     = $img[1];
+                $img_h     = $img[2];
+            }
+        }
+
+        // Canonical tag (also output here so it appears near the OG block).
+        echo '<link rel="canonical" href="' . esc_url( $url ) . '">' . "\n";
+
+        // Open Graph
+        echo '<meta property="og:type"        content="article">' . "\n";
+        echo '<meta property="og:url"         content="' . esc_attr( $url ) . '">' . "\n";
+        echo '<meta property="og:title"       content="' . esc_attr( $title ) . '">' . "\n";
+        if ( $description ) {
+            echo '<meta property="og:description" content="' . esc_attr( $description ) . '">' . "\n";
+        }
+        if ( $image_url ) {
+            echo '<meta property="og:image"       content="' . esc_attr( $image_url ) . '">' . "\n";
+            if ( $img_w ) echo '<meta property="og:image:width"  content="' . esc_attr( $img_w ) . '">' . "\n";
+            if ( $img_h ) echo '<meta property="og:image:height" content="' . esc_attr( $img_h ) . '">' . "\n";
+        }
+
+        // Twitter Card
+        echo '<meta name="twitter:card"        content="summary_large_image">' . "\n";
+        echo '<meta name="twitter:title"       content="' . esc_attr( $title ) . '">' . "\n";
+        if ( $description ) {
+            echo '<meta name="twitter:description" content="' . esc_attr( $description ) . '">' . "\n";
+        }
+        if ( $image_url ) {
+            echo '<meta name="twitter:image"      content="' . esc_attr( $image_url ) . '">' . "\n";
+        }
+    }
+
+    /**
+     * Build BreadcrumbList JSON-LD for a recipe.
+     * Skipped when Yoast or RankMath is active.
+     *
+     * @param int $recipe_id
+     * @return array  Schema array (empty if skipped).
+     */
+    private function build_breadcrumb_schema( $recipe_id ) {
+        if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
+            return array();
+        }
+
+        $items    = array();
+        $position = 1;
+
+        // Home
+        $items[] = array(
+            '@type'    => 'ListItem',
+            'position' => $position++,
+            'name'     => get_bloginfo( 'name' ),
+            'item'     => home_url( '/' ),
+        );
+
+        // Primary cuisine term
+        $cuisine_terms = wp_get_object_terms( $recipe_id, 'delice_cuisine', array( 'number' => 1 ) );
+        if ( ! is_wp_error( $cuisine_terms ) && ! empty( $cuisine_terms ) ) {
+            $term    = $cuisine_terms[0];
+            $items[] = array(
+                '@type'    => 'ListItem',
+                'position' => $position++,
+                'name'     => $term->name,
+                'item'     => get_term_link( $term ),
+            );
+        } else {
+            // Fall back to primary course term
+            $course_terms = wp_get_object_terms( $recipe_id, 'delice_course', array( 'number' => 1 ) );
+            if ( ! is_wp_error( $course_terms ) && ! empty( $course_terms ) ) {
+                $term    = $course_terms[0];
+                $items[] = array(
+                    '@type'    => 'ListItem',
+                    'position' => $position++,
+                    'name'     => $term->name,
+                    'item'     => get_term_link( $term ),
+                );
+            }
+        }
+
+        // Recipe itself (final crumb, no URL required by spec)
+        $items[] = array(
+            '@type'    => 'ListItem',
+            'position' => $position,
+            'name'     => get_the_title( $recipe_id ),
+        );
+
+        return array(
+            '@context'        => 'https://schema.org',
+            '@type'           => 'BreadcrumbList',
+            'itemListElement' => $items,
+        );
     }
 
     /**

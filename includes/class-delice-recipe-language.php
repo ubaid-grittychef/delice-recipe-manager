@@ -70,7 +70,18 @@ class Delice_Recipe_Language {
             'submitted_by' => 'Submitted by',
             'tested_by' => 'Tested by',
             'min' => 'min',
-            'mins' => 'mins'
+            'mins' => 'mins',
+            // v3.6.0 additions
+            'updated'              => 'Updated',
+            'nutrition_disclaimer' => 'Nutrition values are estimates and may vary based on ingredients used.',
+            'home'                 => 'Home',
+            'ratings'              => 'ratings',
+            'jump_to_recipe'       => 'Jump to Recipe',
+            'cook_mode_start'      => 'Start Cooking',
+            'cook_mode_stop'       => 'Stop Cooking',
+            'start_timer'          => 'Start Timer',
+            'timer_done'           => 'Timer done!',
+            'related_recipes'      => 'You Might Also Like',
         );
         
         return array_merge($defaults, $texts);

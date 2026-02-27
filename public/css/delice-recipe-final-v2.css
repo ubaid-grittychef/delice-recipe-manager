@@ -866,3 +866,208 @@
         font-size: 14px !important;
     }
 }
+
+/* ==========================================================================
+   v3.6.0 — New Feature Styles
+   ========================================================================== */
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────────── */
+.delice-recipe-breadcrumb {
+    margin: 0 0 14px !important;
+    padding: 0 !important;
+}
+.delice-recipe-breadcrumb-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    color: #9ca3af !important;
+}
+.delice-recipe-breadcrumb-list li { padding: 0 !important; margin: 0 !important; background: none !important; border: none !important; }
+.delice-recipe-breadcrumb-list li::before { content: none !important; display: none !important; }
+.delice-recipe-breadcrumb-list li + li::before {
+    content: '›' !important;
+    display: inline !important;
+    margin-right: 4px !important;
+    color: #d1d5db !important;
+}
+.delice-recipe-breadcrumb-list a { color: #f97316 !important; text-decoration: none !important; }
+.delice-recipe-breadcrumb-list a:hover { text-decoration: underline !important; }
+.delice-recipe-breadcrumb-list [aria-current="page"] { color: #6b7280 !important; }
+
+/* ── Rating Summary Display ─────────────────────────────────────────────── */
+.delice-recipe-rating-summary {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    margin: 6px 0 0 !important;
+}
+.delice-recipe-rating-stars-display {
+    display: flex !important;
+    gap: 1px !important;
+    line-height: 1 !important;
+}
+.delice-rating-star-display { font-size: 16px !important; color: #d6d3d1 !important; }
+.delice-rating-star-display.filled { color: #f59e0b !important; }
+.delice-recipe-rating-score {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    color: #1a1a2e !important;
+}
+.delice-recipe-rating-count { font-size: 13px !important; color: #9ca3af !important; }
+
+/* ── Last Updated ────────────────────────────────────────────────────────── */
+.delice-recipe-updated .delice-recipe-meta-label { color: #9ca3af !important; font-size: 11px !important; }
+.delice-recipe-updated .delice-recipe-meta-value { color: #6b7280 !important; font-size: 13px !important; }
+
+/* ── Nutrition Disclaimer ────────────────────────────────────────────────── */
+.delice-recipe-nutrition-disclaimer {
+    font-size: 11px !important;
+    color: #9ca3af !important;
+    text-align: center !important;
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+    font-style: italic !important;
+    line-height: 1.5 !important;
+}
+
+/* ── Checked ingredient strike-through ─────────────────────────────────── */
+.delice-ingredient-checked .delice-recipe-ingredient-name,
+.delice-ingredient-checked .delice-recipe-ingredient-quantity {
+    text-decoration: line-through !important;
+    opacity: 0.5 !important;
+}
+
+/* ── Servings Scaler ─────────────────────────────────────────────────────── */
+.delice-servings-control {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    padding: 4px 10px !important;
+    margin-left: 10px !important;
+}
+.delice-servings-btn {
+    background: #f97316 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+    font-weight: 700 !important;
+}
+.delice-servings-btn:disabled { background: #d1d5db !important; cursor: not-allowed !important; }
+.delice-servings-value {
+    min-width: 24px !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    color: #1a1a2e !important;
+    cursor: pointer !important;
+}
+.delice-servings-input {
+    width: 44px !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    border: 1px solid #f97316 !important;
+    border-radius: 4px !important;
+    padding: 0 4px !important;
+    outline: none !important;
+}
+.delice-servings-label { font-size: 12px !important; color: #6b7280 !important; }
+.delice-servings-live { display: none !important; }
+
+/* ── Cook Mode Button ────────────────────────────────────────────────────── */
+.delice-cook-mode-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: background 0.15s, color 0.15s !important;
+}
+.delice-cook-mode-btn:hover { background: #e5e7eb !important; }
+.delice-cook-mode-btn.delice-cook-mode-active {
+    background: #16a34a !important;
+    color: #fff !important;
+    border-color: #16a34a !important;
+}
+.delice-cook-mode-btn.delice-cook-mode-active:hover { background: #15803d !important; }
+
+/* ── Step Timer Triggers ─────────────────────────────────────────────────── */
+.delice-timer-trigger {
+    background: #fef3c7 !important;
+    border-radius: 4px !important;
+    padding: 0 3px !important;
+    cursor: pointer !important;
+    border-bottom: 1px dashed #f59e0b !important;
+    transition: background 0.15s !important;
+}
+.delice-timer-trigger:hover { background: #fde68a !important; }
+.delice-timer-icon { font-size: 13px !important; }
+
+/* ── Timer Panel (fixed bottom-right) ───────────────────────────────────── */
+.delice-timer-panel {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    pointer-events: none !important;
+}
+.delice-timer-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: #1a1a2e !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+    pointer-events: auto !important;
+    min-width: 200px !important;
+    animation: delice-timer-in 0.2s ease !important;
+}
+.delice-timer-label { font-size: 12px !important; color: #9ca3af !important; flex: 1 !important; }
+.delice-timer-time { font-size: 16px !important; font-weight: 700 !important; font-variant-numeric: tabular-nums !important; }
+.delice-timer-cancel {
+    background: transparent !important;
+    border: none !important;
+    color: #9ca3af !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+.delice-timer-cancel:hover { color: #fff !important; }
+.delice-timer-done .delice-timer-time { color: #4ade80 !important; }
+.delice-timer-urgent .delice-timer-time { color: #f87171 !important; }
+@keyframes delice-timer-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

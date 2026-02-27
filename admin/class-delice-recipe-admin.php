@@ -726,10 +726,35 @@ class Delice_Recipe_Admin {
      */
     public function render_notes_meta_box($post) {
         $notes = get_post_meta($post->ID, '_delice_recipe_notes', true);
+        // v3.6.0 — dietary attributes
+        $saved_dietary = get_post_meta($post->ID, '_delice_recipe_dietary', true);
+        $saved_dietary = is_array($saved_dietary) ? $saved_dietary : array();
+        $dietary_options = array(
+            'vegetarian'  => __('Vegetarian', 'delice-recipe-manager'),
+            'vegan'       => __('Vegan', 'delice-recipe-manager'),
+            'gluten-free' => __('Gluten-Free', 'delice-recipe-manager'),
+            'dairy-free'  => __('Dairy-Free', 'delice-recipe-manager'),
+            'nut-free'    => __('Nut-Free', 'delice-recipe-manager'),
+            'low-carb'    => __('Low-Carb', 'delice-recipe-manager'),
+            'keto'        => __('Keto', 'delice-recipe-manager'),
+            'paleo'       => __('Paleo', 'delice-recipe-manager'),
+        );
         ?>
         <div class="delice-recipe-meta-box">
             <textarea id="delice_recipe_notes" name="delice_recipe_notes" rows="4" style="width: 100%;"><?php echo esc_textarea($notes); ?></textarea>
             <p class="description"><?php _e('Notes supplémentaires, conseils ou variations pour cette recette.', 'delice-recipe-manager'); ?></p>
+
+            <hr style="margin:14px 0;">
+            <strong><?php _e('Dietary Attributes', 'delice-recipe-manager'); ?></strong>
+            <p class="description" style="margin-bottom:8px;"><?php _e('Select all that apply. Displayed as badges on the recipe card and added to schema.org markup.', 'delice-recipe-manager'); ?></p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <?php foreach ( $dietary_options as $key => $label ) : ?>
+                <label style="display:inline-flex;align-items:center;gap:4px;background:#f6f7f7;padding:4px 10px;border-radius:4px;cursor:pointer;">
+                    <input type="checkbox" name="delice_recipe_dietary[]" value="<?php echo esc_attr($key); ?>"<?php checked( in_array($key, $saved_dietary, true) ); ?>>
+                    <?php echo esc_html($label); ?>
+                </label>
+            <?php endforeach; ?>
+            </div>
         </div>
         <?php
     }
@@ -841,6 +866,15 @@ class Delice_Recipe_Admin {
         // Save notes
         if (isset($_POST['delice_recipe_notes'])) {
             update_post_meta($post_id, '_delice_recipe_notes', sanitize_textarea_field($_POST['delice_recipe_notes']));
+        }
+
+        // Save dietary attributes (v3.6.0)
+        $allowed_dietary = array( 'vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'nut-free', 'low-carb', 'keto', 'paleo' );
+        if ( isset( $_POST['delice_recipe_dietary'] ) && is_array( $_POST['delice_recipe_dietary'] ) ) {
+            $dietary = array_intersect( array_map( 'sanitize_key', $_POST['delice_recipe_dietary'] ), $allowed_dietary );
+            update_post_meta( $post_id, '_delice_recipe_dietary', array_values( $dietary ) );
+        } else {
+            delete_post_meta( $post_id, '_delice_recipe_dietary' );
         }
         
         // Mark as having recipe metadata if it's a regular post
