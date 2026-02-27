@@ -260,10 +260,24 @@
                     </tr>
                     
                     <tr>
+                        <th scope="row"><?php _e('Auto-migrate to Post', 'delice-recipe-manager'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="delice_recipe_auto_migrate_to_post" value="1"
+                                       <?php checked( get_option( 'delice_recipe_auto_migrate_to_post', false ), true ); ?>>
+                                <?php _e( 'Automatically save generated recipes as standard WordPress posts', 'delice-recipe-manager' ); ?>
+                            </label>
+                            <p class="description">
+                                <?php _e( 'When enabled, every AI-generated recipe is immediately migrated from the custom recipe post type to a standard <strong>Post</strong>. All recipe data (ingredients, instructions, nutrition, etc.) is preserved. The recipe will appear in your main blog feed and will be eligible for Related Recipes on other posts.', 'delice-recipe-manager' ); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
                         <th scope="row"><?php _e('AI Image Generation', 'delice-recipe-manager'); ?></th>
                         <td>
                             <label>
-                                <input type="checkbox" name="delice_recipe_enable_ai_images" value="1" 
+                                <input type="checkbox" name="delice_recipe_enable_ai_images" value="1"
                                        <?php checked(get_option('delice_recipe_enable_ai_images', false), true); ?>>
                                 <?php _e('Automatically generate featured images with DALL-E 3', 'delice-recipe-manager'); ?>
                             </label>

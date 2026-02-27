@@ -300,6 +300,24 @@ class Delice_Recipe_AI {
             }
         }
 
+        // Auto-migrate to standard post if the admin toggle is on.
+        // This converts the delice_recipe post to a standard Post while
+        // preserving all meta, taxonomies, and the featured image.
+        if ( get_option( 'delice_recipe_auto_migrate_to_post', false ) ) {
+            if ( class_exists( 'Delice_Recipe_Migration' ) ) {
+                $migration   = new Delice_Recipe_Migration();
+                $recipe_post = get_post( $post_id );
+                if ( $recipe_post ) {
+                    $migrated_id = $migration->migrate_single_recipe( $recipe_post );
+                    if ( $migrated_id && ! is_wp_error( $migrated_id ) ) {
+                        // Return the new standard post ID so callers get the
+                        // correct edit/view URLs.
+                        $post_id = $migrated_id;
+                    }
+                }
+            }
+        }
+
         return $post_id;
     }
     
