@@ -135,20 +135,35 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
 .drm-toggle-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2px 32px;
+    gap: 6px 16px;
     padding: 4px 0;
 }
-.drm-toggle-grid label {
+.drm-toggle-item {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 6px 0;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    background: #f8f9fa;
+    cursor: pointer;
     font-size: 13px;
     color: #1d2327;
-    cursor: pointer;
+    user-select: none;
 }
-.drm-toggle-grid label input[type="checkbox"] { margin-top: 1px; flex-shrink: 0; }
-.drm-toggle-grid .drm-toggle-desc { font-size: 11px; color: #8c8f94; margin-top: 1px; }
+.drm-toggle-item:hover { background: #f0f6fc; }
+.drm-toggle-desc { font-size: 11px; color: #8c8f94; margin-top: 2px; }
+
+/* On/off toggle switch */
+.drm-sw { position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0; }
+.drm-sw input { opacity:0;width:0;height:0;position:absolute; }
+.drm-sw-slider { position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#c3c4c7;border-radius:22px;transition:.2s; }
+.drm-sw-slider:before { position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:.2s; }
+.drm-sw input:checked + .drm-sw-slider { background:#0073aa; }
+.drm-sw input:checked + .drm-sw-slider:before { transform:translateX(18px); }
+.drm-sw input:focus + .drm-sw-slider { box-shadow:0 0 0 2px #bee3f8; }
+
+/* Standalone row toggle (for form-table rows) */
+.drm-toggle-row { display:flex;align-items:center;gap:10px; }
 
 /* Template cards */
 .drm-template-cards { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 0; }
@@ -307,47 +322,43 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
 
                     <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:12px 0 6px;"><?php esc_html_e( 'Meta Bar', 'delice-recipe-manager' ); ?></p>
                     <div class="drm-toggle-grid">
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_image]"       value="1" <?php checked( ! empty( $display_options['show_image'] ) ); ?>> <?php esc_html_e( 'Featured image', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_servings]"    value="1" <?php checked( ! empty( $display_options['show_servings'] ) ); ?>> <?php esc_html_e( 'Servings', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_prep_time]"   value="1" <?php checked( ! empty( $display_options['show_prep_time'] ) ); ?>> <?php esc_html_e( 'Prep time', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_cook_time]"   value="1" <?php checked( ! empty( $display_options['show_cook_time'] ) ); ?>> <?php esc_html_e( 'Cook time', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_total_time]"  value="1" <?php checked( ! empty( $display_options['show_total_time'] ) ); ?>> <?php esc_html_e( 'Total time', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_calories]"    value="1" <?php checked( ! empty( $display_options['show_calories'] ) ); ?>> <?php esc_html_e( 'Calories', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_difficulty]"  value="1" <?php checked( ! empty( $display_options['show_difficulty'] ) ); ?>> <?php esc_html_e( 'Difficulty badge', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_last_updated]" value="1" <?php checked( ! empty( $display_options['show_last_updated'] ) ); ?>> <?php esc_html_e( 'Last Updated date', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_image]"       value="1" <?php checked( ! empty( $display_options['show_image'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Featured image', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_servings]"    value="1" <?php checked( ! empty( $display_options['show_servings'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Servings', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_prep_time]"   value="1" <?php checked( ! empty( $display_options['show_prep_time'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Prep time', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_cook_time]"   value="1" <?php checked( ! empty( $display_options['show_cook_time'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Cook time', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_total_time]"  value="1" <?php checked( ! empty( $display_options['show_total_time'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Total time', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_calories]"    value="1" <?php checked( ! empty( $display_options['show_calories'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Calories', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_difficulty]"  value="1" <?php checked( ! empty( $display_options['show_difficulty'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Difficulty badge', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_last_updated]" value="1" <?php checked( ! empty( $display_options['show_last_updated'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Last Updated date', 'delice-recipe-manager' ); ?></label>
                     </div>
 
                     <hr class="drm-section-divider" style="margin:14px 0;">
                     <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:0 0 6px;"><?php esc_html_e( 'Content Sections', 'delice-recipe-manager' ); ?></p>
                     <div class="drm-toggle-grid">
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_ingredients]"  value="1" <?php checked( ! empty( $display_options['show_ingredients'] ) ); ?>> <?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_instructions]" value="1" <?php checked( ! empty( $display_options['show_instructions'] ) ); ?>> <?php esc_html_e( 'Instructions', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_nutrition]"    value="1" <?php checked( ! empty( $display_options['show_nutrition'] ) ); ?>> <?php esc_html_e( 'Nutrition panel', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_nutrition_disclaimer]" value="1" <?php checked( ! empty( $display_options['show_nutrition_disclaimer'] ) ); ?>> <?php esc_html_e( 'Nutrition disclaimer text', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_notes]"        value="1" <?php checked( ! empty( $display_options['show_notes'] ) ); ?>> <?php esc_html_e( 'Chef notes', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_faqs]"         value="1" <?php checked( ! empty( $display_options['show_faqs'] ) ); ?>> <?php esc_html_e( 'FAQ section', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_rating]"       value="1" <?php checked( ! empty( $display_options['show_rating'] ) ); ?>> <?php esc_html_e( 'Rating summary', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_related_recipes]" value="1" <?php checked( ! empty( $display_options['show_related_recipes'] ) ); ?>> <?php esc_html_e( 'Related recipes', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_ingredients]"  value="1" <?php checked( ! empty( $display_options['show_ingredients'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_instructions]" value="1" <?php checked( ! empty( $display_options['show_instructions'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Instructions', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_nutrition]"    value="1" <?php checked( ! empty( $display_options['show_nutrition'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Nutrition panel', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_nutrition_disclaimer]" value="1" <?php checked( ! empty( $display_options['show_nutrition_disclaimer'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Nutrition disclaimer text', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_notes]"        value="1" <?php checked( ! empty( $display_options['show_notes'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Chef notes', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_faqs]"         value="1" <?php checked( ! empty( $display_options['show_faqs'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'FAQ section', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_rating]"       value="1" <?php checked( ! empty( $display_options['show_rating'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Rating summary', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_related_recipes]" value="1" <?php checked( ! empty( $display_options['show_related_recipes'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Related recipes', 'delice-recipe-manager' ); ?></label>
                     </div>
 
                     <hr class="drm-section-divider" style="margin:14px 0;">
                     <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:0 0 6px;"><?php esc_html_e( 'Toolbar Buttons', 'delice-recipe-manager' ); ?></p>
                     <div class="drm-toggle-grid">
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_print]"        value="1" <?php checked( ! empty( $display_options['show_print'] ) ); ?>> <?php esc_html_e( 'Print button', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_share]"        value="1" <?php checked( ! empty( $display_options['show_share'] ) ); ?>> <?php esc_html_e( 'Share button', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_jump_btn]"     value="1" <?php checked( ! empty( $display_options['show_jump_btn'] ) ); ?>> <?php esc_html_e( 'Jump to Recipe button', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_cook_mode]"    value="1" <?php checked( ! empty( $display_options['show_cook_mode'] ) ); ?>>
-                            <span><?php esc_html_e( 'Cook Mode button', 'delice-recipe-manager' ); ?><br><span class="drm-toggle-desc"><?php esc_html_e( 'Keeps screen awake while cooking (Wake Lock API)', 'delice-recipe-manager' ); ?></span></span>
-                        </label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_print]"    value="1" <?php checked( ! empty( $display_options['show_print'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Print button', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_share]"    value="1" <?php checked( ! empty( $display_options['show_share'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Share button', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_jump_btn]" value="1" <?php checked( ! empty( $display_options['show_jump_btn'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Jump to Recipe button', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_cook_mode]" value="1" <?php checked( ! empty( $display_options['show_cook_mode'] ) ); ?>><span class="drm-sw-slider"></span></span><span><?php esc_html_e( 'Cook Mode button', 'delice-recipe-manager' ); ?><br><span class="drm-toggle-desc"><?php esc_html_e( 'Keeps screen awake while cooking (Wake Lock API)', 'delice-recipe-manager' ); ?></span></span></label>
                     </div>
 
                     <hr class="drm-section-divider" style="margin:14px 0;">
                     <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:0 0 6px;"><?php esc_html_e( 'Extras', 'delice-recipe-manager' ); ?></p>
                     <div class="drm-toggle-grid">
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_dietary_badges]" value="1" <?php checked( ! empty( $display_options['show_dietary_badges'] ) ); ?>> <?php esc_html_e( 'Dietary badges (Vegan, Gluten-Free…)', 'delice-recipe-manager' ); ?></label>
-                        <label><input type="checkbox" name="delice_recipe_display_options[show_breadcrumb]"   value="1" <?php checked( ! empty( $display_options['show_breadcrumb'] ) ); ?>>
-                            <span><?php esc_html_e( 'Breadcrumb navigation', 'delice-recipe-manager' ); ?><br><span class="drm-toggle-desc"><?php esc_html_e( 'Auto-hidden when Yoast or RankMath is active', 'delice-recipe-manager' ); ?></span></span>
-                        </label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_dietary_badges]" value="1" <?php checked( ! empty( $display_options['show_dietary_badges'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Dietary badges (Vegan, Gluten-Free…)', 'delice-recipe-manager' ); ?></label>
+                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_breadcrumb]"   value="1" <?php checked( ! empty( $display_options['show_breadcrumb'] ) ); ?>><span class="drm-sw-slider"></span></span><span><?php esc_html_e( 'Breadcrumb navigation', 'delice-recipe-manager' ); ?><br><span class="drm-toggle-desc"><?php esc_html_e( 'Auto-hidden when Yoast or RankMath is active', 'delice-recipe-manager' ); ?></span></span></label>
                     </div>
                 </div>
             </div>
@@ -369,13 +380,13 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Show labels', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <fieldset>
-                                    <label>
-                                        <input type="checkbox" name="delice_recipe_attribution_settings[show_submitted_by]" value="1" <?php checked( ! empty( $attribution['show_submitted_by'] ) ); ?>>
+                                <fieldset style="display:flex;flex-direction:column;gap:8px;">
+                                    <label class="drm-toggle-row">
+                                        <span class="drm-sw"><input type="checkbox" name="delice_recipe_attribution_settings[show_submitted_by]" value="1" <?php checked( ! empty( $attribution['show_submitted_by'] ) ); ?>><span class="drm-sw-slider"></span></span>
                                         <?php esc_html_e( 'Show "Recipe by" (submitted by) author line', 'delice-recipe-manager' ); ?>
-                                    </label><br>
-                                    <label>
-                                        <input type="checkbox" name="delice_recipe_attribution_settings[show_tested_by]" value="1" <?php checked( ! empty( $attribution['show_tested_by'] ) ); ?>>
+                                    </label>
+                                    <label class="drm-toggle-row">
+                                        <span class="drm-sw"><input type="checkbox" name="delice_recipe_attribution_settings[show_tested_by]" value="1" <?php checked( ! empty( $attribution['show_tested_by'] ) ); ?>><span class="drm-sw-slider"></span></span>
                                         <?php esc_html_e( 'Show "Tested by" kitchen attribution line', 'delice-recipe-manager' ); ?>
                                     </label>
                                 </fieldset>
@@ -450,8 +461,8 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         <tr>
                             <th scope="row"><?php esc_html_e( 'JSON-LD markup', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="delice_recipe_schema_settings[enable_schema]" value="1" <?php checked( ! empty( $schema['enable_schema'] ) ); ?>>
+                                <label class="drm-toggle-row">
+                                    <span class="drm-sw"><input type="checkbox" name="delice_recipe_schema_settings[enable_schema]" value="1" <?php checked( ! empty( $schema['enable_schema'] ) ); ?>><span class="drm-sw-slider"></span></span>
                                     <?php esc_html_e( 'Output Recipe schema.org JSON-LD in &lt;head&gt;', 'delice-recipe-manager' ); ?>
                                 </label>
                                 <p class="description"><?php esc_html_e( 'Enables Google Recipe rich results (star ratings, cook time, calories in search).', 'delice-recipe-manager' ); ?></p>
@@ -483,10 +494,10 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Recipe author', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="delice_recipe_schema_settings[use_author]" value="1" <?php checked( ! empty( $schema['use_author'] ) ); ?>>
+                                <label class="drm-toggle-row" style="margin-bottom:8px;">
+                                    <span class="drm-sw"><input type="checkbox" name="delice_recipe_schema_settings[use_author]" value="1" <?php checked( ! empty( $schema['use_author'] ) ); ?>><span class="drm-sw-slider"></span></span>
                                     <?php esc_html_e( 'Use WordPress post author as recipe author in schema', 'delice-recipe-manager' ); ?>
-                                </label><br><br>
+                                </label><br>
                                 <label for="drm-schema-default-author"><?php esc_html_e( 'Fallback author name:', 'delice-recipe-manager' ); ?></label>
                                 <input type="text" id="drm-schema-default-author"
                                        name="delice_recipe_schema_settings[default_author]"
@@ -508,8 +519,8 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         <tr>
                             <th scope="row"><?php esc_html_e( 'OG / Twitter Card tags', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="delice_recipe_display_options[show_og_meta]" value="1" <?php checked( ! empty( $display_options['show_og_meta'] ) ); ?>>
+                                <label class="drm-toggle-row">
+                                    <span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_og_meta]" value="1" <?php checked( ! empty( $display_options['show_og_meta'] ) ); ?>><span class="drm-sw-slider"></span></span>
                                     <?php esc_html_e( 'Output Open Graph and Twitter Card &lt;meta&gt; tags', 'delice-recipe-manager' ); ?>
                                 </label>
                                 <p class="description"><?php esc_html_e( 'Automatically disabled when Yoast SEO or RankMath is active (those plugins handle social meta themselves).', 'delice-recipe-manager' ); ?></p>
@@ -569,8 +580,8 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Auto-migrate to Post', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="delice_recipe_auto_migrate_to_post" value="1" <?php checked( $auto_migrate, true ); ?>>
+                                <label class="drm-toggle-row">
+                                    <span class="drm-sw"><input type="checkbox" name="delice_recipe_auto_migrate_to_post" value="1" <?php checked( $auto_migrate, true ); ?>><span class="drm-sw-slider"></span></span>
                                     <?php esc_html_e( 'Save generated recipes as standard WordPress Posts', 'delice-recipe-manager' ); ?>
                                 </label>
                                 <p class="description"><?php esc_html_e( 'When enabled, each generated recipe is immediately converted from the custom post type to a standard Post. Useful for embedding recipes inline with blog content.', 'delice-recipe-manager' ); ?></p>
@@ -590,8 +601,8 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Enable', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="delice_recipe_enable_ai_images" value="1" <?php checked( $enable_ai_images, true ); ?>>
+                                <label class="drm-toggle-row">
+                                    <span class="drm-sw"><input type="checkbox" name="delice_recipe_enable_ai_images" value="1" <?php checked( $enable_ai_images, true ); ?>><span class="drm-sw-slider"></span></span>
                                     <?php esc_html_e( 'Auto-generate a featured image with DALL-E 3 for each recipe', 'delice-recipe-manager' ); ?>
                                 </label>
                                 <p class="description">
@@ -653,8 +664,8 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Enable reviews', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <label>
-                                    <input type="checkbox" name="delice_recipe_reviews_enabled" value="1" <?php checked( $reviews_enabled, true ); ?>>
+                                <label class="drm-toggle-row">
+                                    <span class="drm-sw"><input type="checkbox" name="delice_recipe_reviews_enabled" value="1" <?php checked( $reviews_enabled, true ); ?>><span class="drm-sw-slider"></span></span>
                                     <?php esc_html_e( 'Allow visitors to rate and review recipes', 'delice-recipe-manager' ); ?>
                                 </label>
                                 <p class="description"><?php esc_html_e( 'When disabled, all review sections and rating stars are completely removed from recipe pages.', 'delice-recipe-manager' ); ?></p>

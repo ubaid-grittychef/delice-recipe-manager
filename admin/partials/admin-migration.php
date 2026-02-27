@@ -54,21 +54,6 @@ $stats = $migration->get_migration_stats();
         </div>
     </div>
     
-    <!-- Info Box -->
-    <div class="delice-migration-info">
-        <div class="delice-info-icon">ℹ️</div>
-        <div class="delice-info-content">
-            <h3><?php _e('What is Migration?', 'delice-recipe-manager'); ?></h3>
-            <p><?php _e('Migration converts your custom recipe posts into standard WordPress posts. This ensures your recipes remain visible even if you deactivate the plugin.', 'delice-recipe-manager'); ?></p>
-            <ul>
-                <li><?php _e('✓ All recipe data is preserved', 'delice-recipe-manager'); ?></li>
-                <li><?php _e('✓ Images and metadata are copied', 'delice-recipe-manager'); ?></li>
-                <li><?php _e('✓ Original recipes remain untouched', 'delice-recipe-manager'); ?></li>
-                <li><?php _e('✓ Migrated posts appear in Posts > All Posts', 'delice-recipe-manager'); ?></li>
-            </ul>
-        </div>
-    </div>
-    
     <?php if ($stats['pending_migration'] > 0) : ?>
     <!-- Migration Actions -->
     <div class="delice-migration-section">
@@ -288,43 +273,6 @@ $stats = $migration->get_migration_stats();
 .delice-stat-success .delice-stat-value { color: #10b981; }
 .delice-stat-warning .delice-stat-value { color: #f59e0b; }
 .delice-stat-info .delice-stat-value { color: #8b5cf6; }
-
-/* Info Box */
-.delice-migration-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px;
-    padding: 24px;
-    display: flex;
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.delice-info-icon {
-    font-size: 48px;
-    flex-shrink: 0;
-}
-
-.delice-info-content h3 {
-    margin: 0 0 12px 0;
-    font-size: 20px;
-}
-
-.delice-info-content p {
-    margin: 0 0 12px 0;
-    opacity: 0.95;
-}
-
-.delice-info-content ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.delice-info-content li {
-    padding: 4px 0;
-    opacity: 0.9;
-}
 
 /* Migration Section */
 .delice-migration-section {

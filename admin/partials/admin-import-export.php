@@ -33,16 +33,6 @@ if (!current_user_can('manage_options')) wp_die('Unauthorized');
                         <p>Download all your recipes or selected recipes</p>
                     </div>
                     <div class="delice-setting-card-body">
-                        <div class="delice-radio-group">
-                            <label class="delice-radio-label">
-                                <input type="radio" name="export_recipes_type" value="all" checked>
-                                <span>Export All Recipes</span>
-                            </label>
-                            <label class="delice-radio-label">
-                                <input type="radio" name="export_recipes_type" value="selected">
-                                <span>Export Selected Recipes (coming soon)</span>
-                            </label>
-                        </div>
                         <button class="delice-btn delice-btn-primary" id="export-recipes-btn">
                             📥 Download Recipes JSON
                         </button>
@@ -89,18 +79,18 @@ if (!current_user_can('manage_options')) wp_die('Unauthorized');
                         </div>
                         
                         <div class="delice-import-options" style="margin-top: 16px;">
-                            <label class="delice-checkbox-label">
-                                <input type="checkbox" id="skip-existing" checked>
-                                <span>Skip existing recipes (don't import duplicates)</span>
-                            </label>
-                            <label class="delice-checkbox-label">
-                                <input type="checkbox" id="update-existing">
-                                <span>Update existing recipes if found</span>
-                            </label>
-                            <label class="delice-checkbox-label">
-                                <input type="checkbox" id="import-images" checked>
-                                <span>Import recipe images</span>
-                            </label>
+                            <div class="delice-sw-row">
+                                <span class="delice-sw-row-label">Skip existing recipes (don't import duplicates)</span>
+                                <label class="delice-sw"><input type="checkbox" id="skip-existing" checked><span class="delice-sw-slider"></span></label>
+                            </div>
+                            <div class="delice-sw-row">
+                                <span class="delice-sw-row-label">Update existing recipes if found</span>
+                                <label class="delice-sw"><input type="checkbox" id="update-existing"><span class="delice-sw-slider"></span></label>
+                            </div>
+                            <div class="delice-sw-row">
+                                <span class="delice-sw-row-label">Import recipe images</span>
+                                <label class="delice-sw"><input type="checkbox" id="import-images" checked><span class="delice-sw-slider"></span></label>
+                            </div>
                         </div>
                         
                         <button class="delice-btn delice-btn-primary" id="import-recipes-btn" disabled>
@@ -134,10 +124,10 @@ if (!current_user_can('manage_options')) wp_die('Unauthorized');
                         </div>
                         
                         <div class="delice-import-options" style="margin-top: 16px;">
-                            <label class="delice-checkbox-label">
-                                <input type="checkbox" id="merge-settings">
-                                <span>Merge with existing settings (recommended)</span>
-                            </label>
+                            <div class="delice-sw-row">
+                                <span class="delice-sw-row-label">Merge with existing settings (recommended)</span>
+                                <label class="delice-sw"><input type="checkbox" id="merge-settings"><span class="delice-sw-slider"></span></label>
+                            </div>
                         </div>
                         
                         <div class="delice-warning-box" style="margin-top: 16px;">
@@ -196,13 +186,15 @@ if (!current_user_can('manage_options')) wp_die('Unauthorized');
     cursor: pointer;
 }
 
-.delice-checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    cursor: pointer;
-}
+/* ── Toggle switch ── */
+.delice-sw { position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0; }
+.delice-sw input { opacity:0;width:0;height:0;position:absolute; }
+.delice-sw-slider { position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#c3c4c7;border-radius:24px;transition:.25s; }
+.delice-sw-slider:before { position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:.25s; }
+.delice-sw input:checked + .delice-sw-slider { background:#0073aa; }
+.delice-sw input:checked + .delice-sw-slider:before { transform:translateX(20px); }
+.delice-sw-row { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px;background:#f8fafc;border-radius:6px;margin-bottom:8px; }
+.delice-sw-row-label { font-size:13px;color:#1d2327;flex:1; }
 
 .delice-file-upload {
     display: flex;
@@ -264,8 +256,7 @@ jQuery(document).ready(function($) {
             method: 'POST',
             data: {
                 action: 'delice_export_recipes',
-                nonce: '<?php echo wp_create_nonce('delice_recipe_nonce'); ?>',
-                export_type: $('input[name="export_recipes_type"]:checked').val()
+                nonce: '<?php echo wp_create_nonce('delice_recipe_nonce'); ?>'
             },
             success: function(response) {
                 if (response.success) {
