@@ -106,13 +106,26 @@ class Delice_Recipe_Related {
         }
 
         // Base args — fetch more than needed so we can rank and slice.
+        // Include both native recipe post type and migrated standard posts.
         $args = array(
-            'post_type'           => array( 'delice_recipe' ),
+            'post_type'           => array( 'delice_recipe', 'post' ),
             'post_status'         => 'publish',
             'posts_per_page'      => max( 12, $limit * 4 ),
             'post__not_in'        => array( $recipe_id ),
             'no_found_rows'       => true,
             'ignore_sticky_posts' => true,
+            'meta_query'          => array(
+                'relation' => 'OR',
+                array(
+                    'key'     => '_delice_recipe_migrated',
+                    'value'   => '1',
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_delice_recipe_ingredients',
+                    'compare' => 'EXISTS',
+                ),
+            ),
         );
 
         if ( $found_terms ) {
@@ -158,7 +171,7 @@ class Delice_Recipe_Related {
      */
     private static function latest_recipes( $recipe_id, $limit ) {
         $query = new WP_Query( array(
-            'post_type'           => 'delice_recipe',
+            'post_type'           => array( 'delice_recipe', 'post' ),
             'post_status'         => 'publish',
             'posts_per_page'      => $limit,
             'post__not_in'        => array( $recipe_id ),
@@ -166,6 +179,18 @@ class Delice_Recipe_Related {
             'order'               => 'DESC',
             'no_found_rows'       => true,
             'ignore_sticky_posts' => true,
+            'meta_query'          => array(
+                'relation' => 'OR',
+                array(
+                    'key'     => '_delice_recipe_migrated',
+                    'value'   => '1',
+                    'compare' => '=',
+                ),
+                array(
+                    'key'     => '_delice_recipe_ingredients',
+                    'compare' => 'EXISTS',
+                ),
+            ),
         ) );
         $posts = $query->posts;
         wp_reset_postdata();

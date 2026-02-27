@@ -157,8 +157,9 @@ $dre_rating_count = intval( get_post_meta( $recipe_id, '_delice_recipe_rating_co
 #<?php echo $dre_id; ?> .delice-elegant-step-text      { margin: 0 !important; line-height: 1.8 !important; padding-top: 4px !important; }
 
 /* ── Nutrition ── */
-#<?php echo $dre_id; ?> .delice-elegant-nutrition-grid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important; gap: 1px !important; overflow: hidden !important; border-radius: 8px !important; }
-#<?php echo $dre_id; ?> .delice-elegant-nutrient       { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important; padding: 18px 12px !important; text-align: center !important; background: #fff !important; }
+#<?php echo $dre_id; ?> .delice-elegant-nutrition-grid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important; gap: 1px !important; background: #d6d0c4 !important; overflow: hidden !important; border-radius: 8px !important; }
+#<?php echo $dre_id; ?> .delice-elegant-nutrient       { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important; padding: 18px 12px !important; text-align: center !important; background: #faf7f2 !important; }
+#<?php echo $dre_id; ?> .delice-recipe-nutrition-disclaimer { padding: 10px 20px 14px !important; }
 
 /* ── FAQs ── */
 #<?php echo $dre_id; ?> .delice-elegant-faq-question   { display: flex !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 14px !important; padding: 16px 20px !important; background: none !important; border: none !important; text-align: left !important; color: #2d2d2d !important; }
@@ -497,7 +498,7 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
                             <span class="delice-elegant-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
                         </label>
                         <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
-                            <span class="delice-elegant-ingredient-qty delice-recipe-ingredient-quantity"
+                            <span class="delice-elegant-ingredient-qty"
                                   data-base-amount="<?php echo esc_attr( $ing['amount'] ?? '' ); ?>"
                                   data-base-unit="<?php echo esc_attr( $ing['unit'] ?? '' ); ?>">
                                 <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>

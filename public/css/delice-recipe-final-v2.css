@@ -930,10 +930,11 @@
     font-size: 11px !important;
     color: #9ca3af !important;
     text-align: center !important;
-    margin: 10px 0 0 !important;
-    padding: 0 !important;
+    margin: 0 !important;
+    padding: 10px 20px 14px !important;
     font-style: italic !important;
     line-height: 1.5 !important;
+    display: block !important;
 }
 
 /* ── Checked ingredient strike-through ─────────────────────────────────── */

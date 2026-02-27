@@ -43,7 +43,7 @@
     }
 
     function updateIngredients(container, newServings, baseServings) {
-        var qtyEls = container.querySelectorAll('.delice-recipe-ingredient-quantity[data-base-amount]');
+        var qtyEls = container.querySelectorAll('[data-base-amount]');
         qtyEls.forEach(function (el) {
             var baseAmt  = el.dataset.baseAmount;
             var baseUnit = el.dataset.baseUnit || '';
@@ -52,11 +52,14 @@
         });
     }
 
-    function initContainer(container) {
-        var valueEl  = container.querySelector('.delice-servings-value');
-        var minusBtn = container.querySelector('.delice-servings-minus');
-        var plusBtn  = container.querySelector('.delice-servings-plus');
+    function initContainer(ctrl) {
+        var valueEl  = ctrl.querySelector('.delice-servings-value');
+        var minusBtn = ctrl.querySelector('.delice-servings-minus');
+        var plusBtn  = ctrl.querySelector('.delice-servings-plus');
         if (!valueEl || !minusBtn || !plusBtn) return;
+
+        var recipeContainer = ctrl.closest('.delice-recipe-container');
+        if (!recipeContainer) return;
 
         var baseServings = parseInt(valueEl.dataset.base, 10) || 1;
         var current      = baseServings;
@@ -67,10 +70,10 @@
             valueEl.textContent = newVal;
             minusBtn.disabled = newVal <= 1;
             plusBtn.disabled  = newVal >= 100;
-            updateIngredients(container, current, baseServings);
+            updateIngredients(recipeContainer, current, baseServings);
 
             // Update aria-live region
-            var liveEl = container.querySelector('.delice-servings-live');
+            var liveEl = ctrl.querySelector('.delice-servings-live');
             if (liveEl) liveEl.textContent = newVal;
         }
 
