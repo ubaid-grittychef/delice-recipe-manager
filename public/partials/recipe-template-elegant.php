@@ -296,7 +296,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
             </div>
         <?php endif; ?>
 
-        <?php if ( $dre_rating_count > 0 ) : ?>
+        <?php if ( $dre_rating_count > 0 && ( ! isset( $display_options['show_rating'] ) || $display_options['show_rating'] ) ) : ?>
         <div class="delice-recipe-rating-summary" itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating" style="justify-content:center;margin-top:14px;">
           <div class="delice-recipe-rating-stars-display" aria-hidden="true">
             <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
@@ -586,7 +586,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     <?php endif; ?>
 
     <!-- ═══ NUTRITION ═════════════════════════════════════════════════════════ -->
-    <?php if ( ! empty( $nutrition ) ) : ?>
+    <?php if ( ! empty( $nutrition ) && ( ! isset( $display_options['show_nutrition'] ) || $display_options['show_nutrition'] ) ) : ?>
         <hr class="delice-elegant-divider">
         <section class="delice-elegant-section delice-elegant-nutrition">
             <h3 class="delice-elegant-section-title">

@@ -289,7 +289,7 @@ class Delice_Recipe_Admin {
             )
         );
         
-        // Display options
+        // Display options — v3.8.1: full defaults including all v3.8.0 feature toggles
         register_setting(
             'delice_recipe_settings',
             'delice_recipe_display_options',
@@ -297,18 +297,30 @@ class Delice_Recipe_Admin {
                 'type' => 'array',
                 'sanitize_callback' => array($this, 'sanitize_display_options'),
                 'default' => array(
-                    'show_image' => true,
-                    'show_servings' => true,
-                    'show_prep_time' => true,
-                    'show_cook_time' => true,
-                    'show_total_time' => true,
-                    'show_calories' => true,
-                    'show_difficulty' => true,
-                    'show_rating' => true,
-                    'show_ingredients' => true,
-                    'show_instructions' => true,
-                    'show_notes' => true,
-                    'show_faqs' => true,
+                    'show_image'               => true,
+                    'show_servings'            => true,
+                    'show_prep_time'           => true,
+                    'show_cook_time'           => true,
+                    'show_total_time'          => true,
+                    'show_calories'            => true,
+                    'show_difficulty'          => true,
+                    'show_rating'              => true,
+                    'show_nutrition'           => true,
+                    'show_ingredients'         => true,
+                    'show_instructions'        => true,
+                    'show_notes'               => true,
+                    'show_faqs'                => true,
+                    'show_print'               => true,
+                    'show_share'               => true,
+                    // v3.6.0 / v3.8.0 feature toggles
+                    'show_jump_btn'            => true,
+                    'show_cook_mode'           => true,
+                    'show_dietary_badges'      => true,
+                    'show_breadcrumb'          => true,
+                    'show_related_recipes'     => true,
+                    'show_nutrition_disclaimer' => true,
+                    'show_last_updated'        => true,
+                    'show_og_meta'             => true,
                 ),
             )
         );
@@ -933,11 +945,14 @@ class Delice_Recipe_Admin {
             'show_calories',
             'show_difficulty',
             'show_rating',
+            'show_nutrition',
             'show_ingredients',
             'show_instructions',
             'show_notes',
             'show_faqs',
-            // v3.8.0 feature toggles
+            'show_print',
+            'show_share',
+            // v3.6.0 / v3.8.0 feature toggles
             'show_jump_btn',
             'show_cook_mode',
             'show_dietary_badges',

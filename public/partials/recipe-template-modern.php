@@ -278,7 +278,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 <?php endif; ?>
             </div><!-- /.delice-modern-meta-badges -->
 
-            <?php if ( $drm_rating_count > 0 ) : ?>
+            <?php if ( $drm_rating_count > 0 && ( ! isset( $display_options['show_rating'] ) || $display_options['show_rating'] ) ) : ?>
             <div class="delice-recipe-rating-summary" itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
               <div class="delice-recipe-rating-stars-display" aria-hidden="true">
                 <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
@@ -519,7 +519,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php if ( $two_col ) echo '</div><!-- /.delice-modern-cols -->'; ?>
 
         <!-- ── Nutrition ──────────────────────────────────────────────────────── -->
-        <?php if ( ! empty( $nutrition ) ) : ?>
+        <?php if ( ! empty( $nutrition ) && ( ! isset( $display_options['show_nutrition'] ) || $display_options['show_nutrition'] ) ) : ?>
             <div class="delice-modern-section delice-modern-section--nutrition delice-modern-nutrition">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">

@@ -43,29 +43,38 @@
             <div class="delice-recipe-settings-section">
                 <h2><?php _e('Display Settings', 'delice-recipe-manager'); ?></h2>
                 <?php
-                $display_options = get_option('delice_recipe_display_options', array(
-                    'show_image' => true,
-                    'show_servings' => true,
-                    'show_prep_time' => true,
-                    'show_cook_time' => true,
-                    'show_total_time' => true,
-                    'show_calories' => true,
-                    'show_difficulty' => true,
-                    'show_rating' => true,
-                    'show_ingredients' => true,
-                    'show_instructions' => true,
-                    'show_notes' => true,
-                    'show_faqs' => true,
-                    // v3.8.0 feature toggles (all on by default)
-                    'show_jump_btn'            => true,
-                    'show_cook_mode'           => true,
-                    'show_dietary_badges'      => true,
-                    'show_breadcrumb'          => true,
-                    'show_related_recipes'     => true,
+                // wp_parse_args merges saved option WITH defaults so new keys (v3.8.0+)
+                // that weren't present in an older saved option still default to enabled.
+                $display_option_defaults = array(
+                    'show_image'              => true,
+                    'show_servings'           => true,
+                    'show_prep_time'          => true,
+                    'show_cook_time'          => true,
+                    'show_total_time'         => true,
+                    'show_calories'           => true,
+                    'show_difficulty'         => true,
+                    'show_rating'             => true,
+                    'show_nutrition'          => true,
+                    'show_ingredients'        => true,
+                    'show_instructions'       => true,
+                    'show_notes'              => true,
+                    'show_faqs'               => true,
+                    'show_print'              => true,
+                    'show_share'              => true,
+                    // v3.6.0 / v3.8.0 feature toggles — all on by default
+                    'show_jump_btn'           => true,
+                    'show_cook_mode'          => true,
+                    'show_dietary_badges'     => true,
+                    'show_breadcrumb'         => true,
+                    'show_related_recipes'    => true,
                     'show_nutrition_disclaimer' => true,
-                    'show_last_updated'        => true,
-                    'show_og_meta'             => true,
-                ));
+                    'show_last_updated'       => true,
+                    'show_og_meta'            => true,
+                );
+                $display_options = wp_parse_args(
+                    get_option( 'delice_recipe_display_options', array() ),
+                    $display_option_defaults
+                );
                 ?>
                 <table class="form-table">
                     <tr>

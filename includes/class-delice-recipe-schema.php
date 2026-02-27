@@ -37,6 +37,7 @@ class Delice_Recipe_Schema {
             add_action( 'wp_head', array( $this, 'output_recipe_schema' ), 100 );
             add_action( 'wp_head', array( $this, 'output_recipe_meta_tags' ), 5 );
             add_action( 'wp_head', array( $this, 'output_hero_preload' ), 1 );
+            add_action( 'wp_head', array( $this, 'output_canonical' ), 2 );
             add_action( 'wp_head', array( $this, 'output_og_meta_tags' ), 4 );
             // Yoast SEO integration
             add_filter( 'wpseo_title',    array( $this, 'filter_yoast_title' ) );
@@ -574,8 +575,24 @@ class Delice_Recipe_Schema {
         if ( ! $post_id ) {
             return 0;
         }
+        // Native recipe CPT page
         if ( get_post_type( $post_id ) === 'delice_recipe' ) {
             return $post_id;
+        }
+        // Shortcode-embedded recipe: scan page content for the first recipe shortcode
+        // so preload and canonical fire on regular pages/posts too (v3.8.1)
+        $post = get_post( $post_id );
+        if ( $post && ! empty( $post->post_content ) ) {
+            if ( preg_match(
+                '/\[\s*(?:delice_recipe|delice_recipe_card|recipe_card)\b[^\]]*\bid\s*=\s*["\']?(\d+)/i',
+                $post->post_content,
+                $m
+            ) ) {
+                $embedded_id = intval( $m[1] );
+                if ( $embedded_id && get_post_type( $embedded_id ) === 'delice_recipe' ) {
+                    return $embedded_id;
+                }
+            }
         }
         return 0;
     }
@@ -598,16 +615,37 @@ class Delice_Recipe_Schema {
     }
 
     /**
+     * Output <link rel="canonical"> for recipe pages.
+     * Runs at wp_head priority 2 — separate from OG meta so it always fires
+     * regardless of the show_og_meta toggle. Skipped when Yoast or RankMath
+     * already handles canonical. (v3.8.1)
+     */
+    public function output_canonical() {
+        if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
+            return; // SEO plugin handles canonical
+        }
+        $recipe_id = $this->get_current_recipe_id();
+        if ( ! $recipe_id ) {
+            return;
+        }
+        echo '<link rel="canonical" href="' . esc_url( get_permalink( $recipe_id ) ) . '">' . "\n";
+    }
+
+    /**
      * Output Open Graph + Twitter Card meta tags for recipe pages.
      * Runs at wp_head priority 4. Skipped when Yoast or RankMath is active.
+     * Canonical is now in output_canonical() (priority 2) so it always fires.
      */
     public function output_og_meta_tags() {
         if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
             return;
         }
         // Respect admin feature toggle (v3.8.0)
-        $opts = get_option( 'delice_recipe_display_options', array() );
-        if ( isset( $opts['show_og_meta'] ) && ! $opts['show_og_meta'] ) {
+        $display_opts = wp_parse_args(
+            get_option( 'delice_recipe_display_options', array() ),
+            array( 'show_og_meta' => true )
+        );
+        if ( ! $display_opts['show_og_meta'] ) {
             return;
         }
         $recipe_id = $this->get_current_recipe_id();
@@ -621,19 +659,6 @@ class Delice_Recipe_Schema {
         $image_url   = '';
         $img_w       = '';
         $img_h       = '';
-
-        if ( has_post_thumbnail( $recipe_id ) ) {
-            $thumb_id = get_post_thumbnail_id( $recipe_id );
-            $img      = wp_get_attachment_image_src( $thumb_id, array( 1200, 630 ) );
-            if ( ! empty( $img[0] ) ) {
-                $image_url = $img[0];
-                $img_w     = $img[1];
-                $img_h     = $img[2];
-            }
-        }
-
-        // Canonical tag (also output here so it appears near the OG block).
-        echo '<link rel="canonical" href="' . esc_url( $url ) . '">' . "\n";
 
         // Open Graph
         echo '<meta property="og:type"        content="article">' . "\n";
