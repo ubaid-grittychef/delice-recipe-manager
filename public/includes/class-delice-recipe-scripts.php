@@ -77,6 +77,63 @@ class Delice_Recipe_Scripts {
             $ver,
             true
         );
+
+        // ── v3.6.0 component styles ──────────────────────────────────────────
+        wp_enqueue_style(
+            'delice-recipe-badges',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-badges.css',
+            array( 'delice-recipe-final-v2' ),
+            $ver
+        );
+        wp_enqueue_style(
+            'delice-recipe-jump-btn',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-jump-btn.css',
+            array( 'delice-recipe-final-v2' ),
+            $ver
+        );
+        wp_enqueue_style(
+            'delice-recipe-related',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-related.css',
+            array( 'delice-recipe-final-v2' ),
+            $ver
+        );
+
+        // ── v3.6.0 component scripts ─────────────────────────────────────────
+        wp_enqueue_script(
+            'delice-checklist-persist',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-checklist-persist.js',
+            array(),
+            $ver,
+            true
+        );
+        wp_enqueue_script(
+            'delice-jump-btn',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-jump-btn.js',
+            array(),
+            $ver,
+            true
+        );
+        wp_enqueue_script(
+            'delice-cook-mode',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-cook-mode.js',
+            array(),
+            $ver,
+            true
+        );
+        wp_enqueue_script(
+            'delice-step-timers',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-step-timers.js',
+            array(),
+            $ver,
+            true
+        );
+        wp_enqueue_script(
+            'delice-servings-scaler',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-servings-scaler.js',
+            array(),
+            $ver,
+            true
+        );
     }
     
     /**

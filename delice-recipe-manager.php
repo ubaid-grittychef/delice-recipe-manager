@@ -3,7 +3,7 @@
  * Plugin Name:       WP Delicious Recipe
  * Plugin URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * Description:       A powerful recipe manager plugin for WordPress with AI generation, schema markup, and GitHub auto-updates.
- * Version:           3.5.1
+ * Version:           3.6.0
  * Author:            Delice Team
  * Author URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * License:           GPL-2.0+
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'DELICE_RECIPE_VERSION',    '3.5.1' );
+define( 'DELICE_RECIPE_VERSION',    '3.6.0' );
 define( 'DELICE_RECIPE_DB_VERSION', '2.1.0' ); // bump when schema changes require an upgrade routine
 define( 'DELICE_RECIPE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -292,17 +292,26 @@ function delice_recipe_frontend_script_data() {
     
     // Default texts
     $default_texts = array(
-        'print' => 'Print Recipe',
-        'copy' => 'Copy Ingredients',
-        'copied' => 'Ingredients copied!',
-        'ingredients' => 'Ingredients',
+        'print'        => 'Print Recipe',
+        'copy'         => 'Copy Ingredients',
+        'copied'       => 'Ingredients copied!',
+        'ingredients'  => 'Ingredients',
         'instructions' => 'Instructions',
-        'notes' => 'Notes',
+        'notes'        => 'Notes',
+        // v3.6.0
+        'jumpToRecipe'  => 'Jump to Recipe',
+        'cookModeStart' => 'Start Cooking',
+        'cookModeStop'  => 'Stop Cooking',
+        'startTimer'    => 'Start Timer',
+        'timerDone'     => 'Timer done!',
     );
-    
+
+    // Also pull any v3.6.0 keys from the language system for this locale
+    $lang_texts = Delice_Recipe_Language::get_all_texts();
+
     // Merge with defaults
     $texts = wp_parse_args($texts, $default_texts);
-    
+
     ?>
     <script>
     var deliceRecipe = deliceRecipe || {};
@@ -314,6 +323,11 @@ function delice_recipe_frontend_script_data() {
     deliceRecipe.ingredientsText = '<?php echo esc_js($texts['ingredients']); ?>';
     deliceRecipe.instructionsText = '<?php echo esc_js($texts['instructions']); ?>';
     deliceRecipe.notesText = '<?php echo esc_js($texts['notes']); ?>';
+    deliceRecipe.jumpToRecipe  = '<?php echo esc_js($lang_texts['jump_to_recipe']); ?>';
+    deliceRecipe.cookModeStart = '<?php echo esc_js($lang_texts['cook_mode_start']); ?>';
+    deliceRecipe.cookModeStop  = '<?php echo esc_js($lang_texts['cook_mode_stop']); ?>';
+    deliceRecipe.startTimer    = '<?php echo esc_js($lang_texts['start_timer']); ?>';
+    deliceRecipe.timerDone     = '<?php echo esc_js($lang_texts['timer_done']); ?>';
     </script>
     <?php
 }
@@ -332,6 +346,8 @@ function delice_recipe_manager_init() {
 
     // Include required classes ONCE
     require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-manager.php';
+    // v3.6.0 — Related recipes
+    require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-related.php';
     
     // Core plugin initialization
     $manager = new Delice_Recipe_Manager();

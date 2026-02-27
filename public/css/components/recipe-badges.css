@@ -1,0 +1,43 @@
+/**
+ * Delice Recipe — Dietary Badges
+ * v3.6.0
+ */
+
+.delice-dietary-badges {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+.delice-dietary-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 3px 10px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.4px !important;
+    text-transform: uppercase !important;
+    color: #fff !important;
+    line-height: 1.4 !important;
+    white-space: nowrap !important;
+}
+
+.delice-dietary-badge svg {
+    width: 12px !important;
+    height: 12px !important;
+    flex-shrink: 0 !important;
+}
+
+.delice-badge--vegetarian  { background: #16a34a !important; }
+.delice-badge--vegan       { background: #15803d !important; }
+.delice-badge--gluten-free { background: #d97706 !important; }
+.delice-badge--dairy-free  { background: #0284c7 !important; }
+.delice-badge--nut-free    { background: #7c3aed !important; }
+.delice-badge--low-carb    { background: #db2777 !important; }
+.delice-badge--keto        { background: #9333ea !important; }
+.delice-badge--paleo       { background: #b45309 !important; }

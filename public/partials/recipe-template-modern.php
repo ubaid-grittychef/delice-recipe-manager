@@ -39,6 +39,19 @@ $nutrition     = $nutrition_raw ? json_decode( wp_unslash( $nutrition_raw ), tru
 /* Taxonomy */
 $cuisine_terms = get_the_terms( $recipe_id, 'delice_cuisine' );
 $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
+
+/* v3.6.0 — Dietary badges */
+$dietary_badge_labels = array(
+    'vegetarian'  => 'Vegetarian', 'vegan' => 'Vegan', 'gluten-free' => 'Gluten-Free',
+    'dairy-free'  => 'Dairy-Free', 'nut-free' => 'Nut-Free', 'low-carb' => 'Low-Carb',
+    'keto'        => 'Keto', 'paleo' => 'Paleo',
+);
+$dietary_meta = get_post_meta( $recipe_id, '_delice_recipe_dietary', true );
+$dietary_meta = is_array( $dietary_meta ) ? $dietary_meta : array();
+
+/* v3.6.0 — Rating summary */
+$drm_rating_avg   = floatval( get_post_meta( $recipe_id, '_delice_recipe_rating_average', true ) );
+$drm_rating_count = intval( get_post_meta( $recipe_id, '_delice_recipe_rating_count', true ) );
 ?>
 
 <?php $drm_id = 'drm-' . absint( $recipe_id ); ?>
@@ -136,6 +149,22 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
     #<?php echo $drm_id; ?> .delice-modern-cols     { grid-template-columns: 1fr !important; gap: 16px !important; }
 }
 </style>
+<?php
+// Visible breadcrumb (v3.6.0)
+if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
+    $drm_bc_mid = ( ! is_wp_error( $cuisine_terms ) && ! empty( $cuisine_terms ) ) ? $cuisine_terms[0]
+               : ( ( ! is_wp_error( $course_terms ) && ! empty( $course_terms ) ) ? $course_terms[0] : null );
+?>
+<nav class="delice-recipe-breadcrumb" aria-label="Breadcrumb">
+  <ol class="delice-recipe-breadcrumb-list">
+    <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html( $lang_texts['home'] ); ?></a></li>
+    <?php if ( $drm_bc_mid ) : ?>
+      <li><a href="<?php echo esc_url( get_term_link( $drm_bc_mid ) ); ?>"><?php echo esc_html( $drm_bc_mid->name ); ?></a></li>
+    <?php endif; ?>
+    <li aria-current="page"><?php echo esc_html( $recipe_title ); ?></li>
+  </ol>
+</nav>
+<?php endif; ?>
 <div id="<?php echo $drm_id; ?>" class="delice-recipe-wrapper delice-modern delice-recipe-container" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HERO ═══════════════════════════════════════════════════════════════ -->
@@ -223,6 +252,27 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                     </div>
                 <?php endif; ?>
             </div><!-- /.delice-modern-meta-badges -->
+
+            <?php if ( $drm_rating_count > 0 ) : ?>
+            <div class="delice-recipe-rating-summary" itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
+              <div class="delice-recipe-rating-stars-display" aria-hidden="true">
+                <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+                  <span class="delice-rating-star-display<?php echo $i <= round( $drm_rating_avg ) ? ' filled' : ''; ?>">★</span>
+                <?php endfor; ?>
+              </div>
+              <span class="delice-recipe-rating-score" itemprop="ratingValue"><?php echo number_format( $drm_rating_avg, 1 ); ?></span>
+              <span class="delice-recipe-rating-count">(<span itemprop="ratingCount"><?php echo $drm_rating_count; ?></span> <?php echo esc_html( $lang_texts['ratings'] ); ?>)</span>
+              <meta itemprop="bestRating" content="5"><meta itemprop="worstRating" content="1">
+            </div>
+            <?php endif; ?>
+
+            <?php if ( ! empty( $dietary_meta ) ) : ?>
+            <div class="delice-dietary-badges">
+              <?php foreach ( $dietary_meta as $diet_key ) : if ( ! isset( $dietary_badge_labels[ $diet_key ] ) ) continue; ?>
+                <span class="delice-dietary-badge delice-badge--<?php echo esc_attr( $diet_key ); ?>"><?php echo esc_html( $dietary_badge_labels[ $diet_key ] ); ?></span>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
         </div><!-- /.delice-modern-hero-content -->
     </div><!-- /.delice-modern-hero -->
 
@@ -318,6 +368,26 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                     <span><?php echo esc_html( $lang_texts['rate'] ); ?></span>
                 </button>
             <?php endif; ?>
+
+            <!-- Cook Mode (v3.6.0) -->
+            <button class="delice-cook-mode-btn delice-modern-action-btn" type="button" aria-pressed="false">
+                <span class="delice-cook-mode-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
+                        <path d="M12 2c0 0-4 4-4 8a4 4 0 0 0 8 0c0-4-4-8-4-8z"/><path d="M12 10c0 0-2 2-2 4a2 2 0 0 0 4 0c0-2-2-4-2-4z"/>
+                    </svg>
+                </span>
+                <span class="delice-cook-mode-label"><?php echo esc_html( $lang_texts['cook_mode_start'] ); ?></span>
+            </button>
+
+            <!-- Last Updated (v3.6.0) -->
+            <?php
+            $drm_pub = get_the_date( 'M j, Y', $recipe_id );
+            $drm_upd = get_the_modified_date( 'M j, Y', $recipe_id );
+            if ( $drm_upd && $drm_upd !== $drm_pub ) : ?>
+            <span class="delice-modern-updated-badge">
+                <?php echo esc_html( $lang_texts['updated'] ); ?>: <?php echo esc_html( $drm_upd ); ?>
+            </span>
+            <?php endif; ?>
         </div><!-- /.delice-modern-actions -->
     </div><!-- /.delice-modern-toolbar -->
 
@@ -343,6 +413,16 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                         </span>
                         <?php echo esc_html( $lang_texts['ingredients'] ); ?>
                     </h3>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <?php if ( $servings ) : ?>
+                    <div class="delice-servings-control" role="group" aria-label="<?php echo esc_attr( $lang_texts['servings'] ); ?>">
+                        <button class="delice-servings-btn delice-servings-minus" type="button" aria-label="Decrease servings" disabled>−</button>
+                        <span class="delice-servings-value" data-base="<?php echo esc_attr( intval( $servings ) ); ?>"><?php echo esc_html( intval( $servings ) ); ?></span>
+                        <button class="delice-servings-btn delice-servings-plus" type="button" aria-label="Increase servings">+</button>
+                        <span class="delice-servings-label"><?php echo esc_html( $lang_texts['servings'] ); ?></span>
+                        <span class="delice-servings-live" aria-live="polite" aria-atomic="true"><?php echo esc_html( intval( $servings ) ); ?></span>
+                    </div>
+                    <?php endif; ?>
                     <button class="delice-recipe-copy-ingredients delice-modern-copy-btn" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -350,6 +430,7 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                         </svg>
                         <?php echo esc_html( $lang_texts['copy'] ); ?>
                     </button>
+                    </div>
                 </div>
                 <ul class="delice-modern-ingredients-list">
                     <?php foreach ( $ingredients as $ing ) :
@@ -362,7 +443,9 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                                 <span class="delice-modern-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
                             </label>
                             <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
-                                <span class="delice-modern-ingredient-qty">
+                                <span class="delice-modern-ingredient-qty delice-recipe-ingredient-quantity"
+                                      data-base-amount="<?php echo esc_attr( $ing['amount'] ?? '' ); ?>"
+                                      data-base-unit="<?php echo esc_attr( $ing['unit'] ?? '' ); ?>">
                                     <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
                                 </span>
                             <?php endif; ?>
@@ -439,6 +522,9 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
                         </div>
                     <?php endforeach; ?>
                 </div>
+                <?php if ( get_option( 'delice_recipe_show_nutrition_disclaimer', true ) ) : ?>
+                    <p class="delice-recipe-nutrition-disclaimer"><?php echo esc_html( $lang_texts['nutrition_disclaimer'] ); ?></p>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 
@@ -500,6 +586,13 @@ $course_terms  = get_the_terms( $recipe_id, 'delice_course' );
         <?php endif; ?>
 
     </div><!-- /.delice-modern-body -->
+
+    <!-- ═══ RELATED RECIPES (v3.6.0) ════════════════════════════════════════ -->
+    <?php if ( class_exists( 'Delice_Recipe_Related' ) ) : ?>
+    <div style="padding: 0 24px 8px;">
+        <?php Delice_Recipe_Related::render( $recipe_id, $lang_texts['related_recipes'] ); ?>
+    </div>
+    <?php endif; ?>
 
     <!-- ═══ REVIEWS ═══════════════════════════════════════════════════════════ -->
     <?php if ( $reviews_enabled ) : ?>
