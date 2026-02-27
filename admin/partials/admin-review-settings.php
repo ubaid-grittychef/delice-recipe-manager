@@ -65,7 +65,7 @@ if ($table_exists) {
         "SELECT COUNT(*) FROM `{$safe_table}` WHERE status = %s",
         'approved'
     ));
-    $stats['average_rating'] = $wpdb->get_var("SELECT AVG(rating) FROM `{$safe_table}` WHERE status = 'approved'");
+    $stats['average_rating'] = $wpdb->get_var( $wpdb->prepare( "SELECT AVG(rating) FROM `{$safe_table}` WHERE status = %s", 'approved' ) );
     $stats['average_rating'] = $stats['average_rating'] ? round($stats['average_rating'], 1) : 0;
 }
 ?>

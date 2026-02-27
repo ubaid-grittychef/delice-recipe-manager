@@ -12,7 +12,7 @@ global $wpdb;
 $table = $wpdb->prefix . 'delice_recipe_testing';
 
 // Check if table exists
-$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table'");
+$table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) ) === $table;
 if (!$table_exists) {
     ?>
     <div class="wrap">

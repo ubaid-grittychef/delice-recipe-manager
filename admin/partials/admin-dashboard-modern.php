@@ -93,7 +93,7 @@ $available_languages = array(
 
 // Review stats
 $reviews_table = $wpdb->prefix . 'delice_recipe_reviews';
-$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") == $reviews_table;
+$table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $reviews_table ) ) === $reviews_table;
 
 if ($table_exists) {
     $total_reviews = $wpdb->get_var("SELECT COUNT(*) FROM $reviews_table");

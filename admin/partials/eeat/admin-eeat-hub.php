@@ -12,7 +12,8 @@ if (!defined('ABSPATH')) exit;
 global $wpdb;
 
 // Check if tables exist
-$table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}delice_recipe_testing'");
+$_drm_t = $wpdb->prefix . 'delice_recipe_testing';
+$table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $_drm_t ) ) === $_drm_t;
 
 if (!$table_exists) {
     ?>
