@@ -105,14 +105,23 @@ class Delice_Recipe_Related {
             }
         }
 
-        // Base args — fetch more than needed so we can rank and slice.
+        // Only surface posts that have been migrated to standard post type.
+        // Native delice_recipe posts are intentionally excluded — related cards
+        // should only link to publicly visible blog posts.
         $args = array(
-            'post_type'           => array( 'delice_recipe' ),
+            'post_type'           => 'post',
             'post_status'         => 'publish',
             'posts_per_page'      => max( 12, $limit * 4 ),
             'post__not_in'        => array( $recipe_id ),
             'no_found_rows'       => true,
             'ignore_sticky_posts' => true,
+            'meta_query'          => array(
+                array(
+                    'key'     => '_delice_recipe_migrated',
+                    'value'   => '1',
+                    'compare' => '=',
+                ),
+            ),
         );
 
         if ( $found_terms ) {
@@ -158,7 +167,7 @@ class Delice_Recipe_Related {
      */
     private static function latest_recipes( $recipe_id, $limit ) {
         $query = new WP_Query( array(
-            'post_type'           => 'delice_recipe',
+            'post_type'           => 'post',
             'post_status'         => 'publish',
             'posts_per_page'      => $limit,
             'post__not_in'        => array( $recipe_id ),
@@ -166,6 +175,13 @@ class Delice_Recipe_Related {
             'order'               => 'DESC',
             'no_found_rows'       => true,
             'ignore_sticky_posts' => true,
+            'meta_query'          => array(
+                array(
+                    'key'     => '_delice_recipe_migrated',
+                    'value'   => '1',
+                    'compare' => '=',
+                ),
+            ),
         ) );
         $posts = $query->posts;
         wp_reset_postdata();

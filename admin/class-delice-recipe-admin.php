@@ -360,6 +360,16 @@ class Delice_Recipe_Admin {
         // AI Image Generation Settings
         register_setting(
             'delice_recipe_settings',
+            'delice_recipe_auto_migrate_to_post',
+            array(
+                'type'              => 'boolean',
+                'sanitize_callback' => array( $this, 'sanitize_boolean_setting' ),
+                'default'           => false,
+            )
+        );
+
+        register_setting(
+            'delice_recipe_settings',
             'delice_recipe_enable_ai_images',
             array(
                 'type' => 'boolean',
