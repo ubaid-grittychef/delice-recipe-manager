@@ -577,6 +577,16 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                                 </p>
                             </td>
                         </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="drm-card">
+                <div class="drm-card-header">
+                    <h2><?php esc_html_e( 'Generation Behaviour', 'delice-recipe-manager' ); ?></h2>
+                </div>
+                <div class="drm-card-body">
+                    <table class="form-table" role="presentation">
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Auto-migrate to Post', 'delice-recipe-manager' ); ?></th>
                             <td>
