@@ -220,19 +220,28 @@ class Delice_Recipe_Templates {
      */
     public function get_default_display_options() {
         return array(
-            'show_image' => true,
-            'show_servings' => true,
-            'show_prep_time' => true,
-            'show_cook_time' => true,
-            'show_total_time' => true,
-            'show_calories' => true,
-            'show_difficulty' => true,
-            'show_rating' => true,
-            'show_nutrition' => true,
-            'show_ingredients' => true,
-            'show_instructions' => true,
-            'show_notes' => true,
-            'show_faqs' => true,
+            'show_image'               => true,
+            'show_servings'            => true,
+            'show_prep_time'           => true,
+            'show_cook_time'           => true,
+            'show_total_time'          => true,
+            'show_calories'            => true,
+            'show_difficulty'          => true,
+            'show_rating'              => true,
+            'show_nutrition'           => true,
+            'show_ingredients'         => true,
+            'show_instructions'        => true,
+            'show_notes'               => true,
+            'show_faqs'                => true,
+            // v3.8.0 feature toggles — all on by default
+            'show_jump_btn'            => true,
+            'show_cook_mode'           => true,
+            'show_dietary_badges'      => true,
+            'show_breadcrumb'          => true,
+            'show_related_recipes'     => true,
+            'show_nutrition_disclaimer' => true,
+            'show_last_updated'        => true,
+            'show_og_meta'             => true,
         );
     }
 

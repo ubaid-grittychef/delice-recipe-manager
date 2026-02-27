@@ -1,7 +1,25 @@
 
 /* ─── Recipe Reviews & Rating Section ────────────────────────────────────────
    "Did You Make This Recipe?" — community engagement section
+   v3.8.0 — redesigned header, Cook Mode tooltip, icon support
    ──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Cook Mode tooltip (v3.8.0) ── */
+.delice-cook-mode-wrap {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.delice-cook-mode-tip {
+  font-size: .7rem !important;
+  color: #94a3b8 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  display: block !important;
+}
 
 /* Message Styles */
 .delice-recipe-message {
@@ -48,11 +66,45 @@
 /* ── Section Header — "Did You Make This Recipe?" ── */
 .delice-recipe-review-header {
   text-align: center;
-  padding: 36px 32px 28px;
-  background: linear-gradient(135deg, #fff7ed 0%, #fff3e0 100%);
+  padding: 40px 32px 30px;
+  background: linear-gradient(160deg, #fff7ed 0%, #fef3c7 50%, #fff3e0 100%);
   border: 1px solid #fed7aa;
   border-radius: 16px 16px 0 0;
   border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.delice-recipe-review-header::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(249,115,22,.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Icon above heading */
+.delice-review-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(249,115,22,.35);
+}
+
+.delice-review-header-icon svg {
+  width: 26px;
+  height: 26px;
+  stroke: #fff;
+  display: block !important;
 }
 
 .delice-recipe-review-header h3 {
@@ -61,25 +113,15 @@
   color: #0f172a;
   margin: 0 0 8px;
   letter-spacing: -.02em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.delice-recipe-review-header h3::before {
-  content: '★';
-  color: #f59e0b;
-  font-size: 1.3rem;
 }
 
 .delice-recipe-review-subtitle {
   font-size: .925rem;
   color: #64748b;
   margin: 0;
-  max-width: 420px;
+  max-width: 440px;
   margin-inline: auto;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 /* ── Rating stars prompt area ── */

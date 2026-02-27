@@ -13,7 +13,7 @@
  * Results are cached per recipe ID for 12 hours via transients, and invalidated
  * on save_post.
  *
- * v3.6.0
+ * v3.8.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -212,13 +212,24 @@ class Delice_Recipe_Related {
 
             echo '<a href="' . esc_url( $link ) . '" class="delice-related-recipe-card" aria-label="' . esc_attr( $title ) . '">';
 
-            // Thumbnail
+            // Thumbnail — use wp_get_attachment_image_src() for robust multi-size fallback
             echo '<div class="delice-related-recipe-img">';
-            if ( has_post_thumbnail( $rid ) ) {
-                echo get_the_post_thumbnail( $rid, 'medium', array(
-                    'alt'     => esc_attr( $title ),
-                    'loading' => 'lazy',
-                ) );
+            $thumb_id  = get_post_thumbnail_id( $rid );
+            $thumb_src = $thumb_id ? wp_get_attachment_image_src( $thumb_id, 'medium' ) : false;
+            if ( ! $thumb_src && $thumb_id ) {
+                $thumb_src = wp_get_attachment_image_src( $thumb_id, 'thumbnail' );
+            }
+            if ( ! $thumb_src && $thumb_id ) {
+                $thumb_src = wp_get_attachment_image_src( $thumb_id, 'full' );
+            }
+            if ( $thumb_src ) {
+                printf(
+                    '<img src="%s" alt="%s" loading="lazy" width="%d" height="%d" style="width:100%%;height:100%%;object-fit:cover;">',
+                    esc_url( $thumb_src[0] ),
+                    esc_attr( $title ),
+                    intval( $thumb_src[1] ),
+                    intval( $thumb_src[2] )
+                );
             } else {
                 echo '<div class="delice-related-no-img">🍽</div>';
             }

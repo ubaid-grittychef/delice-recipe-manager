@@ -925,18 +925,27 @@ class Delice_Recipe_Admin {
         $sanitized = array();
         
         $boolean_keys = array(
-            'show_image', 
-            'show_servings', 
-            'show_prep_time', 
-            'show_cook_time', 
-            'show_total_time', 
-            'show_calories', 
+            'show_image',
+            'show_servings',
+            'show_prep_time',
+            'show_cook_time',
+            'show_total_time',
+            'show_calories',
             'show_difficulty',
             'show_rating',
             'show_ingredients',
             'show_instructions',
             'show_notes',
             'show_faqs',
+            // v3.8.0 feature toggles
+            'show_jump_btn',
+            'show_cook_mode',
+            'show_dietary_badges',
+            'show_breadcrumb',
+            'show_related_recipes',
+            'show_nutrition_disclaimer',
+            'show_last_updated',
+            'show_og_meta',
         );
         
         foreach ($boolean_keys as $key) {
