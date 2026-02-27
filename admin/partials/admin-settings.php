@@ -56,6 +56,15 @@
                     'show_instructions' => true,
                     'show_notes' => true,
                     'show_faqs' => true,
+                    // v3.8.0 feature toggles (all on by default)
+                    'show_jump_btn'            => true,
+                    'show_cook_mode'           => true,
+                    'show_dietary_badges'      => true,
+                    'show_breadcrumb'          => true,
+                    'show_related_recipes'     => true,
+                    'show_nutrition_disclaimer' => true,
+                    'show_last_updated'        => true,
+                    'show_og_meta'             => true,
                 ));
                 ?>
                 <table class="form-table">
@@ -95,6 +104,48 @@
                             </fieldset>
                             <p class="description">
                                 <?php _e('Choose which elements to display in your recipe templates. Unchecked items will be hidden.', 'delice-recipe-manager'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php _e('Feature Controls', 'delice-recipe-manager'); ?><br><small style="font-weight:normal;color:#666;"><?php _e('(v3.6.0+ features)', 'delice-recipe-manager'); ?></small></th>
+                        <td>
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_jump_btn]" value="1" <?php checked(!empty($display_options['show_jump_btn']), true); ?>>
+                                    <?php _e('Jump to Recipe button', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_cook_mode]" value="1" <?php checked(!empty($display_options['show_cook_mode']), true); ?>>
+                                    <?php _e('Cook Mode button (keeps screen awake while cooking)', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_dietary_badges]" value="1" <?php checked(!empty($display_options['show_dietary_badges']), true); ?>>
+                                    <?php _e('Dietary badges (Vegan, Gluten-Free, etc.)', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_breadcrumb]" value="1" <?php checked(!empty($display_options['show_breadcrumb']), true); ?>>
+                                    <?php _e('Breadcrumb navigation (skipped when Yoast/RankMath active)', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_related_recipes]" value="1" <?php checked(!empty($display_options['show_related_recipes']), true); ?>>
+                                    <?php _e('Related recipes section', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_nutrition_disclaimer]" value="1" <?php checked(!empty($display_options['show_nutrition_disclaimer']), true); ?>>
+                                    <?php _e('Nutrition disclaimer text', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_last_updated]" value="1" <?php checked(!empty($display_options['show_last_updated']), true); ?>>
+                                    <?php _e('Last Updated date badge', 'delice-recipe-manager'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="delice_recipe_display_options[show_og_meta]" value="1" <?php checked(!empty($display_options['show_og_meta']), true); ?>>
+                                    <?php _e('Open Graph / Twitter Card meta tags in &lt;head&gt; (skipped when Yoast/RankMath active)', 'delice-recipe-manager'); ?>
+                                </label>
+                            </fieldset>
+                            <p class="description">
+                                <?php _e('Toggle advanced features added in v3.6.0+. Disable any feature you do not need.', 'delice-recipe-manager'); ?>
                             </p>
                         </td>
                     </tr>

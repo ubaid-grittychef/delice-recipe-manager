@@ -104,8 +104,9 @@ $rating_count = intval( get_post_meta( $recipe_id, '_delice_recipe_rating_count'
 }
 </style>
 <?php
-// Visible breadcrumb (v3.6.0) — skip when Yoast/RankMath handle breadcrumbs
-if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
+// Visible breadcrumb (v3.6.0) — skip when Yoast/RankMath handle breadcrumbs — feature toggle v3.8.0
+$drd_show_breadcrumb = ! isset( $display_options['show_breadcrumb'] ) || $display_options['show_breadcrumb'];
+if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
     $bc_cuisine = get_the_terms( $recipe_id, 'delice_cuisine' );
     $bc_course  = get_the_terms( $recipe_id, 'delice_course' );
     $bc_mid     = ( ! is_wp_error( $bc_cuisine ) && ! empty( $bc_cuisine ) ) ? $bc_cuisine[0]
@@ -130,17 +131,38 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
       <h2 class="delice-recipe-title"><?php echo esc_html( get_the_title( $recipe_id ) ); ?></h2>
     <?php endif; ?>
     
-    <?php 
-    // Get display options to respect settings
-    $display_options = get_option('delice_recipe_display_options', array('show_image' => true));
-    ?>
-    
+    <?php // $display_options is extracted from template vars — already available ?>
+
     <?php if ( !empty($display_options['show_image']) && has_post_thumbnail( $recipe_id ) ) : ?>
       <div class="delice-recipe-image-wrapper">
-        <?php echo get_the_post_thumbnail( $recipe_id, 'large', [
-          'class'         => 'delice-recipe-image',
-          'fetchpriority' => 'high',
-        ] ); ?>
+        <?php
+        // WebP <picture> element (v3.8.0)
+        $drd_thumb_id = get_post_thumbnail_id( $recipe_id );
+        $drd_img_src  = $drd_thumb_id ? wp_get_attachment_image_src( $drd_thumb_id, 'large' ) : null;
+        $drd_webp_url = '';
+        if ( $drd_thumb_id && $drd_img_src ) {
+            $drd_meta = wp_get_attachment_metadata( $drd_thumb_id );
+            $drd_base = trailingslashit( dirname( wp_get_attachment_url( $drd_thumb_id ) ) );
+            if ( isset( $drd_meta['sizes']['large']['sources']['image/webp']['file'] ) ) {
+                $drd_webp_url = $drd_base . $drd_meta['sizes']['large']['sources']['image/webp']['file'];
+            } elseif ( isset( $drd_meta['sources']['image/webp']['file'] ) ) {
+                $drd_webp_url = $drd_base . $drd_meta['sources']['image/webp']['file'];
+            }
+        }
+        if ( $drd_img_src ) :
+        ?>
+        <picture>
+            <?php if ( $drd_webp_url ) : ?>
+            <source srcset="<?php echo esc_url( $drd_webp_url ); ?>" type="image/webp">
+            <?php endif; ?>
+            <img src="<?php echo esc_url( $drd_img_src[0] ); ?>"
+                 class="delice-recipe-image"
+                 alt="<?php echo esc_attr( get_the_title( $recipe_id ) ); ?>"
+                 fetchpriority="high"
+                 width="<?php echo intval( $drd_img_src[1] ); ?>"
+                 height="<?php echo intval( $drd_img_src[2] ); ?>">
+        </picture>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
 
@@ -157,7 +179,7 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
     </div>
     <?php endif; ?>
 
-    <?php if ( ! empty( $dietary_meta ) ) : ?>
+    <?php if ( ( ! isset( $display_options['show_dietary_badges'] ) || $display_options['show_dietary_badges'] ) && ! empty( $dietary_meta ) ) : ?>
     <div class="delice-dietary-badges">
       <?php foreach ( $dietary_meta as $diet_key ) : if ( ! isset( $dietary_badge_labels[ $diet_key ] ) ) continue; ?>
         <span class="delice-dietary-badge delice-badge--<?php echo esc_attr( $diet_key ); ?>"><?php echo esc_html( $dietary_badge_labels[ $diet_key ] ); ?></span>
@@ -283,15 +305,20 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
       </button>
     <?php endif; ?>
 
-    <!-- Cook Mode Button (v3.6.0) -->
-    <button class="delice-cook-mode-btn delice-recipe-action-button" type="button" aria-pressed="false">
-      <span class="delice-cook-mode-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
-          <path d="M12 2c0 0-4 4-4 8a4 4 0 0 0 8 0c0-4-4-8-4-8z"/><path d="M12 10c0 0-2 2-2 4a2 2 0 0 0 4 0c0-2-2-4-2-4z"/>
-        </svg>
-      </span>
-      <span class="delice-cook-mode-label"><?php echo esc_html( $lang_texts['cook_mode_start'] ); ?></span>
-    </button>
+    <!-- Cook Mode Button (v3.6.0) — feature toggle v3.8.0 -->
+    <?php if ( ! isset( $display_options['show_cook_mode'] ) || $display_options['show_cook_mode'] ) : ?>
+    <div class="delice-cook-mode-wrap">
+        <button class="delice-cook-mode-btn delice-recipe-action-button" type="button" aria-pressed="false">
+          <span class="delice-cook-mode-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
+              <path d="M12 2c0 0-4 4-4 8a4 4 0 0 0 8 0c0-4-4-8-4-8z"/><path d="M12 10c0 0-2 2-2 4a2 2 0 0 0 4 0c0-2-2-4-2-4z"/>
+            </svg>
+          </span>
+          <span class="delice-cook-mode-label"><?php echo esc_html( $lang_texts['cook_mode_start'] ); ?></span>
+        </button>
+        <span class="delice-cook-mode-tip"><?php esc_html_e( 'Keeps your screen on while you cook', 'delice-recipe-manager' ); ?></span>
+    </div>
+    <?php endif; ?>
   </div>
 
   <!-- Meta bar -->
@@ -364,11 +391,11 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
         </div>
       <?php endif; ?>
 
-      <!-- Last Updated (v3.6.0) -->
+      <!-- Last Updated (v3.6.0) — feature toggle v3.8.0 -->
       <?php
         $drd_published = get_the_date( 'M j, Y', $recipe_id );
         $drd_updated   = get_the_modified_date( 'M j, Y', $recipe_id );
-        if ( $drd_updated && $drd_updated !== $drd_published ) :
+        if ( ( ! isset( $display_options['show_last_updated'] ) || $display_options['show_last_updated'] ) && $drd_updated && $drd_updated !== $drd_published ) :
       ?>
         <div class="delice-recipe-meta-item delice-recipe-updated">
           <span class="delice-recipe-meta-label"><?php echo esc_html( $lang_texts['updated'] ); ?>:</span>
@@ -474,7 +501,7 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
           </div>
         <?php endforeach; ?>
       </div>
-      <?php if ( get_option( 'delice_recipe_show_nutrition_disclaimer', true ) ) : ?>
+      <?php if ( ! isset( $display_options['show_nutrition_disclaimer'] ) || $display_options['show_nutrition_disclaimer'] ) : ?>
         <p class="delice-recipe-nutrition-disclaimer"><?php echo esc_html( $lang_texts['nutrition_disclaimer'] ); ?></p>
       <?php endif; ?>
     </section>
@@ -512,8 +539,13 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
   <?php if ($reviews_enabled) : ?>
     <section id="reviewSection-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-review-section">
       <div class="delice-recipe-review-header">
-        <h3><?php _e('Rate & Review This Recipe', 'delice-recipe-manager'); ?></h3>
-        <p class="delice-recipe-review-subtitle"><?php _e('Share your experience and help others make this recipe better!', 'delice-recipe-manager'); ?></p>
+        <div class="delice-review-header-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
+            </svg>
+        </div>
+        <h3><?php esc_html_e( 'Did You Make This Recipe?', 'delice-recipe-manager' ); ?></h3>
+        <p class="delice-recipe-review-subtitle"><?php esc_html_e( "We'd love to see your creation! Share your tips, tweaks, and a photo.", 'delice-recipe-manager' ); ?></p>
       </div>
 
       <!-- Selected Rating Display (shows after popup rating) -->
@@ -595,8 +627,8 @@ if ( ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MATH_VERSION' ) ) :
     </section>
   <?php endif; ?>
 
-  <!-- Related Recipes (v3.6.0) -->
-  <?php if ( class_exists( 'Delice_Recipe_Related' ) ) :
+  <!-- Related Recipes (v3.6.0) — feature toggle v3.8.0 -->
+  <?php if ( ( ! isset( $display_options['show_related_recipes'] ) || $display_options['show_related_recipes'] ) && class_exists( 'Delice_Recipe_Related' ) ) :
       Delice_Recipe_Related::render( $recipe_id, $lang_texts['related_recipes'] );
   endif; ?>
 

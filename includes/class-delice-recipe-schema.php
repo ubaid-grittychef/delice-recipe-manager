@@ -605,6 +605,11 @@ class Delice_Recipe_Schema {
         if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
             return;
         }
+        // Respect admin feature toggle (v3.8.0)
+        $opts = get_option( 'delice_recipe_display_options', array() );
+        if ( isset( $opts['show_og_meta'] ) && ! $opts['show_og_meta'] ) {
+            return;
+        }
         $recipe_id = $this->get_current_recipe_id();
         if ( ! $recipe_id ) {
             return;

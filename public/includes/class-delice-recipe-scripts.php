@@ -99,6 +99,11 @@ class Delice_Recipe_Scripts {
         );
 
         // ── v3.6.0 component scripts ─────────────────────────────────────────
+        $feature_opts = get_option( 'delice_recipe_display_options', array() );
+        // Default all feature flags to true when not yet saved
+        $show_jump_btn  = ! isset( $feature_opts['show_jump_btn'] )  || $feature_opts['show_jump_btn'];
+        $show_cook_mode = ! isset( $feature_opts['show_cook_mode'] ) || $feature_opts['show_cook_mode'];
+
         wp_enqueue_script(
             'delice-checklist-persist',
             DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-checklist-persist.js',
@@ -106,20 +111,24 @@ class Delice_Recipe_Scripts {
             $ver,
             true
         );
-        wp_enqueue_script(
-            'delice-jump-btn',
-            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-jump-btn.js',
-            array(),
-            $ver,
-            true
-        );
-        wp_enqueue_script(
-            'delice-cook-mode',
-            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-cook-mode.js',
-            array(),
-            $ver,
-            true
-        );
+        if ( $show_jump_btn ) {
+            wp_enqueue_script(
+                'delice-jump-btn',
+                DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-jump-btn.js',
+                array(),
+                $ver,
+                true
+            );
+        }
+        if ( $show_cook_mode ) {
+            wp_enqueue_script(
+                'delice-cook-mode',
+                DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-cook-mode.js',
+                array(),
+                $ver,
+                true
+            );
+        }
         wp_enqueue_script(
             'delice-step-timers',
             DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-step-timers.js',
