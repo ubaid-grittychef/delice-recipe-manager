@@ -12,7 +12,7 @@ global $wpdb;
 $table = $wpdb->prefix . 'delice_user_cooks';
 
 // Check if table exists
-$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table'");
+$table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) ) === $table;
 if (!$table_exists) {
     ?>
     <div class="wrap">
@@ -25,19 +25,29 @@ if (!$table_exists) {
     return;
 }
 
-// Get filter
-$filter = isset($_GET['filter']) ? $_GET['filter'] : 'pending';
-
-// Build query
-$where = '';
-if ($filter === 'pending') {
-    $where = 'WHERE approved = 0';
-} elseif ($filter === 'approved') {
-    $where = 'WHERE approved = 1';
+// Get filter — sanitize and whitelist allowed values
+$_allowed_filters = array( 'pending', 'approved', 'all' );
+$filter = isset( $_GET['filter'] ) ? sanitize_key( $_GET['filter'] ) : 'pending';
+if ( ! in_array( $filter, $_allowed_filters, true ) ) {
+    $filter = 'pending';
 }
 
-// Get submissions
-$submissions = $wpdb->get_results("SELECT c.*, p.post_title FROM $table c LEFT JOIN {$wpdb->posts} p ON c.recipe_id = p.ID $where ORDER BY c.created_at DESC LIMIT 100");
+// Build query using prepared statements
+if ( $filter === 'pending' ) {
+    $submissions = $wpdb->get_results( $wpdb->prepare(
+        "SELECT c.*, p.post_title FROM {$table} c LEFT JOIN {$wpdb->posts} p ON c.recipe_id = p.ID WHERE c.approved = %d ORDER BY c.created_at DESC LIMIT 100",
+        0
+    ) );
+} elseif ( $filter === 'approved' ) {
+    $submissions = $wpdb->get_results( $wpdb->prepare(
+        "SELECT c.*, p.post_title FROM {$table} c LEFT JOIN {$wpdb->posts} p ON c.recipe_id = p.ID WHERE c.approved = %d ORDER BY c.created_at DESC LIMIT 100",
+        1
+    ) );
+} else {
+    $submissions = $wpdb->get_results(
+        "SELECT c.*, p.post_title FROM {$table} c LEFT JOIN {$wpdb->posts} p ON c.recipe_id = p.ID ORDER BY c.created_at DESC LIMIT 100"
+    );
+}
 
 $pending_count = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE approved = 0") ?: 0;
 $approved_count = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE approved = 1") ?: 0;

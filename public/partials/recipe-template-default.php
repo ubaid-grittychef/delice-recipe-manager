@@ -166,7 +166,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       </div>
     <?php endif; ?>
 
-    <?php if ( $rating_count > 0 ) : ?>
+    <?php if ( $rating_count > 0 && ( ! isset( $display_options['show_rating'] ) || $display_options['show_rating'] ) ) : ?>
     <div class="delice-recipe-rating-summary" itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
       <div class="delice-recipe-rating-stars-display" aria-hidden="true">
         <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
@@ -490,7 +490,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     $nutrition_raw = get_post_meta( $recipe_id, '_delice_recipe_nutrition', true );
     $nutrition     = $nutrition_raw ? json_decode( wp_unslash( $nutrition_raw ), true ) : [];
   ?>
-  <?php if ( ! empty( $nutrition ) ) : ?>
+  <?php if ( ! empty( $nutrition ) && ( ! isset( $display_options['show_nutrition'] ) || $display_options['show_nutrition'] ) ) : ?>
     <section class="delice-recipe-nutrition">
       <h4><?php echo esc_html( $lang_texts['nutrition'] ?? 'Nutrition Information' ); ?></h4>
       <div class="delice-recipe-nutrition-grid">

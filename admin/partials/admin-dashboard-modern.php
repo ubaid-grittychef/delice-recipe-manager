@@ -32,26 +32,7 @@ $recent_recipes = get_posts(array(
 ));
 
 // Get all settings
-$reviews_enabled = get_option('delice_recipe_reviews_enabled', true);
-$selected_template = get_option('delice_recipe_selected_template', 'default');
 $api_key = get_option('delice_recipe_ai_api_key', '');
-$ai_images_enabled = get_option('delice_recipe_enable_ai_images', false);
-
-// Display options
-$display_options = get_option('delice_recipe_display_options', array(
-    'show_image' => true,
-    'show_servings' => true,
-    'show_prep_time' => true,
-    'show_cook_time' => true,
-    'show_total_time' => true,
-    'show_calories' => true,
-    'show_difficulty' => true,
-    'show_rating' => true,
-    'show_ingredients' => true,
-    'show_instructions' => true,
-    'show_notes' => true,
-    'show_faqs' => true,
-));
 
 // Attribution settings
 $attribution_defaults = array(
@@ -63,52 +44,6 @@ $attribution_defaults = array(
 );
 $attribution_settings = array_merge($attribution_defaults, get_option('delice_recipe_attribution_settings', array()));
 
-// Schema settings
-$schema_defaults = array(
-    'enable_schema' => true,
-    'publisher_name' => get_bloginfo('name'),
-    'publisher_logo' => '',
-    'use_author' => true,
-    'default_author' => '',
-);
-$schema_settings = array_merge($schema_defaults, get_option('delice_recipe_schema_settings', array()));
-
-// Language settings
-$enabled_languages = get_option('delice_recipe_enabled_languages', array('en_US'));
-$default_language = get_option('delice_recipe_default_language', 'en_US');
-
-$available_languages = array(
-    'en_US' => __('English (US)', 'delice-recipe-manager'),
-    'en_GB' => __('English (UK)', 'delice-recipe-manager'),
-    'fr_FR' => __('French', 'delice-recipe-manager'),
-    'es_ES' => __('Spanish', 'delice-recipe-manager'),
-    'de_DE' => __('German', 'delice-recipe-manager'),
-    'it_IT' => __('Italian', 'delice-recipe-manager'),
-    'pt_BR' => __('Portuguese (Brazil)', 'delice-recipe-manager'),
-    'ja' => __('Japanese', 'delice-recipe-manager'),
-    'zh_CN' => __('Chinese (Simplified)', 'delice-recipe-manager'),
-    'ru_RU' => __('Russian', 'delice-recipe-manager'),
-    'ar' => __('Arabic', 'delice-recipe-manager'),
-);
-
-// Review stats
-$reviews_table = $wpdb->prefix . 'delice_recipe_reviews';
-$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$reviews_table'") == $reviews_table;
-
-if ($table_exists) {
-    $total_reviews = $wpdb->get_var("SELECT COUNT(*) FROM $reviews_table");
-    $approved_reviews = $wpdb->get_var("SELECT COUNT(*) FROM $reviews_table WHERE status = 'approved'");
-    $pending_reviews = $wpdb->get_var("SELECT COUNT(*) FROM $reviews_table WHERE status = 'pending'");
-} else {
-    $total_reviews = $approved_reviews = $pending_reviews = 0;
-}
-
-// Get review settings
-$review_settings = get_option('delice_recipe_review_settings', array(
-    'auto_approve' => true,
-    'allow_anonymous' => true,
-    'max_image_size' => 2
-));
 
 ?>
 
@@ -120,9 +55,7 @@ $review_settings = get_option('delice_recipe_review_settings', array(
             <div class="delice-admin-tabs">
                 <button class="delice-admin-tab active" data-pane="dashboard"><?php _e('Dashboard', 'delice-recipe-manager'); ?></button>
                 <button class="delice-admin-tab" data-pane="ai-generator"><?php _e('AI Generator', 'delice-recipe-manager'); ?></button>
-                <button class="delice-admin-tab" data-pane="settings"><?php _e('Settings', 'delice-recipe-manager'); ?></button>
                 <button class="delice-admin-tab" data-pane="content"><?php _e('Content', 'delice-recipe-manager'); ?></button>
-                <button class="delice-admin-tab" data-pane="reviews"><?php _e('Reviews', 'delice-recipe-manager'); ?></button>
                 <button class="delice-admin-tab" data-pane="migration"><?php _e('Migration', 'delice-recipe-manager'); ?></button>
             </div>
             <a href="<?php echo admin_url('post-new.php?post_type=delice_recipe'); ?>" class="delice-btn delice-btn-primary delice-btn-sm">+ <?php _e('New Recipe', 'delice-recipe-manager'); ?></a>
@@ -214,18 +147,6 @@ $review_settings = get_option('delice_recipe_review_settings', array(
                 <?php endif; ?>
             </div>
             
-            <!-- Quick Settings -->
-            <div class="delice-section">
-                <div class="delice-section-header">
-                    <h3 class="delice-section-title"><?php _e('Quick Settings', 'delice-recipe-manager'); ?></h3>
-                </div>
-                <div class="delice-toggle-group">
-                    <div class="delice-toggle <?php echo $reviews_enabled ? 'active' : ''; ?>" data-setting="reviews_enabled">
-                        <div class="delice-toggle-dot"></div>
-                    </div>
-                    <span><?php _e('Enable review system', 'delice-recipe-manager'); ?></span>
-                </div>
-            </div>
         </div>
         
         <!-- AI GENERATOR PANE -->
@@ -287,28 +208,14 @@ $review_settings = get_option('delice_recipe_review_settings', array(
                         </div>
                     </div>
                     
-                    <div class="delice-grid-2">
-                        <div class="delice-form-group">
-                            <label class="delice-label"><?php _e('Target Language', 'delice-recipe-manager'); ?></label>
-                            <select class="delice-select" name="target_language">
-                                <option value="english"><?php _e('English', 'delice-recipe-manager'); ?></option>
-                                <option value="french"><?php _e('French', 'delice-recipe-manager'); ?></option>
-                                <option value="spanish"><?php _e('Spanish', 'delice-recipe-manager'); ?></option>
-                                <option value="german"><?php _e('German', 'delice-recipe-manager'); ?></option>
-                            </select>
-                        </div>
-                        
-                        <div class="delice-form-group">
-                            <label class="delice-label"><?php _e('Cuisine', 'delice-recipe-manager'); ?></label>
-                            <select class="delice-select" name="cuisine">
-                                <option value=""><?php _e('Any', 'delice-recipe-manager'); ?></option>
-                                <option value="italian"><?php _e('Italian', 'delice-recipe-manager'); ?></option>
-                                <option value="french"><?php _e('French', 'delice-recipe-manager'); ?></option>
-                                <option value="mexican"><?php _e('Mexican', 'delice-recipe-manager'); ?></option>
-                                <option value="chinese"><?php _e('Chinese', 'delice-recipe-manager'); ?></option>
-                                <option value="indian"><?php _e('Indian', 'delice-recipe-manager'); ?></option>
-                            </select>
-                        </div>
+                    <div class="delice-form-group">
+                        <label class="delice-label"><?php _e('Target Language', 'delice-recipe-manager'); ?></label>
+                        <select class="delice-select" name="target_language">
+                            <option value="english"><?php _e('English', 'delice-recipe-manager'); ?></option>
+                            <option value="french"><?php _e('French', 'delice-recipe-manager'); ?></option>
+                            <option value="spanish"><?php _e('Spanish', 'delice-recipe-manager'); ?></option>
+                            <option value="german"><?php _e('German', 'delice-recipe-manager'); ?></option>
+                        </select>
                     </div>
                     
                     <a href="<?php echo admin_url('admin.php?page=delice-recipe-generator'); ?>" class="delice-btn delice-btn-primary"><?php _e('Open Full AI Generator', 'delice-recipe-manager'); ?></a>
@@ -330,12 +237,12 @@ $review_settings = get_option('delice_recipe_review_settings', array(
                             <span class="delice-hint"><?php _e('Get your key from', 'delice-recipe-manager'); ?> <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></span>
                         </div>
                         
-                        <div class="delice-toggle-group">
-                            <div class="delice-toggle <?php echo $ai_images_enabled ? 'active' : ''; ?>">
-                                <div class="delice-toggle-dot"></div>
-                            </div>
-                            <span><?php _e('Auto-generate images with DALL-E 3', 'delice-recipe-manager'); ?></span>
-                            <input type="hidden" name="delice_recipe_enable_ai_images" value="<?php echo $ai_images_enabled ? '1' : '0'; ?>">
+                        <div class="delice-sw-row">
+                            <span class="delice-sw-row-label"><?php _e('Auto-generate images with DALL-E 3', 'delice-recipe-manager'); ?></span>
+                            <label class="delice-sw">
+                                <input type="checkbox" name="delice_recipe_enable_ai_images" value="1" <?php checked(get_option('delice_recipe_enable_ai_images', false), true); ?>>
+                                <span class="delice-sw-slider"></span>
+                            </label>
                         </div>
                         
                         <?php submit_button(__('Save API Settings', 'delice-recipe-manager'), 'primary', 'submit', false); ?>
@@ -344,127 +251,6 @@ $review_settings = get_option('delice_recipe_review_settings', array(
             </div>
         </div>
         
-        <!-- SETTINGS PANE -->
-        <div id="settings" class="delice-admin-pane">
-            <div class="delice-page-header">
-                <div>
-                    <h1 class="delice-page-title"><?php _e('Settings', 'delice-recipe-manager'); ?></h1>
-                    <p class="delice-page-subtitle"><?php _e('Configure your recipe plugin', 'delice-recipe-manager'); ?></p>
-                </div>
-                <button class="delice-btn delice-btn-primary delice-save-settings" data-section="settings"><?php _e('Save Changes', 'delice-recipe-manager'); ?></button>
-            </div>
-            
-            <form method="post" action="options.php">
-                <?php settings_fields('delice_recipe_settings'); ?>
-                
-                <!-- Template Selection -->
-                <div class="delice-section">
-                    <div class="delice-section-header">
-                        <h3 class="delice-section-title"><?php _e('Template Selection', 'delice-recipe-manager'); ?></h3>
-                        <p class="delice-section-desc"><?php _e('Choose which template to use for displaying recipes', 'delice-recipe-manager'); ?></p>
-                    </div>
-                    
-                    <div class="delice-form-group">
-                        <label class="delice-label"><?php _e('Recipe Template', 'delice-recipe-manager'); ?></label>
-                        <select class="delice-select" name="delice_recipe_selected_template">
-                            <option value="default" <?php selected($selected_template, 'default'); ?>><?php _e('Default', 'delice-recipe-manager'); ?></option>
-                            <option value="modern" <?php selected($selected_template, 'modern'); ?>><?php _e('Modern', 'delice-recipe-manager'); ?></option>
-                            <option value="elegant" <?php selected($selected_template, 'elegant'); ?>><?php _e('Elegant', 'delice-recipe-manager'); ?></option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Display Settings -->
-                <div class="delice-section">
-                    <div class="delice-section-header">
-                        <h3 class="delice-section-title"><?php _e('Display Settings', 'delice-recipe-manager'); ?></h3>
-                        <p class="delice-section-desc"><?php _e('Choose which elements to display in recipes', 'delice-recipe-manager'); ?></p>
-                    </div>
-                    
-                    <div class="delice-checkbox-group">
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_image]" value="1" <?php checked(!empty($display_options['show_image']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show main image', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_servings]" value="1" <?php checked(!empty($display_options['show_servings']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show servings', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_prep_time]" value="1" <?php checked(!empty($display_options['show_prep_time']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show prep time', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_cook_time]" value="1" <?php checked(!empty($display_options['show_cook_time']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show cook time', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_total_time]" value="1" <?php checked(!empty($display_options['show_total_time']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show total time', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_calories]" value="1" <?php checked(!empty($display_options['show_calories']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show calories', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_difficulty]" value="1" <?php checked(!empty($display_options['show_difficulty']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show difficulty', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_rating]" value="1" <?php checked(!empty($display_options['show_rating']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show rating system', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_notes]" value="1" <?php checked(!empty($display_options['show_notes']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show notes', 'delice-recipe-manager'); ?></span>
-                        </label>
-                        <label class="delice-checkbox-item">
-                            <input type="checkbox" class="delice-checkbox" name="delice_recipe_display_options[show_faqs]" value="1" <?php checked(!empty($display_options['show_faqs']), true); ?>>
-                            <span class="delice-checkbox-label"><?php _e('Show FAQs', 'delice-recipe-manager'); ?></span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Schema.org Settings -->
-                <div class="delice-section">
-                    <div class="delice-section-header">
-                        <h3 class="delice-section-title"><?php _e('Schema.org Settings', 'delice-recipe-manager'); ?></h3>
-                        <p class="delice-section-desc"><?php _e('Configure structured data for better SEO', 'delice-recipe-manager'); ?></p>
-                    </div>
-                    
-                    <div class="delice-form-grid">
-                        <div class="delice-toggle-group">
-                            <div class="delice-toggle <?php echo $schema_settings['enable_schema'] ? 'active' : ''; ?>">
-                                <div class="delice-toggle-dot"></div>
-                            </div>
-                            <span><?php _e('Enable structured data for recipes', 'delice-recipe-manager'); ?></span>
-                            <input type="hidden" name="delice_recipe_schema_settings[enable_schema]" value="<?php echo $schema_settings['enable_schema'] ? '1' : '0'; ?>">
-                        </div>
-                        
-                        <div class="delice-form-group">
-                            <label class="delice-label"><?php _e('Publisher Name', 'delice-recipe-manager'); ?></label>
-                            <input type="text" class="delice-input" name="delice_recipe_schema_settings[publisher_name]" value="<?php echo esc_attr($schema_settings['publisher_name']); ?>" placeholder="<?php echo esc_attr(get_bloginfo('name')); ?>">
-                        </div>
-                        
-                        <div class="delice-form-group">
-                            <label class="delice-label"><?php _e('Publisher Logo URL', 'delice-recipe-manager'); ?></label>
-                            <input type="url" class="delice-input" name="delice_recipe_schema_settings[publisher_logo]" value="<?php echo esc_url($schema_settings['publisher_logo']); ?>" placeholder="https://example.com/logo.png">
-                            <span class="delice-hint"><?php _e('Logo should be at least 112x112px', 'delice-recipe-manager'); ?></span>
-                        </div>
-                        
-                        <div class="delice-toggle-group">
-                            <div class="delice-toggle <?php echo $schema_settings['use_author'] ? 'active' : ''; ?>">
-                                <div class="delice-toggle-dot"></div>
-                            </div>
-                            <span><?php _e('Use post author as recipe author', 'delice-recipe-manager'); ?></span>
-                            <input type="hidden" name="delice_recipe_schema_settings[use_author]" value="<?php echo $schema_settings['use_author'] ? '1' : '0'; ?>">
-                        </div>
-                    </div>
-                </div>
-                
-                <?php submit_button(); ?>
-            </form>
-        </div>
         
         <!-- CONTENT PANE (Attribution + Languages) -->
         <div id="content" class="delice-admin-pane">
@@ -487,15 +273,21 @@ $review_settings = get_option('delice_recipe_review_settings', array(
                     </div>
                     
                     <div class="delice-form-grid">
-                        <div class="delice-checkbox-group">
-                            <label class="delice-checkbox-item">
-                                <input type="checkbox" class="delice-checkbox" name="delice_recipe_attribution_settings[show_submitted_by]" value="1" <?php checked(!empty($attribution_settings['show_submitted_by']), true); ?>>
-                                <span class="delice-checkbox-label"><?php _e('Show "Submitted by" author attribution', 'delice-recipe-manager'); ?></span>
-                            </label>
-                            <label class="delice-checkbox-item">
-                                <input type="checkbox" class="delice-checkbox" name="delice_recipe_attribution_settings[show_tested_by]" value="1" <?php checked(!empty($attribution_settings['show_tested_by']), true); ?>>
-                                <span class="delice-checkbox-label"><?php _e('Show "Tested by" kitchen attribution', 'delice-recipe-manager'); ?></span>
-                            </label>
+                        <div class="delice-sw-group">
+                            <div class="delice-sw-row">
+                                <span class="delice-sw-row-label"><?php _e('Show "Submitted by" author attribution', 'delice-recipe-manager'); ?></span>
+                                <label class="delice-sw">
+                                    <input type="checkbox" name="delice_recipe_attribution_settings[show_submitted_by]" value="1" <?php checked(!empty($attribution_settings['show_submitted_by']), true); ?>>
+                                    <span class="delice-sw-slider"></span>
+                                </label>
+                            </div>
+                            <div class="delice-sw-row">
+                                <span class="delice-sw-row-label"><?php _e('Show "Tested by" kitchen attribution', 'delice-recipe-manager'); ?></span>
+                                <label class="delice-sw">
+                                    <input type="checkbox" name="delice_recipe_attribution_settings[show_tested_by]" value="1" <?php checked(!empty($attribution_settings['show_tested_by']), true); ?>>
+                                    <span class="delice-sw-slider"></span>
+                                </label>
+                            </div>
                         </div>
                         
                         <div class="delice-form-group">
@@ -520,32 +312,13 @@ $review_settings = get_option('delice_recipe_review_settings', array(
                 <div class="delice-section">
                     <div class="delice-section-header">
                         <h3 class="delice-section-title"><?php _e('Languages', 'delice-recipe-manager'); ?></h3>
-                        <p class="delice-section-desc"><?php _e('Select which languages are available', 'delice-recipe-manager'); ?></p>
-                    </div>
-                    
-                    <div class="delice-form-grid">
-                        <div class="delice-form-group">
-                            <label class="delice-label"><?php _e('Default Language', 'delice-recipe-manager'); ?></label>
-                            <select class="delice-select" name="default_language">
-                                <?php foreach ($available_languages as $code => $name): ?>
-                                <option value="<?php echo esc_attr($code); ?>" <?php selected($default_language, $code); ?>><?php echo esc_html($name); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        
-                        <div class="delice-form-group">
-                            <label class="delice-label"><?php _e('Enabled Languages', 'delice-recipe-manager'); ?></label>
-                            <div class="delice-lang-grid">
-                                <?php foreach ($available_languages as $code => $name): 
-                                    $is_enabled = in_array($code, $enabled_languages);
-                                ?>
-                                <div class="delice-lang-card <?php echo $is_enabled ? 'selected' : ''; ?>">
-                                    <input type="checkbox" name="enabled_languages[]" value="<?php echo esc_attr($code); ?>" <?php checked($is_enabled, true); ?>>
-                                    <?php echo esc_html($name); ?>
-                                </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
+                        <p class="delice-section-desc">
+                            <?php printf(
+                                /* translators: %s: link to languages page */
+                                __( 'Manage labels and translations in the <a href="%s">Languages</a> page.', 'delice-recipe-manager' ),
+                                esc_url( admin_url( 'admin.php?page=delice-recipe-languages' ) )
+                            ); ?>
+                        </p>
                     </div>
                 </div>
                 
@@ -553,70 +326,6 @@ $review_settings = get_option('delice_recipe_review_settings', array(
             </form>
         </div>
         
-        <!-- REVIEWS PANE -->
-        <div id="reviews" class="delice-admin-pane">
-            <div class="delice-page-header">
-                <div>
-                    <h1 class="delice-page-title"><?php _e('Reviews', 'delice-recipe-manager'); ?></h1>
-                    <p class="delice-page-subtitle"><?php _e('Manage recipe reviews and ratings', 'delice-recipe-manager'); ?></p>
-                </div>
-                <button class="delice-btn delice-btn-primary delice-save-settings" data-section="reviews"><?php _e('Save Changes', 'delice-recipe-manager'); ?></button>
-            </div>
-            
-            <!-- Stats -->
-            <div class="delice-stats-grid">
-                <div class="delice-stat-card delice-stat-card--primary">
-                    <div class="delice-stat-value"><?php echo intval($total_reviews); ?></div>
-                    <div class="delice-stat-label"><?php _e('Total Reviews', 'delice-recipe-manager'); ?></div>
-                </div>
-                <div class="delice-stat-card delice-stat-card--success">
-                    <div class="delice-stat-value"><?php echo intval($approved_reviews); ?></div>
-                    <div class="delice-stat-label"><?php _e('Approved', 'delice-recipe-manager'); ?></div>
-                </div>
-                <div class="delice-stat-card delice-stat-card--warning">
-                    <div class="delice-stat-value"><?php echo intval($pending_reviews); ?></div>
-                    <div class="delice-stat-label"><?php _e('Pending', 'delice-recipe-manager'); ?></div>
-                </div>
-            </div>
-            
-            <form method="post" action="">
-                <?php wp_nonce_field('delice_recipe_review_settings', '_wpnonce'); ?>
-                
-                <div class="delice-section">
-                    <div class="delice-section-header">
-                        <h3 class="delice-section-title"><?php _e('Review Settings', 'delice-recipe-manager'); ?></h3>
-                    </div>
-                    
-                    <div class="delice-form-grid">
-                        <div class="delice-toggle-group">
-                            <div class="delice-toggle <?php echo $reviews_enabled ? 'active' : ''; ?>">
-                                <div class="delice-toggle-dot"></div>
-                            </div>
-                            <span><?php _e('Enable review system', 'delice-recipe-manager'); ?></span>
-                            <input type="hidden" name="reviews_enabled" value="<?php echo $reviews_enabled ? '1' : '0'; ?>">
-                        </div>
-                        
-                        <div class="delice-checkbox-group">
-                            <label class="delice-checkbox-item">
-                                <input type="checkbox" class="delice-checkbox" name="auto_approve" value="1" <?php checked($review_settings['auto_approve'], true); ?>>
-                                <span class="delice-checkbox-label"><?php _e('Auto-approve reviews', 'delice-recipe-manager'); ?></span>
-                            </label>
-                            <label class="delice-checkbox-item">
-                                <input type="checkbox" class="delice-checkbox" name="allow_anonymous" value="1" <?php checked($review_settings['allow_anonymous'], true); ?>>
-                                <span class="delice-checkbox-label"><?php _e('Allow anonymous reviews', 'delice-recipe-manager'); ?></span>
-                            </label>
-                        </div>
-                        
-                        <div class="delice-form-group">
-                            <label class="delice-label"><?php _e('Max Image Size (MB)', 'delice-recipe-manager'); ?></label>
-                            <input type="number" class="delice-input" name="max_image_size" value="<?php echo intval($review_settings['max_image_size']); ?>" min="1" max="10">
-                        </div>
-                    </div>
-                </div>
-                
-                <button type="submit" class="delice-btn delice-btn-primary"><?php _e('Save Review Settings', 'delice-recipe-manager'); ?></button>
-            </form>
-        </div>
         
         <!-- MIGRATION PANE -->
         <div id="migration" class="delice-admin-pane">
