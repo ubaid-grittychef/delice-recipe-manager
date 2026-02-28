@@ -505,6 +505,16 @@ class Delice_Recipe_Admin {
             )
         );
 
+        register_setting(
+            'delice_affiliate_platforms_group',
+            Delice_Affiliate_Manager::PLATFORMS_OPTION,
+            array(
+                'type'              => 'array',
+                'sanitize_callback' => array( 'Delice_Affiliate_Manager', 'sanitize_platforms' ),
+                'default'           => array(),
+            )
+        );
+
     }
 
     /**

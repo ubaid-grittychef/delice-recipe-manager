@@ -1,23 +1,143 @@
 <?php
 /**
- * Delice Affiliate Manager
+ * Delice Affiliate Manager — v3.8.5
  *
- * Stores keyword→affiliate-URL rules and provides a matching engine
- * that injects links into the ingredient array at template render time.
+ * Three-layer system:
+ *  1. Platforms  — connected affiliate networks (Amazon Associates, etc.)
+ *  2. Rules      — keyword → platform/URL mappings
+ *  3. Settings   — density caps, disclosure text, button label
  *
- * Google-compliance enforced here:
- *  - All affiliate links carry rel="sponsored nofollow noopener noreferrer"
- *  - Links are NEVER injected into Schema.org JSON-LD markup
- *  - FTC disclosure text is surfaced when any live links are present
- *  - Link-density cap prevents over-monetisation signals
+ * Google-compliance baked in:
+ *  - All links carry rel="sponsored nofollow noopener noreferrer"
+ *  - Links NEVER touch Schema.org JSON-LD output
+ *  - FTC disclosure shown only when ≥1 link is on the page
+ *  - Density cap + hard max prevent link-spam signals
+ *  - Print stylesheet (recipe-affiliate.css) hides all affiliate elements
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Delice_Affiliate_Manager {
 
-    const RULES_OPTION    = 'delice_affiliate_rules';
-    const SETTINGS_OPTION = 'delice_affiliate_settings';
-    const LINK_REL        = 'sponsored nofollow noopener noreferrer';
+    const PLATFORMS_OPTION = 'delice_affiliate_platforms';
+    const RULES_OPTION     = 'delice_affiliate_rules';
+    const SETTINGS_OPTION  = 'delice_affiliate_settings';
+    const LINK_REL         = 'sponsored nofollow noopener noreferrer';
+
+    /** Amazon region → TLD map */
+    const AMAZON_REGIONS = array(
+        'us' => array( 'label' => 'United States (amazon.com)',       'tld' => 'com' ),
+        'uk' => array( 'label' => 'United Kingdom (amazon.co.uk)',     'tld' => 'co.uk' ),
+        'de' => array( 'label' => 'Germany (amazon.de)',               'tld' => 'de' ),
+        'fr' => array( 'label' => 'France (amazon.fr)',                'tld' => 'fr' ),
+        'it' => array( 'label' => 'Italy (amazon.it)',                 'tld' => 'it' ),
+        'es' => array( 'label' => 'Spain (amazon.es)',                 'tld' => 'es' ),
+        'ca' => array( 'label' => 'Canada (amazon.ca)',                'tld' => 'ca' ),
+        'jp' => array( 'label' => 'Japan (amazon.co.jp)',              'tld' => 'co.jp' ),
+        'in' => array( 'label' => 'India (amazon.in)',                 'tld' => 'in' ),
+        'au' => array( 'label' => 'Australia (amazon.com.au)',         'tld' => 'com.au' ),
+        'mx' => array( 'label' => 'Mexico (amazon.com.mx)',            'tld' => 'com.mx' ),
+        'br' => array( 'label' => 'Brazil (amazon.com.br)',            'tld' => 'com.br' ),
+        'nl' => array( 'label' => 'Netherlands (amazon.nl)',           'tld' => 'nl' ),
+        'se' => array( 'label' => 'Sweden (amazon.se)',                'tld' => 'se' ),
+        'sg' => array( 'label' => 'Singapore (amazon.sg)',             'tld' => 'sg' ),
+        'ae' => array( 'label' => 'UAE (amazon.ae)',                   'tld' => 'ae' ),
+        'sa' => array( 'label' => 'Saudi Arabia (amazon.sa)',          'tld' => 'sa' ),
+        'pl' => array( 'label' => 'Poland (amazon.pl)',                'tld' => 'pl' ),
+        'be' => array( 'label' => 'Belgium (amazon.com.be)',           'tld' => 'com.be' ),
+        'eg' => array( 'label' => 'Egypt (amazon.eg)',                 'tld' => 'eg' ),
+    );
+
+    // ── Platforms ─────────────────────────────────────────────────────────────
+
+    public static function get_platforms() {
+        $p = get_option( self::PLATFORMS_OPTION, array() );
+        return is_array( $p ) ? $p : array();
+    }
+
+    public static function find_platform( $id ) {
+        foreach ( self::get_platforms() as $p ) {
+            if ( ( $p['id'] ?? '' ) === $id ) return $p;
+        }
+        return null;
+    }
+
+    public static function sanitize_platforms( $raw ) {
+        if ( ! is_array( $raw ) ) return array();
+        $clean = array();
+        $allowed_types = array( 'amazon', 'shareasale', 'cj', 'impact', 'custom' );
+        foreach ( $raw as $p ) {
+            if ( ! is_array( $p ) ) continue;
+            $type = in_array( $p['type'] ?? '', $allowed_types, true ) ? $p['type'] : 'custom';
+            $entry = array(
+                'id'          => sanitize_key( $p['id'] ?? uniqid( 'plat_', true ) ),
+                'type'        => $type,
+                'name'        => sanitize_text_field( $p['name'] ?? '' ),
+                'tracking_id' => sanitize_text_field( $p['tracking_id'] ?? '' ),
+                'active'      => ! empty( $p['active'] ),
+            );
+            if ( $type === 'amazon' ) {
+                $regions = array_keys( self::AMAZON_REGIONS );
+                $entry['region'] = in_array( $p['region'] ?? '', $regions, true ) ? $p['region'] : 'us';
+            }
+            if ( in_array( $type, array( 'shareasale', 'cj', 'impact', 'custom' ), true ) ) {
+                $entry['search_url'] = esc_url_raw( $p['search_url'] ?? '' );
+            }
+            if ( ! empty( $entry['name'] ) ) $clean[] = $entry;
+        }
+        return $clean;
+    }
+
+    // ── URL building ──────────────────────────────────────────────────────────
+
+    /**
+     * Build the affiliate URL for a given rule + matched platform.
+     *
+     * @param  array  $rule      Keyword rule row.
+     * @param  array  $platform  Platform row.
+     * @param  string $keyword   Raw ingredient name (used for Amazon search URLs).
+     * @return string            Ready-to-use affiliate URL, or empty string.
+     */
+    public static function build_platform_url( array $rule, array $platform, $keyword ) {
+        $type = $platform['type'] ?? 'custom';
+        $tid  = $platform['tracking_id'] ?? '';
+
+        // If rule has a fully custom URL, always prefer it
+        $custom = $rule['custom_url'] ?? '';
+        if ( ! empty( $custom ) ) {
+            return esc_url_raw( $custom );
+        }
+
+        if ( $type === 'amazon' && ! empty( $tid ) ) {
+            $region  = $platform['region'] ?? 'us';
+            $regions = self::AMAZON_REGIONS;
+            $tld     = isset( $regions[ $region ] ) ? $regions[ $region ]['tld'] : 'com';
+
+            // Direct product (ASIN) link
+            if ( ! empty( $rule['product_id'] ) ) {
+                return esc_url_raw(
+                    'https://www.amazon.' . $tld . '/dp/'
+                    . rawurlencode( sanitize_text_field( $rule['product_id'] ) )
+                    . '?tag=' . rawurlencode( $tid )
+                );
+            }
+
+            // Amazon search link (ingredient keyword)
+            return esc_url_raw(
+                'https://www.amazon.' . $tld . '/s?k='
+                . rawurlencode( $keyword )
+                . '&tag=' . rawurlencode( $tid )
+            );
+        }
+
+        if ( in_array( $type, array( 'shareasale', 'cj', 'impact', 'custom' ), true ) ) {
+            $tmpl = $platform['search_url'] ?? '';
+            if ( ! empty( $tmpl ) ) {
+                return esc_url_raw( str_replace( '{keyword}', rawurlencode( $keyword ), $tmpl ) );
+            }
+        }
+
+        return '';
+    }
 
     // ── Settings ──────────────────────────────────────────────────────────────
 
@@ -35,6 +155,8 @@ class Delice_Affiliate_Manager {
         return wp_parse_args( get_option( self::SETTINGS_OPTION, array() ), $defaults );
     }
 
+    // ── Rules ─────────────────────────────────────────────────────────────────
+
     public static function get_rules() {
         $rules = get_option( self::RULES_OPTION, array() );
         return is_array( $rules ) ? $rules : array();
@@ -43,51 +165,61 @@ class Delice_Affiliate_Manager {
     // ── Matching engine ───────────────────────────────────────────────────────
 
     /**
-     * Find the best-matching active rule for a single ingredient name.
-     * Priority: exact > starts_with > contains. Longest keyword wins within tier.
-     *
-     * @return array|null  { url, store } or null
+     * Match a single ingredient name and return { url, store } or null.
      */
     public static function match_ingredient( $ingredient_name ) {
-        $rules  = self::get_rules();
-        $needle = mb_strtolower( trim( $ingredient_name ) );
-        $best   = null;
+        $rules     = self::get_rules();
+        $platforms = self::get_platforms();
+        $needle    = mb_strtolower( trim( $ingredient_name ) );
+        $best      = null;
         $best_score = -1;
 
         foreach ( $rules as $rule ) {
-            if ( empty( $rule['active'] ) || empty( $rule['keyword'] ) || empty( $rule['url'] ) ) {
-                continue;
-            }
+            if ( empty( $rule['active'] ) || empty( $rule['keyword'] ) ) continue;
+
             $kw    = mb_strtolower( trim( $rule['keyword'] ) );
             $kw_len = mb_strlen( $kw );
             $mt    = $rule['match_type'] ?? 'contains';
             $score = 0;
 
-            if ( $mt === 'exact' && $needle === $kw ) {
-                $score = 30000 + $kw_len;
-            } elseif ( $mt === 'starts' && strncmp( $needle, $kw, $kw_len ) === 0 ) {
-                $score = 20000 + $kw_len;
-            } elseif ( $mt === 'contains' && str_contains( $needle, $kw ) ) {
-                $score = 10000 + $kw_len;
+            if ( $mt === 'exact'    && $needle === $kw )                          $score = 30000 + $kw_len;
+            elseif ( $mt === 'starts'   && strncmp( $needle, $kw, $kw_len ) === 0 ) $score = 20000 + $kw_len;
+            elseif ( $mt === 'contains' && str_contains( $needle, $kw ) )           $score = 10000 + $kw_len;
+
+            if ( $score <= $best_score ) continue;
+
+            // Resolve the affiliate URL
+            $platform_id = $rule['platform_id'] ?? '';
+            $platform    = null;
+            foreach ( $platforms as $p ) {
+                if ( ( $p['id'] ?? '' ) === $platform_id && ! empty( $p['active'] ) ) {
+                    $platform = $p;
+                    break;
+                }
             }
 
-            if ( $score > $best_score ) {
-                $best_score = $score;
-                $best = array(
-                    'url'   => esc_url_raw( $rule['url'] ),
-                    'store' => sanitize_text_field( $rule['store'] ?? '' ),
-                );
+            $url = '';
+            if ( $platform ) {
+                $url = self::build_platform_url( $rule, $platform, $ingredient_name );
+            } elseif ( ! empty( $rule['custom_url'] ) ) {
+                $url = esc_url_raw( $rule['custom_url'] );
             }
+
+            if ( empty( $url ) ) continue;
+
+            $store = ! empty( $platform['name'] ) ? $platform['name'] : sanitize_text_field( $rule['store'] ?? '' );
+
+            $best_score = $score;
+            $best = array( 'url' => $url, 'store' => $store );
         }
+
         return $best;
     }
 
     /**
-     * Inject affiliate link data into an ingredients array.
-     * Respects max_links and density_pct. Adds affiliate_url + affiliate_store keys.
+     * Inject affiliate data into an ingredients array.
      *
-     * @param  array $ingredients  { name, amount, unit }[]
-     * @return array               { ingredients: array, has_links: bool }
+     * @return array { ingredients: array, has_links: bool }
      */
     public static function inject_links( array $ingredients ) {
         $settings = self::get_settings();
@@ -123,18 +255,21 @@ class Delice_Affiliate_Manager {
         foreach ( $raw as $rule ) {
             if ( ! is_array( $rule ) ) continue;
             $keyword = sanitize_text_field( $rule['keyword'] ?? '' );
-            $url     = esc_url_raw( $rule['url'] ?? '' );
-            if ( empty( $keyword ) || empty( $url ) ) continue;
-            if ( ! preg_match( '#^https?://#i', $url ) ) continue;
+            if ( empty( $keyword ) ) continue;
             $mt = in_array( $rule['match_type'] ?? '', array( 'exact', 'starts', 'contains' ), true )
                   ? $rule['match_type'] : 'contains';
+            $custom = esc_url_raw( $rule['custom_url'] ?? '' );
+            if ( ! empty( $custom ) && ! preg_match( '#^https?://#i', $custom ) ) $custom = '';
+
             $clean[] = array(
-                'id'         => sanitize_key( $rule['id'] ?? uniqid( 'aff_', true ) ),
-                'keyword'    => $keyword,
-                'url'        => $url,
-                'store'      => sanitize_text_field( $rule['store'] ?? '' ),
-                'match_type' => $mt,
-                'active'     => ! empty( $rule['active'] ),
+                'id'          => sanitize_key( $rule['id'] ?? uniqid( 'rule_', true ) ),
+                'keyword'     => $keyword,
+                'match_type'  => $mt,
+                'platform_id' => sanitize_key( $rule['platform_id'] ?? '' ),
+                'product_id'  => sanitize_text_field( $rule['product_id'] ?? '' ),
+                'custom_url'  => $custom,
+                'store'       => sanitize_text_field( $rule['store'] ?? '' ),
+                'active'      => ! empty( $rule['active'] ),
             );
         }
         return $clean;
@@ -157,9 +292,6 @@ class Delice_Affiliate_Manager {
 
     // ── Disclosure HTML ───────────────────────────────────────────────────────
 
-    /**
-     * Return the disclosure banner HTML. Empty string when disabled / no text.
-     */
     public static function get_disclosure_html() {
         $settings = self::get_settings();
         $text     = trim( $settings['disclosure_text'] );
