@@ -954,14 +954,20 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
         </div>
     </div>
     <?php else : ?>
-    <div class="drm-card" style="margin-top:24px;border-top:3px solid #c3c4c7;">
+    <div class="drm-card" style="margin-top:24px;border-top:3px solid #c3c4c7;opacity:.8;">
         <div class="drm-card-header">
             <div class="drm-card-header-left">
-                <h2><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
+                <h2 style="color:#646970;"><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
+                <span class="drm-card-badge" style="background:#f0f0f1;color:#646970;"><?php esc_html_e( 'WPRM not detected', 'delice-recipe-manager' ); ?></span>
+            </div>
+            <div class="drm-card-header-right">
+                <button type="button" class="button" disabled title="<?php esc_attr_e( 'Install WP Recipe Maker to enable this feature', 'delice-recipe-manager' ); ?>">
+                    <?php esc_html_e( 'Scan WP Recipe Maker recipes', 'delice-recipe-manager' ); ?>
+                </button>
             </div>
         </div>
         <p style="margin:0;color:#646970;font-size:13px;">
-            <?php esc_html_e( 'WP Recipe Maker is not active on this site. If you have old recipes built with WPRM, install and activate it alongside Delice and this card will let you bulk-import affiliate ingredient tags.', 'delice-recipe-manager' ); ?>
+            <?php esc_html_e( 'WP Recipe Maker is not active on this site. Install and activate it to bulk-import ingredient tags from your WPRM recipes into Delice affiliate overrides.', 'delice-recipe-manager' ); ?>
         </p>
     </div>
     <?php endif; ?>

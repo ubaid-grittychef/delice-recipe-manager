@@ -418,30 +418,38 @@ jQuery(document).ready(function($) {
          * Generate a single recipe
          */
         function generateSingleRecipe() {
+            // If the user typed text without pressing Enter, treat it as a keyword now.
+            const pendingText = $('#keyword_input').val().trim();
+            if (pendingText) {
+                const existing = $('#keyword').val();
+                $('#keyword').val(existing ? existing + ', ' + pendingText : pendingText);
+                $('#keyword_input').val('');
+            }
+
             // Get tags
             const keyword = $('#keyword').val();
             if (!keyword) {
                 alert(deliceRecipe.missingKeyword || 'Please enter at least one recipe keyword.');
                 return;
             }
-            
+
             // Show generating indicator
             $('#generate-recipe-button').prop('disabled', true);
             $('#delice-recipe-generating').show();
-            $('#generation-status').text(deliceRecipe.generatingText || 'Generating...');
+            $('#generation-status').text(deliceRecipe.generatingText || 'Generating\u2026');
             $('#delice-recipe-result').show();
             $('#delice-recipe-bulk-results').hide();
-            
+
             // Show skeleton loading (use cached clone so it works on every regeneration)
             $('#delice-recipe-preview').html(skeletonHtml.clone());
-            
+
             // Reset approval
             $('#approve-recipe').prop('checked', false);
             $('#delice-recipe-edit').prop('disabled', true);
-            
+
             const nonce = $('#delice_recipe_ai_nonce').val();
             const variations = [];
-            $('[name="variations[]"]:checked').each(function() {
+            form.find('[name="variations[]"]:checked').each(function() {
                 variations.push($(this).val());
             });
 
@@ -453,8 +461,8 @@ jQuery(document).ready(function($) {
                     action: 'delice_generate_recipe',
                     nonce: nonce,
                     keywords: keyword,
-                    target_language: $('#target_language').val(),
-                    auto_publish: $('[name="auto_publish"]').is(':checked') ? '1' : '0',
+                    target_language: form.find('#target_language').val(),
+                    auto_publish: form.find('[name="auto_publish"]').is(':checked') ? '1' : '0',
                     variations: variations
                 },
                 success: function(response) {

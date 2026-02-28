@@ -122,13 +122,26 @@ class Delice_Recipe_Admin {
         // Pass variables to our script
         wp_localize_script('delice-recipe-admin', 'deliceRecipe', array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('delice_recipe_nonce'),
-            'postId' => get_the_ID() ?: 0,
-            'ingredientPlaceholder' => __('Ingredient', 'delice-recipe-manager'),
-            'amountPlaceholder' => __('Amount', 'delice-recipe-manager'),
-            'unitPlaceholder' => __('Unit', 'delice-recipe-manager'),
+            'nonce'   => wp_create_nonce('delice_recipe_nonce'),
+            'postId'  => get_the_ID() ?: 0,
+            // Meta-box field placeholders
+            'ingredientPlaceholder'  => __('Ingredient',  'delice-recipe-manager'),
+            'amountPlaceholder'      => __('Amount',      'delice-recipe-manager'),
+            'unitPlaceholder'        => __('Unit',        'delice-recipe-manager'),
             'instructionPlaceholder' => __('Instruction', 'delice-recipe-manager'),
-            'removeText' => __('Remove', 'delice-recipe-manager'),
+            'removeText'             => __('Remove',      'delice-recipe-manager'),
+            // AI Generator page strings
+            'missingKeyword'        => __('Please enter at least one recipe keyword.',  'delice-recipe-manager'),
+            'missingKeywords'       => __('Please enter at least one keyword.',         'delice-recipe-manager'),
+            'tooManyKeywords'       => __('Maximum 100 keywords allowed.',              'delice-recipe-manager'),
+            'generatingText'        => __('Generating\u2026',                           'delice-recipe-manager'),
+            'preparingBulkText'     => __('Preparing bulk generation\u2026',            'delice-recipe-manager'),
+            'generatingRecipeText'  => __('Generating recipe',                         'delice-recipe-manager'),
+            'pendingText'           => __('Pending',   'delice-recipe-manager'),
+            'successText'           => __('Success',   'delice-recipe-manager'),
+            'errorText'             => __('Error',     'delice-recipe-manager'),
+            'editText'              => __('Edit',      'delice-recipe-manager'),
+            'viewText'              => __('View',      'delice-recipe-manager'),
         ));
         
         // Load modern JS on dashboard pages
