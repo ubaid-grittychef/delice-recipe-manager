@@ -63,10 +63,10 @@ function delice_register_ajax_handlers() {
  */
 function delice_ajax_generate_recipe() {
     try {
-        // Set timeout and memory limits
-        set_time_limit(60);
+        // Allow enough wall-clock time for up to 3 API retries × 60 s each + overhead.
+        set_time_limit(200);
         ini_set('memory_limit', '512M');
-        
+
         // Accept both nonces: delice-recipe-admin.js sends delice_recipe_nonce
         // while delice-hybrid-modern.js sends delice_hybrid_nonce.
         $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
@@ -146,10 +146,10 @@ function delice_ajax_generate_recipe() {
  */
 function delice_ajax_generate_bulk_recipes() {
     try {
-        // Set timeout and memory limits
-        set_time_limit(120);
+        // Bulk generation: allow longer for multiple recipes.
+        set_time_limit(300);
         ini_set('memory_limit', '512M');
-        
+
         $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
         if ( ! wp_verify_nonce($nonce, 'delice_hybrid_nonce') &&
              ! wp_verify_nonce($nonce, 'delice_recipe_nonce') ) {

@@ -119,24 +119,30 @@ class Delice_Recipe_AI {
     }
 
     /**
-     * Retry wrapper.
+     * Retry wrapper — preserves the last actual error message.
      */
     private function make_openai_request_with_retry($prompt) {
-        $attempt = 0;
-        $backoff = 500;
-        while($attempt++ < $this->max_retries) {
+        $attempt    = 0;
+        $backoff    = 500;
+        $last_error = null;
+        while ( $attempt++ < $this->max_retries ) {
             $res = $this->make_openai_request($prompt);
-            if(!is_wp_error($res)) {
+            if ( ! is_wp_error($res) ) {
                 return $res;
             }
+            $last_error = $res;
             $code = $res->get_error_code();
-            if(!in_array($code,['rate_limit','network_error'],true)) {
+            if ( ! in_array( $code, ['rate_limit','network_error'], true ) ) {
                 return $res;
             }
-            usleep($backoff*1000);
-            $backoff *= 2;
+            // Only sleep between retries, not after the final attempt.
+            if ( $attempt < $this->max_retries ) {
+                usleep( $backoff * 1000 );
+                $backoff *= 2;
+            }
         }
-        return new WP_Error('max_retries_exceeded',__('Failed after retries','delice-recipe-manager'));
+        // Return the last real error so the caller gets the actual reason.
+        return $last_error ?: new WP_Error( 'max_retries_exceeded', __( 'Failed after retries', 'delice-recipe-manager' ) );
     }
 
     /**
