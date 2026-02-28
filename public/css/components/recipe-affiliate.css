@@ -1,0 +1,78 @@
+/**
+ * Affiliate link frontend styles — v3.8.4
+ *
+ * Scoped under the recipe container ID (#drd-*, #drm-*, #dre-*)
+ * via the inline <style> ID-selector pattern from CLAUDE.md rule 9.
+ * These rules are loaded as a fallback; the templates also print
+ * scoped inline <style> blocks for maximum specificity.
+ */
+
+/* ── FTC / Google disclosure banner ──────────────────────────────────────── */
+.delice-affiliate-disclosure {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 0 0 18px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #78350f;
+}
+.delice-aff-disc-icon {
+    flex-shrink: 0;
+    fill: #92400e;
+    margin-top: 1px;
+}
+
+/* ── Affiliate buy button on ingredient rows ─────────────────────────────── */
+.delice-aff-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+    padding: 3px 9px;
+    border-radius: 4px;
+    background: #ff9900;
+    color: #111 !important;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: background .15s, transform .1s;
+    /* Google requires sponsored rel — added in PHP/template, not here */
+}
+.delice-aff-btn:hover {
+    background: #e68900;
+    transform: translateY(-1px);
+    color: #111 !important;
+}
+.delice-aff-btn:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+.delice-aff-btn svg {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+}
+
+/* ── Ingredient row adjustment when button is present ────────────────────── */
+.delice-recipe-ingredient--linked {
+    position: relative;
+}
+/* The ingredient name shrinks to make room for the button */
+.delice-recipe-ingredient--linked .delice-recipe-ingredient-name {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ── Print: hide all affiliate elements ─────────────────────────────────── */
+@media print {
+    .delice-affiliate-disclosure,
+    .delice-aff-btn { display: none !important; }
+}

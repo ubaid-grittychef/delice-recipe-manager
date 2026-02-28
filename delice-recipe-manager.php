@@ -348,6 +348,8 @@ function delice_recipe_manager_init() {
     require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-manager.php';
     // v3.6.0 — Related recipes
     require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-related.php';
+    // v3.8.4 — Affiliate link manager
+    require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-affiliate-manager.php';
     
     // Core plugin initialization
     $manager = new Delice_Recipe_Manager();

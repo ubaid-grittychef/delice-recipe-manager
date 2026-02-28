@@ -49,6 +49,7 @@ class Delice_Recipe_Admin {
             'delice-recipes_page_delice-recipe-languages',
             'delice-recipes_page_delice-recipe-import-export',
             'delice-recipes_page_delice-recipe-migration',
+            'delice-recipes_page_delice-recipe-affiliate',
         );
         
         if ($screen && in_array($screen->id, $delice_pages)) {
@@ -77,6 +78,11 @@ class Delice_Recipe_Admin {
             
             // NEW: Enqueue hybrid modern CSS for new pages
             wp_enqueue_style('delice-hybrid-modern', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-hybrid-modern.css', array('delice-recipe-admin'), DELICE_RECIPE_VERSION, 'all');
+
+            // Affiliate Links page CSS
+            if ( strpos( $screen->id, 'delice-recipe-affiliate' ) !== false ) {
+                wp_enqueue_style( 'delice-affiliate-admin', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-affiliate-admin.css', array( 'delice-recipe-modern' ), DELICE_RECIPE_VERSION, 'all' );
+            }
 
             // Enqueue public recipe CSS on the AI Generator page so the
             // AJAX-injected recipe preview renders with the correct styles.
@@ -134,6 +140,11 @@ class Delice_Recipe_Admin {
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'adminUrl' => admin_url(),
             ));
+
+            // Affiliate Links page JS
+            if ( strpos( $screen->id, 'delice-recipe-affiliate' ) !== false ) {
+                wp_enqueue_script( 'delice-affiliate-admin', DELICE_RECIPE_PLUGIN_URL . 'admin/js/delice-affiliate-admin.js', array( 'jquery' ), DELICE_RECIPE_VERSION, true );
+            }
         }
     }
     
@@ -271,6 +282,16 @@ class Delice_Recipe_Admin {
             'manage_options',
             'delice-recipe-import-export',
             array($this, 'display_import_export_page')
+        );
+
+        // Affiliate Links submenu
+        add_submenu_page(
+            'delice-recipe-manager',
+            __('Affiliate Links', 'delice-recipe-manager'),
+            __('Affiliate Links', 'delice-recipe-manager'),
+            'manage_options',
+            'delice-recipe-affiliate',
+            array($this, 'display_affiliate_links_page')
         );
     }
 
@@ -460,6 +481,27 @@ class Delice_Recipe_Admin {
                 'type'              => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
                 'default'           => '',
+            )
+        );
+
+        // ── Affiliate Links settings (separate group) ─────────────────────
+        register_setting(
+            'delice_affiliate_settings_group',
+            Delice_Affiliate_Manager::SETTINGS_OPTION,
+            array(
+                'type'              => 'array',
+                'sanitize_callback' => array( 'Delice_Affiliate_Manager', 'sanitize_settings' ),
+                'default'           => array(),
+            )
+        );
+
+        register_setting(
+            'delice_affiliate_rules_group',
+            Delice_Affiliate_Manager::RULES_OPTION,
+            array(
+                'type'              => 'array',
+                'sanitize_callback' => array( 'Delice_Affiliate_Manager', 'sanitize_rules' ),
+                'default'           => array(),
             )
         );
 
@@ -1157,5 +1199,12 @@ class Delice_Recipe_Admin {
      */
     public function display_settings_hub_page() {
         include_once DELICE_RECIPE_PLUGIN_DIR . 'admin/partials/admin-settings.php';
+    }
+
+    /**
+     * Display Affiliate Links page
+     */
+    public function display_affiliate_links_page() {
+        include_once DELICE_RECIPE_PLUGIN_DIR . 'admin/partials/admin-affiliate-links.php';
     }
 }
