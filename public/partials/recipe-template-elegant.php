@@ -494,7 +494,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
     // v3.8.4 — Affiliate link injection
     $dre_aff          = class_exists( 'Delice_Affiliate_Manager' )
-        ? Delice_Affiliate_Manager::inject_links( is_array( $ingredients ) ? $ingredients : array() )
+        ? Delice_Affiliate_Manager::inject_links( is_array( $ingredients ) ? $ingredients : array(), absint( $recipe_id ) )
         : array( 'ingredients' => $ingredients, 'has_links' => false );
     $ingredients      = $dre_aff['ingredients'];
     $dre_has_aff      = $dre_aff['has_links'];

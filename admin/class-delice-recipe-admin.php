@@ -32,6 +32,9 @@ class Delice_Recipe_Admin {
         
         // Hide third-party admin notices on plugin pages
         add_action('admin_head', array($this, 'hide_third_party_notices'));
+
+        // AJAX: save per-recipe affiliate ingredient tags from the Coverage tab
+        add_action( 'wp_ajax_delice_save_aff_tags', array( $this, 'ajax_save_aff_tags' ) );
     }
     
     /**
@@ -618,6 +621,18 @@ class Delice_Recipe_Admin {
             'side',
             'default'
         );
+
+        // Affiliate ingredient tags — side meta box for old/manual recipes.
+        if ( class_exists( 'Delice_Affiliate_Manager' ) ) {
+            add_meta_box(
+                'delice_recipe_affiliate_tags',
+                __( 'Affiliate Ingredient Tags', 'delice-recipe-manager' ),
+                array( $this, 'render_affiliate_tags_meta_box' ),
+                'delice_recipe',
+                'side',
+                'default'
+            );
+        }
     }
 
     /**
@@ -955,6 +970,14 @@ class Delice_Recipe_Admin {
         if ($post && $post->post_type === 'post') {
             update_post_meta($post_id, '_delice_recipe_migrated', '1');
         }
+
+        // Save affiliate ingredient tags override (sidebar meta box)
+        if ( isset( $_POST['delice_aff_tags_nonce'] ) &&
+             wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['delice_aff_tags_nonce'] ) ), 'delice_aff_tags_meta_box' ) &&
+             class_exists( 'Delice_Affiliate_Manager' ) ) {
+            $aff_tags = sanitize_textarea_field( wp_unslash( $_POST['delice_affiliate_ingredient_tags'] ?? '' ) );
+            update_post_meta( $post_id, Delice_Affiliate_Manager::OVERRIDE_META, $aff_tags );
+        }
     }
     
     /**
@@ -1216,5 +1239,49 @@ class Delice_Recipe_Admin {
      */
     public function display_affiliate_links_page() {
         include_once DELICE_RECIPE_PLUGIN_DIR . 'admin/partials/admin-affiliate-links.php';
+    }
+
+    // ── Affiliate Ingredient Tags meta box ────────────────────────────────────
+
+    /**
+     * Render the sidebar meta box that lets users paste ingredient names for
+     * old / manually-created recipes that have no structured ingredient data.
+     */
+    public function render_affiliate_tags_meta_box( $post ) {
+        if ( ! class_exists( 'Delice_Affiliate_Manager' ) ) return;
+        $override = get_post_meta( $post->ID, Delice_Affiliate_Manager::OVERRIDE_META, true );
+        wp_nonce_field( 'delice_aff_tags_meta_box', 'delice_aff_tags_nonce' );
+        ?>
+        <p style="margin:0 0 8px;font-size:12px;color:#646970;line-height:1.5;">
+            <?php esc_html_e( 'List ingredient names (one per line) so affiliate links are matched and shown, even if this recipe has no structured ingredients.', 'delice-recipe-manager' ); ?>
+        </p>
+        <textarea name="delice_affiliate_ingredient_tags"
+                  id="delice_affiliate_ingredient_tags"
+                  style="width:100%;min-height:90px;font-family:monospace;font-size:12px;resize:vertical;"
+                  placeholder="olive oil&#10;butter&#10;garlic cloves"><?php echo esc_textarea( $override ); ?></textarea>
+        <p style="margin:6px 0 0;font-size:11px;color:#8c8f94;">
+            <?php esc_html_e( 'Only active when no structured ingredients exist. Go to Affiliate Links → Coverage to manage all recipes at once.', 'delice-recipe-manager' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * AJAX handler — save per-recipe affiliate ingredient tags from the Coverage tab.
+     */
+    public function ajax_save_aff_tags() {
+        check_ajax_referer( 'delice_aff_tags_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Permission denied.' );
+        }
+        $post_id = absint( $_POST['post_id'] ?? 0 );
+        if ( ! $post_id ) {
+            wp_send_json_error( 'Invalid post ID.' );
+        }
+        if ( ! class_exists( 'Delice_Affiliate_Manager' ) ) {
+            wp_send_json_error( 'Affiliate Manager not loaded.' );
+        }
+        $tags = sanitize_textarea_field( wp_unslash( $_POST['tags'] ?? '' ) );
+        update_post_meta( $post_id, Delice_Affiliate_Manager::OVERRIDE_META, $tags );
+        wp_send_json_success( array( 'saved' => true ) );
     }
 }

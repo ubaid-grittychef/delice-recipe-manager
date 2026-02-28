@@ -209,6 +209,54 @@
         updateCustomState();
     } );
 
+    /* ── Coverage Tab ────────────────────────────────────────────────────────── */
+
+    /* Filter buttons */
+    $( document ).on( 'click', '.drm-cov-filter-btn', function () {
+        var filter   = $( this ).data( 'filter' );
+        var $table   = $( '#drm-cov-table' );
+
+        $( '.drm-cov-filter-btn' ).removeClass( 'is-active' );
+        $( this ).addClass( 'is-active' );
+
+        $table.find( '.drm-cov-row' ).each( function () {
+            var status = $( this ).data( 'status' );
+            $( this ).toggle( filter === 'all' || filter === status );
+        } );
+    } );
+
+    /* AJAX save per-recipe ingredient tags */
+    $( document ).on( 'click', '.drm-cov-save', function () {
+        var $btn   = $( this );
+        var $wrap  = $btn.closest( '.drm-cov-tag-wrap' );
+        var pid    = parseInt( $btn.data( 'post-id' ), 10 );
+        var tags   = $wrap.find( '.drm-cov-tags' ).val();
+        var nonce  = window.drmAffTagsNonce || '';
+        var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
+
+        if ( ! pid || ! nonce || ! ajaxUrl ) return;
+
+        $btn.prop( 'disabled', true ).text( 'Saving\u2026' );
+
+        $.post( ajaxUrl, {
+            action:  'delice_save_aff_tags',
+            nonce:   nonce,
+            post_id: pid,
+            tags:    tags,
+        }, function ( res ) {
+            if ( res && res.success ) {
+                $btn.text( 'Saved \u2713' ).addClass( 'is-saved' );
+                setTimeout( function () {
+                    $btn.text( 'Save' ).removeClass( 'is-saved' ).prop( 'disabled', false );
+                }, 2200 );
+            } else {
+                $btn.text( 'Error' ).prop( 'disabled', false );
+            }
+        } ).fail( function () {
+            $btn.text( 'Error' ).prop( 'disabled', false );
+        } );
+    } );
+
     /* ── Init ────────────────────────────────────────────────────────────────── */
     updateRuleState();
     updateCustomState();
