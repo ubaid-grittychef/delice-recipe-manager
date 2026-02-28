@@ -244,6 +244,7 @@ class Delice_Recipe_Templates {
             'show_instructions'        => true,
             'show_notes'               => true,
             'show_faqs'                => true,
+            'show_equipment'           => true,
             // v3.8.0 feature toggles — all on by default
             'show_jump_btn'            => true,
             'show_cook_mode'           => true,
@@ -317,6 +318,13 @@ class Delice_Recipe_Templates {
         // Get display options
         $display_options = get_option('delice_recipe_display_options', $this->get_default_display_options());
 
+        // Equipment — v3.9.0
+        $equipment = array();
+        if ( class_exists( 'Delice_Recipe_Equipment' ) ) {
+            $equipment = get_post_meta( $recipe_id, Delice_Recipe_Equipment::META_KEY, true );
+            if ( ! is_array( $equipment ) ) $equipment = array();
+        }
+
         // Prepare template variables
         $template_vars = array_merge($args, array(
             'recipe_id' => $recipe_id,
@@ -330,6 +338,7 @@ class Delice_Recipe_Templates {
             'calories' => $calories,
             'difficulty' => $difficulty,
             'notes' => $notes,
+            'equipment' => $equipment,
             'display_options' => $display_options,
             'hide_title' => false,
         ));

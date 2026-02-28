@@ -9,13 +9,16 @@
     $(function() {
         // Initialize dynamic ingredient rows
         initIngredientRows();
-        
+
         // Initialize dynamic instruction rows
         initInstructionRows();
-        
+
+        // Initialize equipment rows + AI extract
+        initEquipmentRows();
+
         // Initialize AI Recipe Generator
         initAiGenerator();
-        
+
         // Initialize Reviews Toggle
         initReviewsToggle();
     });
@@ -419,6 +422,94 @@
                 $toggleText.text(!isEnabled ? 'Enabled' : 'Disabled');
             });
         });
+    }
+
+    // ── Equipment meta box ────────────────────────────────────────────────────
+
+    function escEqAttr( s ) {
+        return String( s )
+            .replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' )
+            .replace( /</g, '&lt;'  ).replace( />/g, '&gt;'  );
+    }
+
+    function equipmentRowHtml( index, data ) {
+        data = data || {};
+        var name     = data.name     || '';
+        var notes    = data.notes    || '';
+        var required = data.required !== false;
+        return (
+            '<div class="delice-recipe-equipment-row" style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;">' +
+            '<input type="text" name="delice_recipe_equipment[' + index + '][name]" value="' + escEqAttr( name ) + '" placeholder="Equipment name (e.g. Stand Mixer)" style="flex:2;min-width:160px;">' +
+            '<input type="text" name="delice_recipe_equipment[' + index + '][notes]" value="' + escEqAttr( notes ) + '" placeholder="Notes (optional)" style="flex:2;min-width:120px;">' +
+            '<label style="white-space:nowrap;font-size:12px;display:flex;align-items:center;gap:4px;">' +
+            '<input type="checkbox" name="delice_recipe_equipment[' + index + '][required]" value="1"' + ( required ? ' checked' : '' ) + '> Required' +
+            '</label>' +
+            '<button type="button" class="button button-small remove-equipment">Remove</button>' +
+            '</div>'
+        );
+    }
+
+    function reindexEquipment() {
+        $( '#delice-recipe-equipment-container .delice-recipe-equipment-row' ).each( function ( i ) {
+            $( this ).find( '[name]' ).each( function () {
+                var n = $( this ).attr( 'name' );
+                if ( n ) $( this ).attr( 'name', n.replace( /\[\d+\]/, '[' + i + ']' ) );
+            } );
+        } );
+    }
+
+    function initEquipmentRows() {
+        var $container = $( '#delice-recipe-equipment-container' );
+        if ( ! $container.length ) return;
+
+        // Add row
+        $( '#add-equipment' ).on( 'click', function () {
+            var index = $container.children( '.delice-recipe-equipment-row' ).length;
+            $container.append( equipmentRowHtml( index, {} ) );
+        } );
+
+        // Remove row (delegated)
+        $container.on( 'click', '.remove-equipment', function () {
+            $( this ).closest( '.delice-recipe-equipment-row' ).remove();
+            reindexEquipment();
+        } );
+
+        // AI extract
+        $( '#extract-equipment-ai' ).on( 'click', function () {
+            var $btn    = $( this );
+            var $status = $( '#extract-equipment-status' );
+            var postId  = ( typeof deliceRecipe !== 'undefined' ) ? parseInt( deliceRecipe.postId, 10 ) : 0;
+            var nonce   = ( typeof deliceRecipe !== 'undefined' ) ? deliceRecipe.nonce : '';
+            var ajaxUrl = ( typeof deliceRecipe !== 'undefined' ) ? deliceRecipe.ajaxUrl : '';
+
+            if ( ! postId ) {
+                $status.text( 'Please save the post first, then try AI extraction.' );
+                return;
+            }
+
+            $btn.prop( 'disabled', true );
+            $status.text( 'Extracting equipment from instructions\u2026' );
+
+            $.post( ajaxUrl, {
+                action:  'delice_extract_equipment',
+                nonce:   nonce,
+                post_id: postId,
+            }, function ( res ) {
+                $btn.prop( 'disabled', false );
+                if ( res && res.success && res.data.equipment ) {
+                    $container.empty();
+                    $.each( res.data.equipment, function ( i, item ) {
+                        $container.append( equipmentRowHtml( i, item ) );
+                    } );
+                    $status.text( res.data.equipment.length + ' item(s) found. Review and save the post.' );
+                } else {
+                    $status.text( ( res && res.data ) ? res.data : 'Extraction failed.' );
+                }
+            } ).fail( function () {
+                $btn.prop( 'disabled', false );
+                $status.text( 'Network error. Please try again.' );
+            } );
+        } );
     }
 
 })(jQuery);

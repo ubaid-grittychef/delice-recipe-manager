@@ -248,6 +248,23 @@ class Delice_Recipe_Schema {
                 }
             }
 
+            // Equipment → HowToTool (v3.9.0)
+            if ( class_exists( 'Delice_Recipe_Equipment' ) ) {
+                $equip_raw = get_post_meta( $recipe_id, Delice_Recipe_Equipment::META_KEY, true );
+                if ( is_array( $equip_raw ) && ! empty( $equip_raw ) ) {
+                    $schema['tool'] = array();
+                    foreach ( $equip_raw as $eq ) {
+                        if ( ! empty( $eq['name'] ) ) {
+                            $schema['tool'][] = array(
+                                '@type' => 'HowToTool',
+                                'name'  => sanitize_text_field( $eq['name'] ),
+                            );
+                        }
+                    }
+                    if ( empty( $schema['tool'] ) ) unset( $schema['tool'] );
+                }
+            }
+
             if ( $calories || $nutrition ) {
                 $schema['nutrition'] = array( '@type' => 'NutritionInformation' );
                 if ( $calories ) {

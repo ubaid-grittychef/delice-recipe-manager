@@ -209,6 +209,105 @@
         updateCustomState();
     } );
 
+    /* ── WP Recipe Maker Import ─────────────────────────────────────────────── */
+
+    function escWprmAttr( s ) {
+        return String( s ).replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' )
+            .replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
+    }
+
+    $( '#drm-wprm-scan' ).on( 'click', function () {
+        var $btn    = $( this );
+        var $status = $( '#drm-wprm-status' );
+        var $res    = $( '#drm-wprm-results' );
+        var nonce   = window.drmAffTagsNonce || '';
+        var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
+
+        $btn.prop( 'disabled', true ).text( 'Scanning\u2026' );
+        $status.text( '' );
+
+        $.post( ajaxUrl, { action: 'delice_wprm_scan', nonce: nonce }, function ( res ) {
+            $btn.prop( 'disabled', false ).text( 'Re-scan WP Recipe Maker' );
+            if ( res && res.success ) {
+                buildWprmTable( res.data );
+                $res.show();
+                $status.text( res.data.length + ' recipe(s) found.' );
+            } else {
+                var msg = ( res && res.data && res.data.msg ) ? res.data.msg : ( res && res.data ? res.data : 'Scan failed.' );
+                $status.text( msg );
+            }
+        } ).fail( function () {
+            $btn.prop( 'disabled', false ).text( 'Scan WP Recipe Maker' );
+            $status.text( 'Network error.' );
+        } );
+    } );
+
+    function buildWprmTable( recipes ) {
+        var $tbody = $( '#drm-wprm-tbody' );
+        $tbody.empty();
+        if ( ! recipes || ! recipes.length ) {
+            $tbody.append( '<tr><td colspan="4" style="padding:20px;text-align:center;color:#8c8f94;">No WP Recipe Maker recipes found.</td></tr>' );
+            return;
+        }
+        $.each( recipes, function ( i, r ) {
+            var ingList = r.tags ? r.tags.replace( /\n/g, ', ' ) : '\u2014';
+            var matchCell = r.matched
+                ? '<span style="color:#008a20;">' + escWprmAttr( r.delice_title ) + '</span>'
+                : '<select class="drm-wprm-match" data-wprm-id="' + r.wprm_id + '" data-tags="' + escWprmAttr( r.tags ) + '" style="max-width:200px;font-size:12px;"><option value="0">\u2014 Select recipe \u2014</option>' + window.drmDeliceRecipes.map( function ( d ) { return '<option value="' + d.id + '">' + escWprmAttr( d.title ) + '</option>'; } ).join( '' ) + '</select>';
+            $tbody.append(
+                '<tr>' +
+                '<td><input type="checkbox" class="drm-wprm-chk" data-wprm-id="' + r.wprm_id + '" data-delice-id="' + r.delice_id + '" data-tags="' + escWprmAttr( r.tags ) + '"' + ( r.matched && r.ing_count > 0 ? ' checked' : '' ) + '></td>' +
+                '<td style="font-weight:600;">' + escWprmAttr( r.wprm_title ) + '</td>' +
+                '<td style="font-size:11px;color:#555;max-width:220px;word-break:break-word;">' + escWprmAttr( ingList ) + '<br><em>' + r.ing_count + ' ingredient(s)</em></td>' +
+                '<td>' + matchCell + '</td>' +
+                '</tr>'
+            );
+        } );
+    }
+
+    /* Update checkbox data-delice-id when user picks from match dropdown */
+    $( document ).on( 'change', '.drm-wprm-match', function () {
+        var $sel   = $( this );
+        var $chk   = $sel.closest( 'tr' ).find( '.drm-wprm-chk' );
+        var newId  = parseInt( $sel.val(), 10 );
+        $chk.data( 'delice-id', newId );
+        if ( newId ) $chk.prop( 'checked', true );
+    } );
+
+    $( '#drm-wprm-select-all' ).on( 'change', function () {
+        $( '.drm-wprm-chk' ).prop( 'checked', this.checked );
+    } );
+
+    $( '#drm-wprm-import' ).on( 'click', function () {
+        var $btn  = $( this );
+        var items = [];
+        $( '.drm-wprm-chk:checked' ).each( function () {
+            var deliceId = parseInt( $( this ).data( 'delice-id' ), 10 );
+            var tags     = $( this ).data( 'tags' ) || '';
+            if ( deliceId && tags ) items.push( { delice_id: deliceId, tags: tags } );
+        } );
+        if ( ! items.length ) {
+            alert( 'No recipes selected with matched Delice recipes. Match recipes first, then import.' );
+            return;
+        }
+        $btn.prop( 'disabled', true ).text( 'Importing\u2026' );
+        $.post( window.drmAjaxUrl || window.ajaxurl || '', {
+            action: 'delice_wprm_import',
+            nonce:  window.drmAffTagsNonce || '',
+            items:  JSON.stringify( items ),
+        }, function ( res ) {
+            $btn.prop( 'disabled', false ).text( 'Import Selected' );
+            if ( res && res.success ) {
+                alert( res.data.imported + ' recipe(s) imported. Reload the Coverage tab to see updated status.' );
+            } else {
+                alert( 'Import failed: ' + ( res && res.data ? res.data : 'unknown error' ) );
+            }
+        } ).fail( function () {
+            $btn.prop( 'disabled', false ).text( 'Import Selected' );
+            alert( 'Network error.' );
+        } );
+    } );
+
     /* ── Coverage Tab ────────────────────────────────────────────────────────── */
 
     /* Filter buttons */

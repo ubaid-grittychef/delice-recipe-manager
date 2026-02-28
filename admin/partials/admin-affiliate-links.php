@@ -893,11 +893,78 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
         </div><!-- /overflow-x:auto -->
     </div><!-- /.drm-card -->
 
-    <!-- Pass nonce + ajax URL to JS -->
+    <!-- Pass nonce + ajax URL + delice recipes list to JS -->
     <script>
-    window.drmAffTagsNonce = '<?php echo esc_js( $aff_tags_nonce ); ?>';
-    window.drmAjaxUrl      = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
+    window.drmAffTagsNonce  = '<?php echo esc_js( $aff_tags_nonce ); ?>';
+    window.drmAjaxUrl       = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
+    window.drmDeliceRecipes = <?php
+        $drm_all = get_posts( array(
+            'post_type'      => 'delice_recipe',
+            'posts_per_page' => -1,
+            'post_status'    => array( 'publish', 'draft', 'private' ),
+            'fields'         => 'ids',
+        ) );
+        $drm_list = array();
+        foreach ( $drm_all as $drm_pid ) {
+            $drm_list[] = array( 'id' => $drm_pid, 'title' => get_the_title( $drm_pid ) );
+        }
+        echo wp_json_encode( $drm_list );
+    ?>;
     </script>
+
+    <!-- WP Recipe Maker bulk import card — v3.9.0 -->
+    <?php if ( post_type_exists( 'wprm_recipe' ) ) : ?>
+    <div class="drm-card" style="margin-top:24px;border-top:3px solid #2271b1;">
+        <div class="drm-card-header">
+            <div class="drm-card-header-left">
+                <h2><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
+                <span class="drm-card-badge" style="background:#e8f0fe;color:#1a56db;"><?php esc_html_e( 'WPRM detected', 'delice-recipe-manager' ); ?></span>
+            </div>
+            <div class="drm-card-header-right">
+                <button type="button" id="drm-wprm-scan" class="button button-primary">
+                    <?php esc_html_e( 'Scan WP Recipe Maker recipes', 'delice-recipe-manager' ); ?>
+                </button>
+                <span id="drm-wprm-status" style="margin-left:10px;font-size:13px;color:#646970;"></span>
+            </div>
+        </div>
+        <p style="margin:0 0 12px;color:#50575e;font-size:13px;">
+            <?php esc_html_e( 'Scan your WP Recipe Maker recipes and bulk-import their ingredient lists as Affiliate Tags Overrides on the matching Delice recipes. Matching is done by post title (case-insensitive). For recipes that do not auto-match, choose the correct Delice recipe from the dropdown.', 'delice-recipe-manager' ); ?>
+        </p>
+        <div id="drm-wprm-results" style="display:none;">
+            <div style="overflow-x:auto;">
+            <table class="drm-cov-table" style="min-width:680px;">
+                <thead>
+                    <tr>
+                        <th style="width:36px;"><input type="checkbox" id="drm-wprm-select-all" title="<?php esc_attr_e( 'Select all', 'delice-recipe-manager' ); ?>"></th>
+                        <th><?php esc_html_e( 'WPRM Recipe', 'delice-recipe-manager' ); ?></th>
+                        <th style="width:100px;text-align:center;"><?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></th>
+                        <th><?php esc_html_e( 'Delice Recipe Match', 'delice-recipe-manager' ); ?></th>
+                        <th><?php esc_html_e( 'Ingredient Tags (preview)', 'delice-recipe-manager' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="drm-wprm-tbody"></tbody>
+            </table>
+            </div>
+            <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+                <button type="button" id="drm-wprm-import" class="button button-primary" disabled>
+                    <?php esc_html_e( 'Import Selected', 'delice-recipe-manager' ); ?>
+                </button>
+                <span id="drm-wprm-import-status" style="font-size:13px;color:#646970;"></span>
+            </div>
+        </div>
+    </div>
+    <?php else : ?>
+    <div class="drm-card" style="margin-top:24px;border-top:3px solid #c3c4c7;">
+        <div class="drm-card-header">
+            <div class="drm-card-header-left">
+                <h2><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
+            </div>
+        </div>
+        <p style="margin:0;color:#646970;font-size:13px;">
+            <?php esc_html_e( 'WP Recipe Maker is not active on this site. If you have old recipes built with WPRM, install and activate it alongside Delice and this card will let you bulk-import affiliate ingredient tags.', 'delice-recipe-manager' ); ?>
+        </p>
+    </div>
+    <?php endif; ?>
 
 </div><!-- /#tab-coverage -->
 
