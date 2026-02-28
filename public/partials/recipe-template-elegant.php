@@ -494,7 +494,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
     // v3.8.4 — Affiliate link injection
     $dre_aff          = class_exists( 'Delice_Affiliate_Manager' )
-        ? Delice_Affiliate_Manager::inject_links( is_array( $ingredients ) ? $ingredients : array() )
+        ? Delice_Affiliate_Manager::inject_links( is_array( $ingredients ) ? $ingredients : array(), absint( $recipe_id ) )
         : array( 'ingredients' => $ingredients, 'has_links' => false );
     $ingredients      = $dre_aff['ingredients'];
     $dre_has_aff      = $dre_aff['has_links'];
@@ -506,6 +506,47 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     }
 
     ob_start();
+
+    // Equipment — v3.9.0
+    if ( class_exists( 'Delice_Recipe_Equipment' ) &&
+         ( ! isset( $display_options['show_equipment'] ) || ! empty( $display_options['show_equipment'] ) ) ) :
+        $dre_equipment      = Delice_Recipe_Equipment::get_with_affiliate( $recipe_id );
+        $dre_aff_settings_eq = $dre_aff_settings ?? array();
+        if ( ! empty( $dre_equipment ) ) : ?>
+    <section class="delice-elegant-section delice-elegant-equipment">
+        <h3 class="delice-elegant-section-title">
+            <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            <?php echo esc_html( $lang_texts['equipment'] ?? __( 'Equipment', 'delice-recipe-manager' ) ); ?>
+        </h3>
+        <ul class="delice-recipe-equipment-list" style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,1fr);gap:0;">
+        <?php foreach ( $dre_equipment as $eq ) :
+            $eq_url   = $eq['affiliate_url']   ?? '';
+            $eq_store = $eq['affiliate_store'] ?? '';
+            $eq_open  = ! empty( $dre_aff_settings_eq['open_new_tab'] );
+            $eq_btn   = esc_html( $dre_aff_settings_eq['button_text'] ?? 'Buy' );
+            if ( $eq_url && ! empty( $eq_store ) && ! empty( $dre_aff_settings_eq['show_store_name'] ) ) {
+                $eq_btn .= ' · ' . esc_html( $eq_store );
+            }
+        ?>
+            <li class="delice-recipe-equipment-item<?php echo $eq_url ? ' delice-recipe-equipment-item--linked' : ''; ?>" style="display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #e7e5e4;background:#fff;">
+                <span style="font-weight:500;"><?php echo esc_html( $eq['name'] ); ?></span>
+                <?php if ( empty( $eq['required'] ) ) : ?><span style="font-size:10px;color:#a8a29e;border:1px solid #e7e5e4;border-radius:3px;padding:1px 4px;"><?php esc_html_e( 'Optional', 'delice-recipe-manager' ); ?></span><?php endif; ?>
+                <?php if ( ! empty( $eq['notes'] ) ) : ?><span style="font-size:11px;color:#a8a29e;"><?php echo esc_html( $eq['notes'] ); ?></span><?php endif; ?>
+                <?php if ( $eq_url ) : ?>
+                <a href="<?php echo esc_url( $eq_url ); ?>" class="delice-aff-btn"
+                   rel="<?php echo esc_attr( Delice_Affiliate_Manager::LINK_REL ); ?>"
+                   <?php echo $eq_open ? 'target="_blank"' : ''; ?>
+                   aria-label="<?php echo esc_attr( $eq_btn . ' — ' . $eq['name'] ); ?>">
+                    <?php echo $eq_btn; ?><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10L10 2M5 2h5v5"/></svg>
+                </a>
+                <?php endif; ?>
+            </li>
+        <?php endforeach; ?>
+        </ul>
+    </section>
+        <?php endif;
+    endif;
+
     if ( ! empty( $ingredients ) ) : ?>
         <section class="delice-elegant-section delice-elegant-ingredients">
             <h3 class="delice-elegant-section-title">

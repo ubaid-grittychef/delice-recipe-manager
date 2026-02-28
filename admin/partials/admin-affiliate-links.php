@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Insufficient permissions.', 'delice-recipe-manager' ) );
 
 $active_tab   = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'platforms';
-$valid_tabs   = array( 'platforms', 'keywords', 'settings' );
+$valid_tabs   = array( 'platforms', 'keywords', 'coverage', 'settings' );
 if ( ! in_array( $active_tab, $valid_tabs, true ) ) $active_tab = 'platforms';
 $tab_url      = admin_url( 'admin.php?page=delice-recipe-affiliate&tab=' );
 $saved        = isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'];
@@ -24,6 +24,14 @@ foreach ( $platforms as $p ) { $platform_map[ $p['id'] ] = $p; }
 
 // Connected platform counts
 $connected_count = count( array_filter( $platforms, fn( $p ) => ! empty( $p['active'] ) ) );
+
+// Recipe coverage data (only loaded for Coverage tab and stats)
+$coverage_data    = Delice_Affiliate_Manager::get_recipe_coverage();
+$cov_ready        = count( array_filter( $coverage_data, fn( $r ) => $r['status'] === 'ready' ) );
+$cov_no_match     = count( array_filter( $coverage_data, fn( $r ) => $r['status'] === 'no-match' ) );
+$cov_needs_tags   = count( array_filter( $coverage_data, fn( $r ) => $r['status'] === 'needs-tags' ) );
+$cov_total        = count( $coverage_data );
+$aff_tags_nonce   = wp_create_nonce( 'delice_aff_tags_nonce' );
 ?>
 <style>
 /* ── Affiliate Links page styles (v3.8.5) ───────────────────────────────── */
@@ -243,6 +251,71 @@ $connected_count = count( array_filter( $platforms, fn( $p ) => ! empty( $p['act
 }
 
 @media (max-width: 760px) { .drm-aff-table { font-size: 12px; } }
+
+/* ── Coverage tab ────────────────────────────────────────────────────────── */
+.drm-cov-stats {
+    display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0 4px;
+}
+.drm-cov-stat {
+    flex: 1; min-width: 120px; background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 6px; padding: 14px 18px; text-align: center;
+}
+.drm-cov-stat-num { display: block; font-size: 28px; font-weight: 700; line-height: 1.1; }
+.drm-cov-stat-lbl { font-size: 11px; color: #8c8f94; margin-top: 4px; text-transform: uppercase; letter-spacing: .05em; }
+.drm-cov-stat--ready   .drm-cov-stat-num { color: #008a20; }
+.drm-cov-stat--nomatch .drm-cov-stat-num { color: #996800; }
+.drm-cov-stat--needs   .drm-cov-stat-num { color: #cc1818; }
+
+.drm-cov-table { width: 100%; border-collapse: collapse; }
+.drm-cov-table thead th {
+    background: #f8f9fa; border-bottom: 2px solid #e2e8f0;
+    padding: 9px 12px; text-align: left;
+    font-size: 11px; font-weight: 700; color: #374151;
+    text-transform: uppercase; letter-spacing: .05em; white-space: nowrap;
+}
+.drm-cov-table tbody td { padding: 9px 12px; vertical-align: top; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.drm-cov-table tbody tr:last-child td { border-bottom: none; }
+.drm-cov-table tbody tr:hover td { background: #fafbfc; }
+.drm-cov-table tbody tr[data-status="needs-tags"] td { background: #fff9f9; }
+.drm-cov-table tbody tr[data-status="needs-tags"]:hover td { background: #fff3f3; }
+
+.drm-cov-title { font-weight: 600; color: #1d2327; }
+.drm-cov-title a { text-decoration: none; color: inherit; }
+.drm-cov-title a:hover { color: #0073aa; }
+.drm-cov-source-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 5px; border-radius: 3px; margin-left: 5px; vertical-align: middle;
+}
+.drm-cov-source-badge--struct  { background: #f0f6fc; color: #0073aa; }
+.drm-cov-source-badge--override { background: #fdf6e3; color: #996800; }
+.drm-cov-source-badge--none    { background: #f9f0f0; color: #cc1818; }
+
+.drm-cov-tag-wrap { display: flex; flex-direction: column; gap: 5px; }
+.drm-cov-tags {
+    width: 100%; min-height: 52px; max-height: 120px; resize: vertical;
+    font-family: monospace; font-size: 12px; line-height: 1.5;
+    padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px;
+    box-sizing: border-box;
+}
+.drm-cov-tags:focus { border-color: #0073aa; outline: none; box-shadow: 0 0 0 2px rgba(0,115,170,.12); }
+.drm-cov-save {
+    align-self: flex-end; font-size: 11px !important;
+    padding: 3px 10px !important; height: auto !important;
+}
+.drm-cov-save.is-saved { color: #008a20 !important; border-color: #008a20 !important; }
+
+.drm-cov-filter { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+.drm-cov-filter-btn {
+    font-size: 12px; padding: 3px 10px; border: 1px solid #c3c4c7;
+    border-radius: 3px; background: #fff; cursor: pointer; color: #1d2327;
+}
+.drm-cov-filter-btn.is-active { background: #0073aa; color: #fff; border-color: #0073aa; }
+
+@media (max-width: 760px) { .drm-cov-stats { flex-direction: column; } }
+.drm-cov-note {
+    font-size: 12px; color: #646970; line-height: 1.6;
+    background: #f6f7f7; border-radius: 4px; padding: 10px 14px; margin: 12px 0 0;
+}
 </style>
 
 <div class="wrap drm-aff-wrap">
@@ -268,6 +341,12 @@ $connected_count = count( array_filter( $platforms, fn( $p ) => ! empty( $p['act
                 esc_html( _n( '%d keyword rule', '%d keyword rules', count( $rules ), 'delice-recipe-manager' ) ),
                 count( $rules )
             ); ?>
+            &nbsp;·&nbsp;
+            <?php printf(
+                /* translators: %d = number of recipes ready */
+                esc_html__( '%d/%d recipes ready', 'delice-recipe-manager' ),
+                $cov_ready, $cov_total
+            ); ?>
         </div>
     </div>
 
@@ -286,6 +365,15 @@ $connected_count = count( array_filter( $platforms, fn( $p ) => ! empty( $p['act
            class="nav-tab<?php echo $active_tab === 'keywords' ? ' nav-tab-active' : ''; ?>">
             <?php esc_html_e( 'Keyword Rules', 'delice-recipe-manager' ); ?>
             <?php if ( count( $rules ) > 0 ) : ?><span class="drm-card-badge" style="margin-left:6px;"><?php echo count( $rules ); ?></span><?php endif; ?>
+        </a>
+        <a href="<?php echo esc_url( $tab_url . 'coverage' ); ?>"
+           class="nav-tab<?php echo $active_tab === 'coverage' ? ' nav-tab-active' : ''; ?>">
+            <?php esc_html_e( 'Recipe Coverage', 'delice-recipe-manager' ); ?>
+            <?php if ( $cov_needs_tags > 0 ) : ?>
+                <span class="drm-card-badge" style="margin-left:6px;background:#fff0f0;color:#cc1818;border-color:#f5c6cb;">
+                    <?php echo intval( $cov_needs_tags ); ?> <?php esc_html_e( 'need tags', 'delice-recipe-manager' ); ?>
+                </span>
+            <?php endif; ?>
         </a>
         <a href="<?php echo esc_url( $tab_url . 'settings' ); ?>"
            class="nav-tab<?php echo $active_tab === 'settings' ? ' nav-tab-active' : ''; ?>">
@@ -680,6 +768,205 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
 </script>
 </form>
 </div><!-- /#tab-keywords -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TAB: COVERAGE
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="tab-coverage" class="drm-aff-tab-panel<?php echo $active_tab === 'coverage' ? ' is-active' : ''; ?>">
+
+    <!-- Stats row -->
+    <div class="drm-cov-stats">
+        <div class="drm-cov-stat drm-cov-stat--ready">
+            <span class="drm-cov-stat-num"><?php echo intval( $cov_ready ); ?></span>
+            <span class="drm-cov-stat-lbl"><?php esc_html_e( 'Ready', 'delice-recipe-manager' ); ?></span>
+        </div>
+        <div class="drm-cov-stat drm-cov-stat--nomatch">
+            <span class="drm-cov-stat-num"><?php echo intval( $cov_no_match ); ?></span>
+            <span class="drm-cov-stat-lbl"><?php esc_html_e( 'No keyword match', 'delice-recipe-manager' ); ?></span>
+        </div>
+        <div class="drm-cov-stat drm-cov-stat--needs">
+            <span class="drm-cov-stat-num"><?php echo intval( $cov_needs_tags ); ?></span>
+            <span class="drm-cov-stat-lbl"><?php esc_html_e( 'Needs ingredient tags', 'delice-recipe-manager' ); ?></span>
+        </div>
+        <div class="drm-cov-stat" style="border-color:#c3c4c7;">
+            <span class="drm-cov-stat-num" style="color:#1d2327;"><?php echo intval( $cov_total ); ?></span>
+            <span class="drm-cov-stat-lbl"><?php esc_html_e( 'Total recipes', 'delice-recipe-manager' ); ?></span>
+        </div>
+    </div>
+
+    <div class="drm-cov-note">
+        <strong><?php esc_html_e( 'How ingredient tags work:', 'delice-recipe-manager' ); ?></strong>
+        <?php esc_html_e( 'For recipes made by another plugin (or built manually), paste ingredient names — one per line — in the "Affiliate Tags Override" column. The affiliate engine will match them against your keyword rules exactly as if they were structured ingredients. Structured ingredients from this plugin always take priority over the override.', 'delice-recipe-manager' ); ?>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="drm-cov-filter" style="margin-top:16px;">
+        <span style="font-size:12px;font-weight:600;color:#646970;"><?php esc_html_e( 'Filter:', 'delice-recipe-manager' ); ?></span>
+        <button type="button" class="drm-cov-filter-btn is-active" data-filter="all"><?php esc_html_e( 'All', 'delice-recipe-manager' ); ?></button>
+        <button type="button" class="drm-cov-filter-btn" data-filter="needs-tags"><?php esc_html_e( 'Needs Tags', 'delice-recipe-manager' ); ?></button>
+        <button type="button" class="drm-cov-filter-btn" data-filter="no-match"><?php esc_html_e( 'No Match', 'delice-recipe-manager' ); ?></button>
+        <button type="button" class="drm-cov-filter-btn" data-filter="ready"><?php esc_html_e( 'Ready', 'delice-recipe-manager' ); ?></button>
+    </div>
+
+    <div class="drm-card" style="margin-top:8px;">
+        <div class="drm-card-header">
+            <div class="drm-card-header-left">
+                <h2><?php esc_html_e( 'Recipe Coverage', 'delice-recipe-manager' ); ?></h2>
+                <span class="drm-card-badge"><?php printf( esc_html__( '%d recipes', 'delice-recipe-manager' ), intval( $cov_total ) ); ?></span>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+        <?php if ( empty( $coverage_data ) ) : ?>
+            <div class="drm-aff-empty" style="padding:40px 20px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                <p><?php esc_html_e( 'No recipes found. Create or import some recipes first.', 'delice-recipe-manager' ); ?></p>
+            </div>
+        <?php else : ?>
+        <table class="drm-cov-table" id="drm-cov-table">
+            <thead>
+                <tr>
+                    <th style="width:100px;"><?php esc_html_e( 'Status', 'delice-recipe-manager' ); ?></th>
+                    <th><?php esc_html_e( 'Recipe', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:90px;text-align:center;"><?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:80px;text-align:center;"><?php esc_html_e( 'Matched', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:260px;"><?php esc_html_e( 'Affiliate Tags Override', 'delice-recipe-manager' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ( $coverage_data as $recipe ) :
+                $status_label = array(
+                    'ready'      => __( 'Ready', 'delice-recipe-manager' ),
+                    'no-match'   => __( 'No Match', 'delice-recipe-manager' ),
+                    'needs-tags' => __( 'Needs Tags', 'delice-recipe-manager' ),
+                )[ $recipe['status'] ] ?? $recipe['status'];
+                $status_pill = array(
+                    'ready'      => 'drm-pill-green',
+                    'no-match'   => 'drm-pill-orange',
+                    'needs-tags' => 'drm-pill-grey',
+                )[ $recipe['status'] ] ?? 'drm-pill-grey';
+                $post_state = $recipe['post_status'] !== 'publish' ? ' (' . esc_html( $recipe['post_status'] ) . ')' : '';
+            ?>
+            <tr class="drm-cov-row" data-status="<?php echo esc_attr( $recipe['status'] ); ?>">
+                <td>
+                    <span class="drm-pill <?php echo esc_attr( $status_pill ); ?>">
+                        <span class="drm-pill-dot"></span>
+                        <?php echo esc_html( $status_label ); ?>
+                    </span>
+                </td>
+                <td>
+                    <div class="drm-cov-title">
+                        <a href="<?php echo esc_url( $recipe['edit_url'] ); ?>" target="_blank">
+                            <?php echo esc_html( $recipe['title'] ); ?>
+                        </a><?php echo esc_html( $post_state ); ?>
+                    </div>
+                    <?php if ( $recipe['has_struct'] ) : ?>
+                        <span class="drm-cov-source-badge drm-cov-source-badge--struct"><?php esc_html_e( 'Structured', 'delice-recipe-manager' ); ?></span>
+                    <?php elseif ( $recipe['has_override'] ) : ?>
+                        <span class="drm-cov-source-badge drm-cov-source-badge--override"><?php esc_html_e( 'Override', 'delice-recipe-manager' ); ?></span>
+                    <?php else : ?>
+                        <span class="drm-cov-source-badge drm-cov-source-badge--none"><?php esc_html_e( 'No data', 'delice-recipe-manager' ); ?></span>
+                    <?php endif; ?>
+                </td>
+                <td style="text-align:center;font-weight:600;"><?php echo intval( $recipe['ingredient_count'] ); ?></td>
+                <td style="text-align:center;font-weight:600;color:<?php echo $recipe['match_count'] > 0 ? '#008a20' : '#8c8f94'; ?>;">
+                    <?php echo intval( $recipe['match_count'] ); ?>
+                </td>
+                <td>
+                    <div class="drm-cov-tag-wrap">
+                        <textarea class="drm-cov-tags"
+                                  rows="<?php echo $recipe['status'] === 'needs-tags' ? 3 : 2; ?>"
+                                  placeholder="<?php esc_attr_e( "olive oil\nbutter\ngarlic", 'delice-recipe-manager' ); ?>"
+                                  <?php echo $recipe['has_struct'] ? 'title="' . esc_attr__( 'Structured ingredients take priority — override only used when no structured data exists.', 'delice-recipe-manager' ) . '"' : ''; ?>
+                                  ><?php echo esc_textarea( $recipe['override_text'] ); ?></textarea>
+                        <button type="button"
+                                class="button button-small drm-cov-save"
+                                data-post-id="<?php echo intval( $recipe['id'] ); ?>">
+                            <?php esc_html_e( 'Save', 'delice-recipe-manager' ); ?>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+        </div><!-- /overflow-x:auto -->
+    </div><!-- /.drm-card -->
+
+    <!-- Pass nonce + ajax URL + delice recipes list to JS -->
+    <script>
+    window.drmAffTagsNonce  = '<?php echo esc_js( $aff_tags_nonce ); ?>';
+    window.drmAjaxUrl       = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
+    window.drmDeliceRecipes = <?php
+        $drm_all = get_posts( array(
+            'post_type'      => 'delice_recipe',
+            'posts_per_page' => -1,
+            'post_status'    => array( 'publish', 'draft', 'private' ),
+            'fields'         => 'ids',
+        ) );
+        $drm_list = array();
+        foreach ( $drm_all as $drm_pid ) {
+            $drm_list[] = array( 'id' => $drm_pid, 'title' => get_the_title( $drm_pid ) );
+        }
+        echo wp_json_encode( $drm_list );
+    ?>;
+    </script>
+
+    <!-- WP Recipe Maker bulk import card — v3.9.0 -->
+    <?php if ( post_type_exists( 'wprm_recipe' ) ) : ?>
+    <div class="drm-card" style="margin-top:24px;border-top:3px solid #2271b1;">
+        <div class="drm-card-header">
+            <div class="drm-card-header-left">
+                <h2><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
+                <span class="drm-card-badge" style="background:#e8f0fe;color:#1a56db;"><?php esc_html_e( 'WPRM detected', 'delice-recipe-manager' ); ?></span>
+            </div>
+            <div class="drm-card-header-right">
+                <button type="button" id="drm-wprm-scan" class="button button-primary">
+                    <?php esc_html_e( 'Scan WP Recipe Maker recipes', 'delice-recipe-manager' ); ?>
+                </button>
+                <span id="drm-wprm-status" style="margin-left:10px;font-size:13px;color:#646970;"></span>
+            </div>
+        </div>
+        <p style="margin:0 0 12px;color:#50575e;font-size:13px;">
+            <?php esc_html_e( 'Scan your WP Recipe Maker recipes and bulk-import their ingredient lists as Affiliate Tags Overrides on the matching Delice recipes. Matching is done by post title (case-insensitive). For recipes that do not auto-match, choose the correct Delice recipe from the dropdown.', 'delice-recipe-manager' ); ?>
+        </p>
+        <div id="drm-wprm-results" style="display:none;">
+            <div style="overflow-x:auto;">
+            <table class="drm-cov-table" style="min-width:680px;">
+                <thead>
+                    <tr>
+                        <th style="width:36px;"><input type="checkbox" id="drm-wprm-select-all" title="<?php esc_attr_e( 'Select all', 'delice-recipe-manager' ); ?>"></th>
+                        <th><?php esc_html_e( 'WPRM Recipe', 'delice-recipe-manager' ); ?></th>
+                        <th style="width:100px;text-align:center;"><?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></th>
+                        <th><?php esc_html_e( 'Delice Recipe Match', 'delice-recipe-manager' ); ?></th>
+                        <th><?php esc_html_e( 'Ingredient Tags (preview)', 'delice-recipe-manager' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="drm-wprm-tbody"></tbody>
+            </table>
+            </div>
+            <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+                <button type="button" id="drm-wprm-import" class="button button-primary" disabled>
+                    <?php esc_html_e( 'Import Selected', 'delice-recipe-manager' ); ?>
+                </button>
+                <span id="drm-wprm-import-status" style="font-size:13px;color:#646970;"></span>
+            </div>
+        </div>
+    </div>
+    <?php else : ?>
+    <div class="drm-card" style="margin-top:24px;border-top:3px solid #c3c4c7;">
+        <div class="drm-card-header">
+            <div class="drm-card-header-left">
+                <h2><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
+            </div>
+        </div>
+        <p style="margin:0;color:#646970;font-size:13px;">
+            <?php esc_html_e( 'WP Recipe Maker is not active on this site. If you have old recipes built with WPRM, install and activate it alongside Delice and this card will let you bulk-import affiliate ingredient tags.', 'delice-recipe-manager' ); ?>
+        </p>
+    </div>
+    <?php endif; ?>
+
+</div><!-- /#tab-coverage -->
 
 <!-- ═══════════════════════════════════════════════════════════════════
      TAB: SETTINGS

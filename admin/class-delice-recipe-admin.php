@@ -32,6 +32,16 @@ class Delice_Recipe_Admin {
         
         // Hide third-party admin notices on plugin pages
         add_action('admin_head', array($this, 'hide_third_party_notices'));
+
+        // AJAX: save per-recipe affiliate ingredient tags from the Coverage tab
+        add_action( 'wp_ajax_delice_save_aff_tags', array( $this, 'ajax_save_aff_tags' ) );
+
+        // AJAX: AI-extract equipment from instructions
+        add_action( 'wp_ajax_delice_extract_equipment', array( $this, 'ajax_extract_equipment' ) );
+
+        // AJAX: scan / import WP Recipe Maker ingredient data
+        add_action( 'wp_ajax_delice_wprm_scan',   array( $this, 'ajax_wprm_scan' ) );
+        add_action( 'wp_ajax_delice_wprm_import', array( $this, 'ajax_wprm_import' ) );
     }
     
     /**
@@ -113,6 +123,7 @@ class Delice_Recipe_Admin {
         wp_localize_script('delice-recipe-admin', 'deliceRecipe', array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('delice_recipe_nonce'),
+            'postId' => get_the_ID() ?: 0,
             'ingredientPlaceholder' => __('Ingredient', 'delice-recipe-manager'),
             'amountPlaceholder' => __('Amount', 'delice-recipe-manager'),
             'unitPlaceholder' => __('Unit', 'delice-recipe-manager'),
@@ -618,6 +629,30 @@ class Delice_Recipe_Admin {
             'side',
             'default'
         );
+
+        // Affiliate ingredient tags — side meta box for old/manual recipes.
+        if ( class_exists( 'Delice_Affiliate_Manager' ) ) {
+            add_meta_box(
+                'delice_recipe_affiliate_tags',
+                __( 'Affiliate Ingredient Tags', 'delice-recipe-manager' ),
+                array( $this, 'render_affiliate_tags_meta_box' ),
+                'delice_recipe',
+                'side',
+                'default'
+            );
+        }
+
+        // Equipment meta box — normal area, below instructions.
+        if ( class_exists( 'Delice_Recipe_Equipment' ) ) {
+            add_meta_box(
+                'delice_recipe_equipment',
+                __( 'Equipment', 'delice-recipe-manager' ),
+                array( $this, 'render_equipment_meta_box' ),
+                'delice_recipe',
+                'normal',
+                'default'
+            );
+        }
     }
 
     /**
@@ -955,6 +990,21 @@ class Delice_Recipe_Admin {
         if ($post && $post->post_type === 'post') {
             update_post_meta($post_id, '_delice_recipe_migrated', '1');
         }
+
+        // Save affiliate ingredient tags override (sidebar meta box)
+        if ( isset( $_POST['delice_aff_tags_nonce'] ) &&
+             wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['delice_aff_tags_nonce'] ) ), 'delice_aff_tags_meta_box' ) &&
+             class_exists( 'Delice_Affiliate_Manager' ) ) {
+            $aff_tags = sanitize_textarea_field( wp_unslash( $_POST['delice_affiliate_ingredient_tags'] ?? '' ) );
+            update_post_meta( $post_id, Delice_Affiliate_Manager::OVERRIDE_META, $aff_tags );
+        }
+
+        // Save equipment (meta box nonce is shared with the main recipe nonce — already verified above)
+        if ( class_exists( 'Delice_Recipe_Equipment' ) ) {
+            $raw_equipment = isset( $_POST['delice_recipe_equipment'] ) ? wp_unslash( $_POST['delice_recipe_equipment'] ) : array();
+            $equipment = Delice_Recipe_Equipment::sanitize( is_array( $raw_equipment ) ? $raw_equipment : array() );
+            update_post_meta( $post_id, Delice_Recipe_Equipment::META_KEY, $equipment );
+        }
     }
     
     /**
@@ -1216,5 +1266,212 @@ class Delice_Recipe_Admin {
      */
     public function display_affiliate_links_page() {
         include_once DELICE_RECIPE_PLUGIN_DIR . 'admin/partials/admin-affiliate-links.php';
+    }
+
+    // ── Equipment meta box ────────────────────────────────────────────────────
+
+    /**
+     * Render the Equipment meta box in the recipe editor.
+     */
+    public function render_equipment_meta_box( $post ) {
+        if ( ! class_exists( 'Delice_Recipe_Equipment' ) ) return;
+        $equipment = get_post_meta( $post->ID, Delice_Recipe_Equipment::META_KEY, true );
+        if ( ! is_array( $equipment ) ) $equipment = array();
+        ?>
+        <div class="delice-recipe-meta-box" id="delice-equipment-box">
+            <div id="delice-recipe-equipment-container">
+                <?php foreach ( $equipment as $index => $item ) : ?>
+                <div class="delice-recipe-equipment-row" style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;">
+                    <input type="text" name="delice_recipe_equipment[<?php echo absint( $index ); ?>][name]"
+                           value="<?php echo esc_attr( $item['name'] ); ?>"
+                           placeholder="<?php esc_attr_e( 'Equipment name (e.g. Stand Mixer)', 'delice-recipe-manager' ); ?>"
+                           style="flex:2;min-width:160px;">
+                    <input type="text" name="delice_recipe_equipment[<?php echo absint( $index ); ?>][notes]"
+                           value="<?php echo esc_attr( $item['notes'] ?? '' ); ?>"
+                           placeholder="<?php esc_attr_e( 'Notes (optional)', 'delice-recipe-manager' ); ?>"
+                           style="flex:2;min-width:120px;">
+                    <label style="white-space:nowrap;font-size:12px;display:flex;align-items:center;gap:4px;">
+                        <input type="checkbox" name="delice_recipe_equipment[<?php echo absint( $index ); ?>][required]" value="1" <?php checked( ! empty( $item['required'] ) ); ?>>
+                        <?php esc_html_e( 'Required', 'delice-recipe-manager' ); ?>
+                    </label>
+                    <button type="button" class="button button-small remove-equipment"><?php esc_html_e( 'Remove', 'delice-recipe-manager' ); ?></button>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+                <button type="button" id="add-equipment" class="button"><?php esc_html_e( '+ Add Equipment', 'delice-recipe-manager' ); ?></button>
+                <button type="button" id="extract-equipment-ai" class="button" style="background:#0073aa;color:#fff;border-color:#005177;">
+                    ✨ <?php esc_html_e( 'Extract from Instructions (AI)', 'delice-recipe-manager' ); ?>
+                </button>
+                <span id="extract-equipment-status" style="font-size:12px;color:#646970;"></span>
+            </div>
+            <p style="margin:8px 0 0;font-size:11px;color:#8c8f94;">
+                <?php esc_html_e( 'AI reads your saved Instructions and auto-fills equipment. Review, then save the post. Affiliate buy buttons appear automatically when keyword rules match.', 'delice-recipe-manager' ); ?>
+            </p>
+        </div>
+        <?php
+    }
+
+    /**
+     * AJAX: extract equipment from a recipe's instructions via OpenAI.
+     */
+    public function ajax_extract_equipment() {
+        check_ajax_referer( 'delice_recipe_nonce', 'nonce' );
+        if ( ! current_user_can( 'edit_posts' ) ) wp_send_json_error( 'Permission denied.' );
+        if ( ! class_exists( 'Delice_Recipe_Equipment' ) ) wp_send_json_error( 'Equipment class not loaded.' );
+
+        $post_id = absint( $_POST['post_id'] ?? 0 );
+        if ( ! $post_id ) wp_send_json_error( 'Invalid post ID.' );
+
+        $instructions = get_post_meta( $post_id, '_delice_recipe_instructions', true );
+        if ( ! is_array( $instructions ) || empty( $instructions ) ) {
+            wp_send_json_error( 'No instructions found. Please save your instructions first, then try again.' );
+        }
+
+        $text = '';
+        foreach ( $instructions as $step ) {
+            $text .= wp_strip_all_tags( $step['text'] ?? '' ) . "\n";
+        }
+
+        $equipment = Delice_Recipe_Equipment::extract_from_instructions( trim( $text ) );
+        if ( null === $equipment ) {
+            wp_send_json_error( 'AI extraction failed. Check that your OpenAI API key is saved in Settings → AI & Language.' );
+        }
+
+        wp_send_json_success( array( 'equipment' => $equipment ) );
+    }
+
+    /**
+     * AJAX: scan all wprm_recipe posts and return ingredient data + title matches.
+     */
+    public function ajax_wprm_scan() {
+        check_ajax_referer( 'delice_aff_tags_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied.' );
+
+        if ( ! post_type_exists( 'wprm_recipe' ) ) {
+            wp_send_json_error( array( 'msg' => 'WP Recipe Maker post type not found. Make sure WPRM is still installed and active.' ) );
+        }
+
+        $wprm_ids = get_posts( array(
+            'post_type'      => 'wprm_recipe',
+            'posts_per_page' => -1,
+            'post_status'    => 'any',
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ) );
+
+        // Build title index for delice_recipe posts
+        $delice_posts = get_posts( array(
+            'post_type'      => 'delice_recipe',
+            'posts_per_page' => -1,
+            'post_status'    => 'any',
+            'no_found_rows'  => true,
+        ) );
+        $delice_by_title = array();
+        foreach ( $delice_posts as $dp ) {
+            $key = strtolower( trim( $dp->post_title ) );
+            $delice_by_title[ $key ] = $dp;
+        }
+
+        $results = array();
+        foreach ( $wprm_ids as $wid ) {
+            $wprm_title = get_the_title( $wid );
+            $ing_meta   = get_post_meta( $wid, 'wprm_ingredients', true );
+
+            $names = array();
+            if ( is_array( $ing_meta ) ) {
+                foreach ( $ing_meta as $group ) {
+                    if ( ! empty( $group['ingredients'] ) && is_array( $group['ingredients'] ) ) {
+                        foreach ( $group['ingredients'] as $ing ) {
+                            $name = sanitize_text_field( $ing['name'] ?? '' );
+                            if ( ! empty( $name ) ) $names[] = $name;
+                        }
+                    }
+                }
+            }
+
+            $key            = strtolower( trim( $wprm_title ) );
+            $matched_delice = $delice_by_title[ $key ] ?? null;
+
+            $results[] = array(
+                'wprm_id'     => $wid,
+                'wprm_title'  => $wprm_title,
+                'tags'        => implode( "\n", $names ),
+                'ing_count'   => count( $names ),
+                'delice_id'   => $matched_delice ? $matched_delice->ID : 0,
+                'delice_title'=> $matched_delice ? $matched_delice->post_title : '',
+                'matched'     => (bool) $matched_delice,
+            );
+        }
+
+        wp_send_json_success( $results );
+    }
+
+    /**
+     * AJAX: bulk-write ingredient override tags to delice_recipe posts from WPRM data.
+     */
+    public function ajax_wprm_import() {
+        check_ajax_referer( 'delice_aff_tags_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied.' );
+        if ( ! class_exists( 'Delice_Affiliate_Manager' ) ) wp_send_json_error( 'Affiliate Manager not loaded.' );
+
+        $items_json = sanitize_textarea_field( wp_unslash( $_POST['items'] ?? '' ) );
+        $items      = json_decode( $items_json, true );
+        if ( ! is_array( $items ) ) wp_send_json_error( 'Invalid data.' );
+
+        $imported = 0;
+        foreach ( $items as $item ) {
+            $delice_id = absint( $item['delice_id'] ?? 0 );
+            if ( ! $delice_id ) continue;
+            $tags = sanitize_textarea_field( $item['tags'] ?? '' );
+            update_post_meta( $delice_id, Delice_Affiliate_Manager::OVERRIDE_META, $tags );
+            $imported++;
+        }
+
+        wp_send_json_success( array( 'imported' => $imported ) );
+    }
+
+    // ── Affiliate Ingredient Tags meta box ────────────────────────────────────
+
+    /**
+     * Render the sidebar meta box that lets users paste ingredient names for
+     * old / manually-created recipes that have no structured ingredient data.
+     */
+    public function render_affiliate_tags_meta_box( $post ) {
+        if ( ! class_exists( 'Delice_Affiliate_Manager' ) ) return;
+        $override = get_post_meta( $post->ID, Delice_Affiliate_Manager::OVERRIDE_META, true );
+        wp_nonce_field( 'delice_aff_tags_meta_box', 'delice_aff_tags_nonce' );
+        ?>
+        <p style="margin:0 0 8px;font-size:12px;color:#646970;line-height:1.5;">
+            <?php esc_html_e( 'List ingredient names (one per line) so affiliate links are matched and shown, even if this recipe has no structured ingredients.', 'delice-recipe-manager' ); ?>
+        </p>
+        <textarea name="delice_affiliate_ingredient_tags"
+                  id="delice_affiliate_ingredient_tags"
+                  style="width:100%;min-height:90px;font-family:monospace;font-size:12px;resize:vertical;"
+                  placeholder="olive oil&#10;butter&#10;garlic cloves"><?php echo esc_textarea( $override ); ?></textarea>
+        <p style="margin:6px 0 0;font-size:11px;color:#8c8f94;">
+            <?php esc_html_e( 'Only active when no structured ingredients exist. Go to Affiliate Links → Coverage to manage all recipes at once.', 'delice-recipe-manager' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * AJAX handler — save per-recipe affiliate ingredient tags from the Coverage tab.
+     */
+    public function ajax_save_aff_tags() {
+        check_ajax_referer( 'delice_aff_tags_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Permission denied.' );
+        }
+        $post_id = absint( $_POST['post_id'] ?? 0 );
+        if ( ! $post_id ) {
+            wp_send_json_error( 'Invalid post ID.' );
+        }
+        if ( ! class_exists( 'Delice_Affiliate_Manager' ) ) {
+            wp_send_json_error( 'Affiliate Manager not loaded.' );
+        }
+        $tags = sanitize_textarea_field( wp_unslash( $_POST['tags'] ?? '' ) );
+        update_post_meta( $post_id, Delice_Affiliate_Manager::OVERRIDE_META, $tags );
+        wp_send_json_success( array( 'saved' => true ) );
     }
 }

@@ -21,6 +21,7 @@ class Delice_Affiliate_Manager {
     const PLATFORMS_OPTION = 'delice_affiliate_platforms';
     const RULES_OPTION     = 'delice_affiliate_rules';
     const SETTINGS_OPTION  = 'delice_affiliate_settings';
+    const OVERRIDE_META    = '_delice_affiliate_ingredients'; // per-recipe ingredient name override
     const LINK_REL         = 'sponsored nofollow noopener noreferrer';
 
     /** Amazon region → TLD map */
@@ -216,15 +217,109 @@ class Delice_Affiliate_Manager {
         return $best;
     }
 
+    // ── Override ingredients (for old / manually-created recipes) ────────────
+
+    /**
+     * Parse a newline- or comma-separated list of ingredient names into the
+     * standard ingredient-array structure used by the rest of the system.
+     *
+     * @param  string $text Raw textarea value from the override meta field.
+     * @return array        Array of [ 'name' => string, 'amount' => '', 'unit' => '' ]
+     */
+    public static function parse_text_ingredients( $text ) {
+        $lines = preg_split( '/[\r\n,]+/', trim( $text ) );
+        $out   = array();
+        foreach ( $lines as $line ) {
+            $name = sanitize_text_field( $line );
+            if ( ! empty( $name ) ) {
+                $out[] = array( 'name' => $name, 'amount' => '', 'unit' => '' );
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Return coverage data for every delice_recipe post — used by the Coverage tab.
+     *
+     * @return array[]  Each entry: id, title, edit_url, post_status, has_struct,
+     *                  ingredient_count, has_override, override_text, match_count, status.
+     */
+    public static function get_recipe_coverage() {
+        $posts = get_posts( array(
+            'post_type'      => 'delice_recipe',
+            'posts_per_page' => -1,
+            'post_status'    => array( 'publish', 'draft', 'private', 'pending' ),
+            'fields'         => 'ids',
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+            'no_found_rows'  => true,
+        ) );
+
+        $coverage = array();
+        foreach ( $posts as $pid ) {
+            $structured  = get_post_meta( $pid, '_delice_recipe_ingredients', true );
+            $override    = get_post_meta( $pid, self::OVERRIDE_META, true );
+            $has_struct  = ! empty( $structured ) && is_array( $structured );
+            $has_override = ! empty( trim( $override ?? '' ) );
+
+            $ingredients = array();
+            if ( $has_struct ) {
+                $ingredients = $structured;
+            } elseif ( $has_override ) {
+                $ingredients = self::parse_text_ingredients( $override );
+            }
+
+            $match_count = 0;
+            foreach ( $ingredients as $ing ) {
+                if ( self::match_ingredient( $ing['name'] ?? '' ) ) {
+                    $match_count++;
+                }
+            }
+
+            if ( $match_count > 0 ) {
+                $status = 'ready';
+            } elseif ( $has_struct || $has_override ) {
+                $status = 'no-match';
+            } else {
+                $status = 'needs-tags';
+            }
+
+            $coverage[] = array(
+                'id'               => $pid,
+                'title'            => get_the_title( $pid ),
+                'edit_url'         => get_edit_post_link( $pid, 'raw' ),
+                'post_status'      => get_post_status( $pid ),
+                'has_struct'       => $has_struct,
+                'ingredient_count' => count( $ingredients ),
+                'has_override'     => $has_override,
+                'override_text'    => trim( $override ?? '' ),
+                'match_count'      => $match_count,
+                'status'           => $status,
+            );
+        }
+        return $coverage;
+    }
+
     /**
      * Inject affiliate data into an ingredients array.
      *
+     * @param  array $ingredients  Structured ingredient array (may be empty for old recipes).
+     * @param  int   $recipe_id    Post ID — used to fetch the OVERRIDE_META fallback when
+     *                             $ingredients is empty.
      * @return array { ingredients: array, has_links: bool }
      */
-    public static function inject_links( array $ingredients ) {
+    public static function inject_links( array $ingredients, $recipe_id = 0 ) {
         $settings = self::get_settings();
         if ( empty( $settings['enabled'] ) ) {
             return array( 'ingredients' => $ingredients, 'has_links' => false );
+        }
+
+        // If no structured ingredients, fall back to the per-recipe override meta
+        if ( empty( $ingredients ) && $recipe_id > 0 ) {
+            $override = get_post_meta( absint( $recipe_id ), self::OVERRIDE_META, true );
+            if ( ! empty( trim( $override ?? '' ) ) ) {
+                $ingredients = self::parse_text_ingredients( $override );
+            }
         }
 
         $total       = count( $ingredients );
