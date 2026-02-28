@@ -102,6 +102,17 @@ class Delice_Recipe_Templates {
                 );
             }
 
+            // Affiliate links CSS (v3.8.4)
+            $affiliate_css = DELICE_RECIPE_PLUGIN_DIR . 'public/css/components/recipe-affiliate.css';
+            if ( file_exists( $affiliate_css ) ) {
+                wp_enqueue_style(
+                    'delice-recipe-affiliate',
+                    DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-affiliate.css',
+                    array(),
+                    DELICE_RECIPE_VERSION
+                );
+            }
+
             // Load template-specific stylesheet
             $selected_template = $this->get_selected_template();
             if ( $selected_template === 'modern' ) {

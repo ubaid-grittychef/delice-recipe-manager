@@ -492,6 +492,19 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     /* Capture ingredients and instructions HTML separately so we can decide
        whether to wrap them side-by-side or stack them. */
 
+    // v3.8.4 — Affiliate link injection
+    $dre_aff          = class_exists( 'Delice_Affiliate_Manager' )
+        ? Delice_Affiliate_Manager::inject_links( is_array( $ingredients ) ? $ingredients : array() )
+        : array( 'ingredients' => $ingredients, 'has_links' => false );
+    $ingredients      = $dre_aff['ingredients'];
+    $dre_has_aff      = $dre_aff['has_links'];
+    $dre_aff_settings = class_exists( 'Delice_Affiliate_Manager' ) ? Delice_Affiliate_Manager::get_settings() : array();
+    $dre_aff_disc_pos = $dre_aff_settings['disclosure_pos'] ?? 'top';
+    if ( $dre_has_aff && $dre_aff_disc_pos === 'top' ) {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo Delice_Affiliate_Manager::get_disclosure_html();
+    }
+
     ob_start();
     if ( ! empty( $ingredients ) ) : ?>
         <section class="delice-elegant-section delice-elegant-ingredients">
@@ -513,9 +526,16 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
             <?php endif; ?>
             <ul class="delice-elegant-ingredients-list">
                 <?php foreach ( $ingredients as $ing ) :
-                    $ing_id = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
+                    $ing_id        = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
+                    $dre_aff_url   = $ing['affiliate_url']   ?? '';
+                    $dre_aff_store = $ing['affiliate_store'] ?? '';
+                    $dre_open_tab  = ! empty( $dre_aff_settings['open_new_tab'] );
+                    $dre_btn_text  = esc_html( $dre_aff_settings['button_text'] ?? 'Buy' );
+                    if ( $dre_aff_url && ! empty( $dre_aff_store ) && ! empty( $dre_aff_settings['show_store_name'] ) ) {
+                        $dre_btn_text .= ' · ' . esc_html( $dre_aff_store );
+                    }
                 ?>
-                    <li class="delice-elegant-ingredient delice-recipe-ingredient">
+                    <li class="delice-elegant-ingredient delice-recipe-ingredient<?php echo $dre_aff_url ? ' delice-recipe-ingredient--linked' : ''; ?>">
                         <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
                             <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
                             <span class="delice-elegant-check-icon" aria-hidden="true">
@@ -531,6 +551,16 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                                   data-base-unit="<?php echo esc_attr( $ing['unit'] ?? '' ); ?>">
                                 <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
                             </span>
+                        <?php endif; ?>
+                        <?php if ( $dre_aff_url ) : ?>
+                            <a href="<?php echo esc_url( $dre_aff_url ); ?>"
+                               class="delice-aff-btn"
+                               rel="<?php echo esc_attr( Delice_Affiliate_Manager::LINK_REL ); ?>"
+                               <?php echo $dre_open_tab ? 'target="_blank"' : ''; ?>
+                               aria-label="<?php echo esc_attr( $dre_btn_text . ' — ' . ( $ing['name'] ?? '' ) ); ?>">
+                                <?php echo $dre_btn_text; ?>
+                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10L10 2M5 2h5v5"/></svg>
+                            </a>
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?>
@@ -742,6 +772,12 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php Delice_Recipe_Related::render( $recipe_id, $lang_texts['related_recipes'] ); ?>
     </div>
     <?php endif; ?>
+
+    <!-- Affiliate disclosure (bottom position) — v3.8.4 -->
+    <?php if ( $dre_has_aff && $dre_aff_disc_pos === 'bottom' ) {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo Delice_Affiliate_Manager::get_disclosure_html();
+    } ?>
 
     <!-- ═══ FOOTER ═══════════════════════════════════════════════════════════ -->
     <footer class="delice-elegant-footer">

@@ -404,6 +404,21 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       <?php endif; ?>
     </div>
 
+  <!-- Affiliate disclosure (top position) — v3.8.4 -->
+  <?php
+  $drd_aff = class_exists( 'Delice_Affiliate_Manager' )
+      ? Delice_Affiliate_Manager::inject_links( is_array( $ingredients ) ? $ingredients : array() )
+      : array( 'ingredients' => $ingredients, 'has_links' => false );
+  $ingredients        = $drd_aff['ingredients'];
+  $drd_has_aff        = $drd_aff['has_links'];
+  $drd_aff_settings   = class_exists( 'Delice_Affiliate_Manager' ) ? Delice_Affiliate_Manager::get_settings() : array();
+  $drd_aff_disc_pos   = $drd_aff_settings['disclosure_pos'] ?? 'top';
+  if ( $drd_has_aff && $drd_aff_disc_pos === 'top' ) {
+      // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+      echo Delice_Affiliate_Manager::get_disclosure_html();
+  }
+  ?>
+
   <!-- Ingredients + Instructions (two-column grid) -->
   <div class="delice-recipe-grid">
 
@@ -424,8 +439,16 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     <div class="delice-recipe-panel-body">
       <?php if ( ! empty( $ingredients ) && is_array( $ingredients ) ) : ?>
         <ul class="delice-recipe-ingredients-list">
-          <?php foreach ( $ingredients as $ing ) : ?>
-            <li class="delice-recipe-ingredient">
+          <?php foreach ( $ingredients as $ing ) :
+            $drd_aff_url   = $ing['affiliate_url']   ?? '';
+            $drd_aff_store = $ing['affiliate_store'] ?? '';
+            $drd_open_tab  = ! empty( $drd_aff_settings['open_new_tab'] );
+            $drd_btn_text  = esc_html( $drd_aff_settings['button_text'] ?? 'Buy' );
+            if ( ! empty( $drd_aff_store ) && ! empty( $drd_aff_settings['show_store_name'] ) ) {
+                $drd_btn_text .= ' · ' . esc_html( $drd_aff_store );
+            }
+          ?>
+            <li class="delice-recipe-ingredient<?php echo $drd_aff_url ? ' delice-recipe-ingredient--linked' : ''; ?>">
               <input type="checkbox" class="delice-recipe-ingredient-checkbox" id="ingredient-<?php echo esc_attr($recipe_id . '-' . sanitize_title($ing['name'] ?? '')); ?>">
               <span class="delice-recipe-ingredient-name">
                 <?php echo esc_html( $ing['name'] ?? '' ); ?>
@@ -436,6 +459,16 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                       data-base-unit="<?php echo esc_attr( $ing['unit'] ?? '' ); ?>">
                   <?php echo esc_html( trim( ($ing['amount'] ?? '') . ' ' . ($ing['unit'] ?? '') ) ); ?>
                 </span>
+              <?php endif; ?>
+              <?php if ( $drd_aff_url ) : ?>
+                <a href="<?php echo esc_url( $drd_aff_url ); ?>"
+                   class="delice-aff-btn"
+                   rel="<?php echo esc_attr( Delice_Affiliate_Manager::LINK_REL ); ?>"
+                   <?php echo $drd_open_tab ? 'target="_blank"' : ''; ?>
+                   aria-label="<?php echo esc_attr( $drd_btn_text . ' — ' . ( $ing['name'] ?? '' ) ); ?>">
+                    <?php echo $drd_btn_text; ?>
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10L10 2M5 2h5v5"/></svg>
+                </a>
               <?php endif; ?>
             </li>
           <?php endforeach; ?>
@@ -631,6 +664,12 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   <?php if ( ( ! isset( $display_options['show_related_recipes'] ) || $display_options['show_related_recipes'] ) && class_exists( 'Delice_Recipe_Related' ) ) :
       Delice_Recipe_Related::render( $recipe_id, $lang_texts['related_recipes'] );
   endif; ?>
+
+  <!-- Affiliate disclosure (bottom position) — v3.8.4 -->
+  <?php if ( $drd_has_aff && $drd_aff_disc_pos === 'bottom' ) {
+      // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+      echo Delice_Affiliate_Manager::get_disclosure_html();
+  } ?>
 
   <!-- Footer -->
   <footer class="delice-recipe-footer">
