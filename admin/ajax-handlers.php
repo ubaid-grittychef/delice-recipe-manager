@@ -129,10 +129,11 @@ function delice_ajax_generate_recipe() {
         
         // Send success response
         wp_send_json_success(array(
-            'post_id' => $post_id,
-            'preview' => $preview_html,
+            'post_id'  => $post_id,
+            'preview'  => $preview_html,
             'edit_url' => get_edit_post_link($post_id, ''),
-            'title' => $recipe_data['title'],
+            'view_url' => get_permalink($post_id),
+            'title'    => $recipe_data['title'],
         ));
         
     } catch (Exception $e) {

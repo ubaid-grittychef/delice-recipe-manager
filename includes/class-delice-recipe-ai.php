@@ -146,20 +146,39 @@ class Delice_Recipe_AI {
     }
 
     /**
+     * Return true if the given model supports response_format: json_object.
+     * Only add the parameter for known-compatible models to avoid API 400 errors.
+     */
+    private function supports_json_mode( $model ) {
+        $prefixes = [ 'gpt-4o', 'gpt-4-turbo', 'gpt-4-1106', 'gpt-3.5-turbo-1106', 'gpt-3.5-turbo-0125' ];
+        foreach ( $prefixes as $prefix ) {
+            if ( strpos( $model, $prefix ) !== false ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Single OpenAI call.
      */
     private function make_openai_request($prompt) {
-        $url = 'https://api.openai.com/v1/chat/completions';
-        $body = [
-            'model'       => get_option( 'delice_recipe_ai_model', 'gpt-4o' ),
+        $url   = 'https://api.openai.com/v1/chat/completions';
+        $model = get_option( 'delice_recipe_ai_model', 'gpt-4o' );
+        $body  = [
+            'model'       => $model,
             'messages'    => [
                 [ 'role' => 'system', 'content' => $prompt['system'] ],
                 [ 'role' => 'user',   'content' => $prompt['user']   ],
             ],
             'temperature' => 0.7,
-            // 4096 tokens avoids truncated JSON for recipes with many steps/FAQs.
+            // 4096 tokens is enough for a full recipe; raise if truncation errors appear.
             'max_tokens'  => 4096,
         ];
+        // Force JSON output on models that support it — eliminates markdown-fence errors.
+        if ( $this->supports_json_mode( $model ) ) {
+            $body['response_format'] = [ 'type' => 'json_object' ];
+        }
         $args = [
             'headers'=>[
                 'Authorization'=>'Bearer '.$this->api_key,
@@ -191,27 +210,51 @@ class Delice_Recipe_AI {
         if(empty($data['choices'][0]['message']['content'])) {
             return new WP_Error('api_error',__('Empty response','delice-recipe-manager'));
         }
+        // Detect token-limit truncation — truncated JSON always causes a Syntax error.
+        $finish_reason = $data['choices'][0]['finish_reason'] ?? '';
+        if ( 'length' === $finish_reason ) {
+            error_log('Delice Recipe AI: Response truncated (finish_reason: length). Increase max_tokens or simplify the prompt.');
+            return new WP_Error('truncated_response', __('Recipe response was cut off by the token limit. Please try again or use a simpler keyword.', 'delice-recipe-manager'));
+        }
         return $data['choices'][0]['message']['content'];
     }
 
     /**
-     * Strip code fences, then parse JSON.
+     * Strip code fences and extract JSON from the AI response.
+     *
+     * Uses a multi-pass strategy:
+     *  1. Strip opening/closing markdown fences.
+     *  2. Try parsing the whole string as JSON.
+     *  3. If that fails, use a regex to extract the first top-level {...} block.
+     *  4. Return a WP_Error only when all attempts fail.
      */
     private function parse_ai_response($raw) {
-        // Remove markdown fences if any slipped through
         $clean = trim($raw);
-        // Strip leading ```json or ``` 
-        $clean = preg_replace('/^```[a-z]*\s*/i','',$clean);
-        // Strip trailing ```
-        $clean = preg_replace('/\s*```$/','',$clean);
 
-        $parsed = json_decode($clean,true);
-        if(JSON_ERROR_NONE!==json_last_error()) {
-            $err = json_last_error_msg();
-            error_log("Delice Recipe AI Error: JSON parse error: {$err}. Raw: ".substr($clean,0,200));
-            return new WP_Error('json_error',sprintf(__('JSON decode error: %s','delice-recipe-manager'),$err));
+        // Pass 1: strip ``` json … ``` or ``` … ``` wrappers.
+        // Use /s so . matches newlines; /m allows ^ and $ to match line boundaries.
+        $clean = preg_replace('/^```(?:json)?\s*/im', '', $clean);
+        $clean = preg_replace('/\s*```\s*$/im', '', $clean);
+        $clean = trim($clean);
+
+        // Pass 2: attempt a direct parse.
+        $parsed = json_decode($clean, true);
+        if (JSON_ERROR_NONE === json_last_error()) {
+            return $parsed;
         }
-        return $parsed;
+
+        // Pass 3: AI may have prepended/appended prose — find the first { … } block.
+        if (preg_match('/(\{[\s\S]*\})/s', $clean, $matches)) {
+            $parsed = json_decode($matches[1], true);
+            if (JSON_ERROR_NONE === json_last_error()) {
+                return $parsed;
+            }
+        }
+
+        // All passes failed.
+        $err = json_last_error_msg();
+        error_log("Delice Recipe AI Error: JSON parse error: {$err}. Raw start: " . substr($clean, 0, 500));
+        return new WP_Error('json_error', sprintf(__('JSON decode error: %s', 'delice-recipe-manager'), $err));
     }
 
     /**
