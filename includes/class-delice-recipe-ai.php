@@ -18,6 +18,8 @@ class Delice_Recipe_AI {
 
     public function __construct() {
         $this->api_key = get_option('delice_recipe_ai_api_key','');
+        // Background image generation hook (cron callback)
+        add_action('delice_recipe_generate_image_bg', [$this, 'generate_and_attach_image_bg'], 10, 2);
     }
 
     /**
@@ -87,6 +89,7 @@ class Delice_Recipe_AI {
         $user .= "- prep_time, cook_time, total_time (minutes)\n";
         $user .= "- servings, calories, difficulty (easy|medium|hard)\n";
         $user .= "- notes (chef's tips)\n";
+        $user .= "- equipment: Array of kitchen tools and appliances needed. Only include items beyond basic knives/cutting boards [{name:string, notes:string, required:bool}]\n";
         $user .= "- nutrition: {protein:g, fat:g, carbs:g}\n";
         $user .= "- slug: Extremely Important: Present the slug as the dish name with 'recipe' at the end, without any full stops or periods. This will be used as a URL slug e.g. katsu-curry-recipe\n";
         
@@ -172,8 +175,7 @@ class Delice_Recipe_AI {
                 [ 'role' => 'user',   'content' => $prompt['user']   ],
             ],
             'temperature' => 0.7,
-            // 4096 tokens is enough for a full recipe; raise if truncation errors appear.
-            'max_tokens'  => 4096,
+            'max_tokens'  => 3500,
         ];
         // Force JSON output on models that support it — eliminates markdown-fence errors.
         if ( $this->supports_json_mode( $model ) ) {
@@ -319,6 +321,16 @@ class Delice_Recipe_AI {
             update_post_meta($post_id,'_delice_recipe_faqs', $sanitized_faqs);
         }
         
+        // Save equipment
+        if (!empty($recipe_data['equipment']) && is_array($recipe_data['equipment'])) {
+            if (class_exists('Delice_Recipe_Equipment')) {
+                $sanitized_equipment = Delice_Recipe_Equipment::sanitize($recipe_data['equipment']);
+                if (!empty($sanitized_equipment)) {
+                    update_post_meta($post_id, Delice_Recipe_Equipment::META_KEY, $sanitized_equipment);
+                }
+            }
+        }
+
         if(!empty($recipe_data['nutrition'])&&is_array($recipe_data['nutrition'])) {
             update_post_meta($post_id,'_delice_recipe_nutrition',wp_json_encode($recipe_data['nutrition']));
         }
@@ -337,16 +349,11 @@ class Delice_Recipe_AI {
             wp_set_object_terms($post_id, array_map('sanitize_text_field', $recipe_data['keywords']), 'delice_keyword');
         }
         
-        // Generate and set featured image if enabled
+        // Schedule background image generation — avoids 30-60s blocking DALL-E call during AJAX.
         if (get_option('delice_recipe_enable_ai_images', false)) {
-            error_log('Delice Recipe: AI images enabled, generating image...');
-            $image_id = $this->generate_recipe_image($recipe_data['title'], $post_id);
-            if ($image_id && !is_wp_error($image_id)) {
-                set_post_thumbnail($post_id, $image_id);
-                error_log("Delice Recipe: Featured image set successfully (ID: {$image_id})");
-            } elseif (is_wp_error($image_id)) {
-                error_log('Delice Recipe: Image generation failed: ' . $image_id->get_error_message());
-            }
+            wp_schedule_single_event(time(), 'delice_recipe_generate_image_bg', [$post_id, sanitize_text_field($recipe_data['title'])]);
+            spawn_cron();
+            error_log("Delice Recipe: AI image generation scheduled as background task for post {$post_id}.");
         }
 
         // Auto-migrate to standard post if the admin toggle is on.
@@ -370,6 +377,23 @@ class Delice_Recipe_AI {
         return $post_id;
     }
     
+    /**
+     * WP cron callback: generate and attach featured image in background.
+     *
+     * @param int    $post_id
+     * @param string $title
+     */
+    public function generate_and_attach_image_bg($post_id, $title) {
+        error_log("Delice Recipe: Background image generation starting for post {$post_id}.");
+        $image_id = $this->generate_recipe_image($title, $post_id);
+        if ($image_id && !is_wp_error($image_id)) {
+            set_post_thumbnail($post_id, $image_id);
+            error_log("Delice Recipe: Background image set for post {$post_id} (attachment {$image_id}).");
+        } elseif (is_wp_error($image_id)) {
+            error_log('Delice Recipe: Background image generation failed: ' . $image_id->get_error_message());
+        }
+    }
+
     /**
      * Generate featured image using DALL-E 3
      */
