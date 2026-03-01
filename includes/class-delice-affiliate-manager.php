@@ -330,11 +330,25 @@ class Delice_Affiliate_Manager {
         $cap         = min( $max_links, $density_cap );
         $linked      = 0;
 
-        // When auto_link is on, resolve the best Amazon platform for the current language once.
+        // When auto_link is on, resolve the best Amazon platform for this recipe's language.
         $auto_amazon = null;
         if ( ! empty( $settings['auto_link'] ) ) {
-            $current_lang = self::get_current_language();
-            $fallback     = null;
+            // Priority 1: the recipe's own language stored by the AI generator
+            // (_delice_recipe_language holds a locale like fr_FR, es_ES, en_US, ar).
+            $current_lang = '';
+            if ( $recipe_id > 0 ) {
+                $recipe_locale = get_post_meta( absint( $recipe_id ), '_delice_recipe_language', true );
+                if ( $recipe_locale ) {
+                    // fr_FR → fr,  es_ES → es,  ar → ar,  zh_CN → zh
+                    $current_lang = strtolower( substr( $recipe_locale, 0, 2 ) );
+                }
+            }
+            // Priority 2: WPML / Polylang / WP locale fallback
+            if ( ! $current_lang ) {
+                $current_lang = self::get_current_language();
+            }
+
+            $fallback = null;
             foreach ( self::get_platforms() as $platform ) {
                 if ( empty( $platform['active'] )
                      || ( $platform['type'] ?? '' ) !== 'amazon'
