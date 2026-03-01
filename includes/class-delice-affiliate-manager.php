@@ -145,6 +145,7 @@ class Delice_Affiliate_Manager {
     public static function get_settings() {
         $defaults = array(
             'enabled'         => false,
+            'auto_link'       => false,
             'max_links'       => 5,
             'density_pct'     => 50,
             'open_new_tab'    => true,
@@ -328,9 +329,35 @@ class Delice_Affiliate_Manager {
         $cap         = min( $max_links, $density_cap );
         $linked      = 0;
 
+        // When auto_link is on, resolve the first active Amazon platform once.
+        $auto_amazon = null;
+        if ( ! empty( $settings['auto_link'] ) ) {
+            foreach ( self::get_platforms() as $platform ) {
+                if ( ! empty( $platform['active'] )
+                     && ( $platform['type'] ?? '' ) === 'amazon'
+                     && ! empty( $platform['tracking_id'] ) ) {
+                    $auto_amazon = $platform;
+                    break;
+                }
+            }
+        }
+
         foreach ( $ingredients as &$ing ) {
             if ( $linked >= $cap ) break;
             $match = self::match_ingredient( $ing['name'] ?? '' );
+
+            // Auto-link fallback: if no rule matched and auto_link + Amazon are active,
+            // generate an Amazon search URL for the ingredient name automatically.
+            if ( ! $match && $auto_amazon ) {
+                $url = self::build_platform_url( array(), $auto_amazon, $ing['name'] ?? '' );
+                if ( $url ) {
+                    $match = array(
+                        'url'   => $url,
+                        'store' => $auto_amazon['name'],
+                    );
+                }
+            }
+
             if ( $match ) {
                 $ing['affiliate_url']   = $match['url'];
                 $ing['affiliate_store'] = $match['store'];
@@ -374,6 +401,7 @@ class Delice_Affiliate_Manager {
         if ( ! is_array( $raw ) ) return array();
         return array(
             'enabled'         => ! empty( $raw['enabled'] ),
+            'auto_link'       => ! empty( $raw['auto_link'] ),
             'max_links'       => max( 1, min( 20, intval( $raw['max_links'] ?? 5 ) ) ),
             'density_pct'     => max( 1, min( 100, intval( $raw['density_pct'] ?? 50 ) ) ),
             'open_new_tab'    => ! empty( $raw['open_new_tab'] ),

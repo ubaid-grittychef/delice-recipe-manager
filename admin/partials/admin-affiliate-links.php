@@ -999,6 +999,18 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
             <p class="description"><?php esc_html_e( 'When disabled, no links or disclosure appear on the frontend. All rules and platform connections are preserved.', 'delice-recipe-manager' ); ?></p>
         </div>
 
+        <div class="drm-aff-field">
+            <label class="drm-aff-field-label"><?php esc_html_e( 'Auto-link All Ingredients', 'delice-recipe-manager' ); ?></label>
+            <label class="drm-toggle-row">
+                <span class="drm-sw">
+                    <input type="checkbox" name="delice_affiliate_settings[auto_link]" value="1" <?php checked( $settings['auto_link'] ); ?>>
+                    <span class="drm-sw-slider"></span>
+                </span>
+                <?php esc_html_e( 'Automatically link every ingredient to Amazon — no keyword rules needed', 'delice-recipe-manager' ); ?>
+            </label>
+            <p class="description"><?php esc_html_e( 'When on, any ingredient without a matching keyword rule falls back to an Amazon search link using your Associates ID. Requires an active Amazon platform above. Manual rules still take priority and can point to specific products.', 'delice-recipe-manager' ); ?></p>
+        </div>
+
         <hr class="drm-aff-divider">
 
         <div class="drm-2col">
