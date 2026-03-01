@@ -156,6 +156,9 @@
                         <a href="#" id="delice-recipe-edit" class="button button-primary">
                             <span class="dashicons dashicons-edit"></span> <?php _e('Edit', 'delice-recipe-manager'); ?>
                         </a>
+                        <a href="#" id="delice-recipe-view" class="button button-secondary" target="_blank" style="display:none;">
+                            <span class="dashicons dashicons-visibility"></span> <?php _e('View Recipe', 'delice-recipe-manager'); ?>
+                        </a>
                         <button id="delice-recipe-regenerate" class="button">
                             <span class="dashicons dashicons-update"></span> <?php _e('Regenerate', 'delice-recipe-manager'); ?>
                         </button>
@@ -443,9 +446,10 @@ jQuery(document).ready(function($) {
             // Show skeleton loading (use cached clone so it works on every regeneration)
             $('#delice-recipe-preview').html(skeletonHtml.clone());
 
-            // Reset approval
+            // Reset approval and action buttons
             $('#approve-recipe').prop('checked', false);
             $('#delice-recipe-edit').prop('disabled', true);
+            $('#delice-recipe-view').hide().attr('href', '#');
 
             const nonce = $('#delice_recipe_ai_nonce').val();
             const variations = [];
@@ -474,9 +478,14 @@ jQuery(document).ready(function($) {
                         // Show the generated recipe
                         $('#delice-recipe-preview').html(response.data.preview);
                         $('#delice-recipe-result').show();
-                        
+
                         // Update edit link
                         $('#delice-recipe-edit').attr('href', response.data.edit_url);
+
+                        // Update view link (show only when the post has a public URL)
+                        if (response.data.view_url) {
+                            $('#delice-recipe-view').attr('href', response.data.view_url).show();
+                        }
                     } else {
                         // Show error message
                         alert(response.data.message || 'An error occurred. Please try again.');
