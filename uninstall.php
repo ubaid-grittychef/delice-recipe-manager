@@ -99,7 +99,10 @@ if ( $delete_data ) {
 
     // Delete all recipe custom posts.
     $recipe_ids = $wpdb->get_col(
-        "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'delice_recipe'"
+        $wpdb->prepare(
+            "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s",
+            'delice_recipe'
+        )
     );
 
     foreach ( $recipe_ids as $recipe_id ) {

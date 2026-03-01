@@ -31,6 +31,7 @@ class Delice_Recipe_Rating {
         // Verify nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'delice_recipe_rating_nonce')) {
             wp_send_json_error(array('message' => __('Security check failed.', 'delice-recipe-manager')));
+            return;
         }
 
         // Get post data
@@ -40,6 +41,7 @@ class Delice_Recipe_Rating {
         // Validate data
         if (!$recipe_id || $rating < 1 || $rating > 5) {
             wp_send_json_error(array('message' => __('Invalid rating data.', 'delice-recipe-manager')));
+            return;
         }
 
         // Get user IP for unique rating check
@@ -53,9 +55,10 @@ class Delice_Recipe_Rating {
         }
         
         // Check if user already rated
-        $user_key = $user_id ? 'user_' . $user_id : 'ip_' . md5($user_ip);
+        $user_key = $user_id ? 'user_' . $user_id : 'ip_' . wp_hash( $user_ip );
         if (isset($ratings[$user_key])) {
             wp_send_json_error(array('message' => __('You have already rated this recipe.', 'delice-recipe-manager')));
+            return;
         }
         
         // Add the new rating
@@ -126,20 +129,9 @@ class Delice_Recipe_Rating {
      * Get user IP address
      */
     private function get_user_ip() {
-        // Check for shared internet connection
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } 
-        // Check for a proxy
-        elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } 
-        // Get standard remote address
-        else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
-        
-        return $ip;
+        // Use only REMOTE_ADDR — HTTP_CLIENT_IP and HTTP_X_FORWARDED_FOR are
+        // user-controllable headers and trivially spoofed for duplicate-vote bypass.
+        return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
     }
     
     /**

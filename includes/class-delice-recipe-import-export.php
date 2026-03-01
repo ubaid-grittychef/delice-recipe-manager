@@ -399,12 +399,18 @@ class Delice_Recipe_Import_Export {
         if (empty($image_data['url'])) {
             return;
         }
-        
+
+        // Validate URL: only allow http/https to prevent SSRF attacks.
+        $url = esc_url_raw( wp_unslash( $image_data['url'] ) );
+        if ( empty( $url ) || ! preg_match( '#^https?://#i', $url ) ) {
+            return;
+        }
+
         require_once(ABSPATH . 'wp-admin/includes/media.php');
         require_once(ABSPATH . 'wp-admin/includes/file.php');
         require_once(ABSPATH . 'wp-admin/includes/image.php');
-        
-        $attachment_id = media_sideload_image($image_data['url'], $recipe_id, null, 'id');
+
+        $attachment_id = media_sideload_image( $url, $recipe_id, null, 'id' );
         
         if (!is_wp_error($attachment_id)) {
             set_post_thumbnail($recipe_id, $attachment_id);

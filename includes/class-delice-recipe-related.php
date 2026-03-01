@@ -137,15 +137,21 @@ class Delice_Recipe_Related {
             return self::latest_recipes( $recipe_id, $limit );
         }
 
+        // Pre-fetch current recipe's term IDs once per taxonomy (prevents N×T redundant queries).
+        $current_term_ids = array();
+        foreach ( $taxonomies as $tax ) {
+            $ids = wp_get_object_terms( $recipe_id, $tax, array( 'fields' => 'ids' ) );
+            $current_term_ids[ $tax ] = is_wp_error( $ids ) ? array() : $ids;
+        }
+
         // Score each post by weighted taxonomy overlap.
         $scored = array();
         foreach ( $posts as $post ) {
             $score = 0;
             foreach ( $taxonomies as $tax ) {
-                $current_terms  = wp_get_object_terms( $recipe_id, $tax, array( 'fields' => 'ids' ) );
                 $candidate_terms = wp_get_object_terms( $post->ID, $tax, array( 'fields' => 'ids' ) );
-                if ( is_wp_error( $current_terms ) || is_wp_error( $candidate_terms ) ) continue;
-                $shared = count( array_intersect( $current_terms, $candidate_terms ) );
+                if ( is_wp_error( $candidate_terms ) ) continue;
+                $shared = count( array_intersect( $current_term_ids[ $tax ], $candidate_terms ) );
                 $score += $shared * $weights[ $tax ];
             }
             $scored[] = array( 'post' => $post, 'score' => $score );

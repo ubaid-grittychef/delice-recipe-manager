@@ -108,8 +108,11 @@ class Delice_Recipe_Schema {
             }
 
             // Get review data from new review system
-            $review_system = new Delice_Recipe_Reviews();
-            $review_data = $review_system->get_recipe_rating_data($recipe_id);
+            $review_data = array();
+            if ( class_exists( 'Delice_Recipe_Reviews' ) ) {
+                $review_system = new Delice_Recipe_Reviews();
+                $review_data   = $review_system->get_recipe_rating_data( $recipe_id );
+            }
 
             $rating_average = floatval( get_post_meta( $recipe_id, '_delice_recipe_rating_average', true ) );
             $rating_count   = intval( get_post_meta( $recipe_id, '_delice_recipe_rating_count', true ) );
@@ -200,13 +203,15 @@ class Delice_Recipe_Schema {
 
             $schema['dateModified'] = get_the_modified_date( 'c', $recipe_id );
 
-            if ( $prep_time )  {
+            // Use strict check so a value of "0" (zero-minute prep) is still omitted
+            // but any positive value — including integers — is included correctly.
+            if ( $prep_time !== '' && $prep_time !== null && intval( $prep_time ) > 0 ) {
                 $schema['prepTime'] = 'PT' . intval( $prep_time ) . 'M';
             }
-            if ( $cook_time )  {
+            if ( $cook_time !== '' && $cook_time !== null && intval( $cook_time ) > 0 ) {
                 $schema['cookTime'] = 'PT' . intval( $cook_time ) . 'M';
             }
-            if ( $total_time ) {
+            if ( $total_time !== '' && $total_time !== null && intval( $total_time ) > 0 ) {
                 $schema['totalTime'] = 'PT' . intval( $total_time ) . 'M';
             }
 

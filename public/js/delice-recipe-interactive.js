@@ -137,7 +137,11 @@
         checkboxes.forEach(function (cb) {
             cb.addEventListener('change', function () {
                 var id = this.getAttribute('id');
-                if (id) localStorage.setItem('ingredient_' + id, this.checked ? '1' : '0');
+                if (id) {
+                    try {
+                        localStorage.setItem('ingredient_' + id, this.checked ? '1' : '0');
+                    } catch (e) { /* storage unavailable (private browsing / quota) */ }
+                }
             });
         });
     }

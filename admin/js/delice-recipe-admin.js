@@ -284,22 +284,32 @@
                 ' ' + (index + 1) + '/' + keywords.length + ': ' + keyword
             );
             
+            // Escape a string for safe HTML insertion.
+            function escBulkHtml(str) {
+                return String(str)
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
             // Add placeholder row
             const rowId = 'bulk-row-' + index;
-            $('#bulk-results-table').append(`
-                <tr id="${rowId}">
-                    <td>${keyword}</td>
-                    <td><span class="spinner is-active"></span> ${deliceRecipe.generatingText || 'Generating...'}</td>
-                    <td>${deliceRecipe.pendingText || 'Pending'}</td>
-                    <td>-</td>
-                </tr>
-            `);
-            
-            
+            const safeKeyword = escBulkHtml(keyword);
+            $('#bulk-results-table').append(
+                '<tr id="' + rowId + '">' +
+                    '<td>' + safeKeyword + '</td>' +
+                    '<td><span class="spinner is-active"></span> ' + escBulkHtml(deliceRecipe.generatingText || 'Generating...') + '</td>' +
+                    '<td>' + escBulkHtml(deliceRecipe.pendingText || 'Pending') + '</td>' +
+                    '<td>-</td>' +
+                '</tr>'
+            );
+
+
             // Send AJAX request
             $.ajax({
                 url: deliceRecipe.ajaxUrl,
                 type: 'POST',
+                timeout: 120000,
                 data: {
                     action: 'delice_generate_bulk_recipes',
                     nonce: deliceRecipe.nonce,
@@ -308,37 +318,39 @@
                     auto_publish: autoPublish
                 },
                 success: function(response) {
-                    
+
                     if (response.success) {
+                        var editUrl  = escBulkHtml(response.data.edit_url  || '');
+                        var viewUrl  = escBulkHtml(response.data.view_url  || '');
+                        var title    = escBulkHtml(response.data.title     || '');
+                        var editText = escBulkHtml(deliceRecipe.editText   || 'Edit');
+                        var viewText = escBulkHtml(deliceRecipe.viewText   || 'View');
                         // Update row with success
-                        $('#' + rowId).html(`
-                            <td>${keyword}</td>
-                            <td>${response.data.title}</td>
-                            <td><span class="dashicons dashicons-yes-alt" style="color: green;"></span> ${deliceRecipe.successText || 'Success'}</td>
-                            <td>
-                                <a href="${response.data.edit_url}" class="button button-small">
-                                    <span class="dashicons dashicons-edit"></span> ${deliceRecipe.editText || 'Edit'}
-                                </a>
-                                <a href="${response.data.view_url}" class="button button-small" target="_blank">
-                                    <span class="dashicons dashicons-visibility"></span> ${deliceRecipe.viewText || 'View'}
-                                </a>
-                            </td>
-                        `);
+                        $('#' + rowId).html(
+                            '<td>' + safeKeyword + '</td>' +
+                            '<td>' + title + '</td>' +
+                            '<td><span class="dashicons dashicons-yes-alt" style="color:green;"></span> ' + escBulkHtml(deliceRecipe.successText || 'Success') + '</td>' +
+                            '<td>' +
+                                '<a href="' + editUrl + '" class="button button-small"><span class="dashicons dashicons-edit"></span> ' + editText + '</a> ' +
+                                '<a href="' + viewUrl + '" class="button button-small" target="_blank"><span class="dashicons dashicons-visibility"></span> ' + viewText + '</a>' +
+                            '</td>'
+                        );
                     } else {
                         // Update row with error
-                        $('#' + rowId).html(`
-                            <td>${keyword}</td>
-                            <td>-</td>
-                            <td><span class="dashicons dashicons-no-alt" style="color: red;"></span> ${deliceRecipe.errorText || 'Error'}</td>
-                            <td>${response.data.message || 'Failed to generate recipe'}</td>
-                        `);
+                        var errMsg = escBulkHtml((response.data && response.data.message) ? response.data.message : 'Failed to generate recipe');
+                        $('#' + rowId).html(
+                            '<td>' + safeKeyword + '</td>' +
+                            '<td>-</td>' +
+                            '<td><span class="dashicons dashicons-no-alt" style="color:red;"></span> ' + escBulkHtml(deliceRecipe.errorText || 'Error') + '</td>' +
+                            '<td>' + errMsg + '</td>'
+                        );
                     }
-                    
+
                     // Update progress
                     const completed = index + 1;
                     $('#recipes-completed').text(completed);
                     $('.progress-fill').css('width', (completed / keywords.length * 100) + '%');
-                    
+
                     // Process next keyword
                     setTimeout(function() {
                         processBulkKeywords(keywords, index + 1);
@@ -346,27 +358,25 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Bulk recipe AJAX Error for ' + keyword + ':', xhr, status, error);
-                    
-                    // Update row with error
-                    let errorMessage = 'Connection error: ' + status;
+
+                    // Update row with error — escape all dynamic content before injection
+                    var errorMessage = 'Connection error: ' + escBulkHtml(status);
                     if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
-                        errorMessage = xhr.responseJSON.data.message;
-                    } else if (xhr.responseText) {
-                        errorMessage = xhr.responseText.substring(0, 100) + '...';
+                        errorMessage = escBulkHtml(xhr.responseJSON.data.message);
                     }
-                    
-                    $('#' + rowId).html(`
-                        <td>${keyword}</td>
-                        <td>-</td>
-                        <td><span class="dashicons dashicons-no-alt" style="color: red;"></span> ${deliceRecipe.errorText || 'Error'}</td>
-                        <td>${errorMessage}</td>
-                    `);
-                    
+
+                    $('#' + rowId).html(
+                        '<td>' + safeKeyword + '</td>' +
+                        '<td>-</td>' +
+                        '<td><span class="dashicons dashicons-no-alt" style="color:red;"></span> ' + escBulkHtml(deliceRecipe.errorText || 'Error') + '</td>' +
+                        '<td>' + errorMessage + '</td>'
+                    );
+
                     // Update progress
                     const completed = index + 1;
                     $('#recipes-completed').text(completed);
                     $('.progress-fill').css('width', (completed / keywords.length * 100) + '%');
-                    
+
                     // Process next keyword
                     setTimeout(function() {
                         processBulkKeywords(keywords, index + 1);
