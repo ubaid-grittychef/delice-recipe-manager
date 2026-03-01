@@ -43,8 +43,6 @@ class Delice_Recipe_Admin {
         add_action( 'wp_ajax_delice_wprm_scan',   array( $this, 'ajax_wprm_scan' ) );
         add_action( 'wp_ajax_delice_wprm_import', array( $this, 'ajax_wprm_import' ) );
 
-        // AJAX: run plugin update from the Settings > Updates tab
-        add_action( 'wp_ajax_delice_run_plugin_update', array( $this, 'handle_plugin_update_ajax' ) );
     }
     
     /**
@@ -589,39 +587,6 @@ class Delice_Recipe_Admin {
 
         wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&delice_cache_cleared=1' ) );
         exit;
-    }
-
-    /**
-     * AJAX handler: install the available plugin update directly.
-     *
-     * Called by the "Update Plugin" button in Settings > Updates tab.
-     * Uses WordPress's own Plugin_Upgrader so all existing GitHub-updater
-     * hooks (pre_download, fix_source_directory, purge_cache) fire normally.
-     */
-    public function handle_plugin_update_ajax() {
-        check_ajax_referer( 'delice_run_update', 'nonce' );
-
-        if ( ! current_user_can( 'update_plugins' ) ) {
-            wp_send_json_error( __( 'You do not have permission to update plugins.', 'delice-recipe-manager' ) );
-        }
-
-        require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-        require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-        $plugin_file = plugin_basename( DELICE_RECIPE_PLUGIN_FILE );
-        $skin        = new WP_Ajax_Upgrader_Skin();
-        $upgrader    = new Plugin_Upgrader( $skin );
-        $result      = $upgrader->upgrade( $plugin_file );
-
-        if ( is_wp_error( $result ) ) {
-            wp_send_json_error( $result->get_error_message() );
-        } elseif ( false === $result ) {
-            $errors = $skin->get_upgrade_messages();
-            wp_send_json_error( ! empty( $errors ) ? implode( ' ', $errors ) : __( 'Update failed.', 'delice-recipe-manager' ) );
-        } else {
-            wp_send_json_success( __( 'Plugin updated successfully.', 'delice-recipe-manager' ) );
-        }
     }
 
     /**
