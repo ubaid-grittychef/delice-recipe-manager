@@ -981,17 +981,20 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                                 <p class="description"><?php esc_html_e( 'GitHub API responses are cached for 12 hours.', 'delice-recipe-manager' ); ?></p>
                             </td>
                         </tr>
-                        <?php if ( $has_update ) : ?>
+                        <?php if ( $has_update ) :
+                            $plugin_file = plugin_basename( DELICE_RECIPE_PLUGIN_FILE );
+                            $wp_update_url = wp_nonce_url(
+                                admin_url( 'update.php?action=upgrade-plugin&plugin=' . urlencode( $plugin_file ) ),
+                                'upgrade-plugin_' . $plugin_file
+                            );
+                        ?>
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Install update', 'delice-recipe-manager' ); ?></th>
                             <td>
-                                <button type="button" id="drm-update-plugin-btn"
-                                        class="button button-primary"
-                                        data-nonce="<?php echo esc_attr( wp_create_nonce( 'delice_run_update' ) ); ?>">
+                                <a href="<?php echo esc_url( $wp_update_url ); ?>" class="button button-primary">
                                     <?php printf( esc_html__( 'Update to v%s', 'delice-recipe-manager' ), esc_html( $remote_ver ) ); ?>
-                                </button>
-                                <span id="drm-update-status" style="display:none;margin-left:10px;font-style:italic;color:#646970;"></span>
-                                <p class="description"><?php esc_html_e( 'Installs the update directly — no need to visit the Plugins page.', 'delice-recipe-manager' ); ?></p>
+                                </a>
+                                <p class="description"><?php esc_html_e( 'Installs the update via WordPress — the plugin will reactivate automatically on success.', 'delice-recipe-manager' ); ?></p>
                             </td>
                         </tr>
                         <?php endif; ?>
@@ -1035,39 +1038,5 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
             radio.closest('.drm-template-card').classList.add('is-selected');
         });
     });
-
-    // Update Plugin button
-    var updateBtn = document.getElementById('drm-update-plugin-btn');
-    if ( updateBtn ) {
-        updateBtn.addEventListener('click', function() {
-            var btn    = this;
-            var status = document.getElementById('drm-update-status');
-            btn.disabled    = true;
-            btn.textContent = '<?php echo esc_js( __( 'Updating…', 'delice-recipe-manager' ) ); ?>';
-            if ( status ) { status.style.display = 'inline'; status.textContent = '<?php echo esc_js( __( 'Installing update…', 'delice-recipe-manager' ) ); ?>'; }
-
-            var data = new FormData();
-            data.append( 'action', 'delice_run_plugin_update' );
-            data.append( 'nonce',  btn.dataset.nonce );
-
-            fetch( ajaxurl, { method: 'POST', body: data } )
-                .then( function(r) { return r.json(); } )
-                .then( function(resp) {
-                    if ( resp.success ) {
-                        if ( status ) status.textContent = '<?php echo esc_js( __( 'Updated! Reloading…', 'delice-recipe-manager' ) ); ?>';
-                        setTimeout( function() { location.reload(); }, 1800 );
-                    } else {
-                        if ( status ) status.textContent = ( resp.data || '<?php echo esc_js( __( 'Update failed.', 'delice-recipe-manager' ) ); ?>' );
-                        btn.disabled    = false;
-                        btn.textContent = '<?php echo esc_js( __( 'Retry Update', 'delice-recipe-manager' ) ); ?>';
-                    }
-                } )
-                .catch( function() {
-                    if ( status ) status.textContent = '<?php echo esc_js( __( 'Network error.', 'delice-recipe-manager' ) ); ?>';
-                    btn.disabled    = false;
-                    btn.textContent = '<?php echo esc_js( __( 'Retry Update', 'delice-recipe-manager' ) ); ?>';
-                } );
-        });
-    }
 })();
 </script>
