@@ -10,35 +10,35 @@ class Delice_Recipe_Language {
      * Get current language
      */
     public static function get_current_language() {
-        // Check URL parameter first
-        if (isset($_GET['lang'])) {
-            $lang = sanitize_text_field($_GET['lang']);
-            $enabled_languages = get_option('delice_recipe_enabled_languages', array('en_US'));
-            if (in_array($lang, $enabled_languages)) {
+        // Check URL parameter first (for multilingual setups)
+        if ( isset( $_GET['lang'] ) ) {
+            $lang = sanitize_key( $_GET['lang'] );
+            // Accept any valid locale code (e.g. en_US, fr_FR, ja)
+            if ( preg_match( '/^[a-z]{2,3}(_[A-Z]{2})?$/', $lang ) ) {
                 return $lang;
             }
         }
-        
-        // Fall back to default language
-        return get_option('delice_recipe_default_language', 'en_US');
+
+        // Read from the option key the admin Settings > Languages tab saves to
+        $selected = get_option( 'delice_recipe_selected_language', '' );
+        if ( $selected ) {
+            return $selected;
+        }
+
+        // Backward compat: old option key used by legacy admin forms
+        return get_option( 'delice_recipe_default_language', 'en_US' );
     }
 
     /**
      * Get language text for a specific key
      */
-    public static function get_text($key, $default = '') {
-        $language = self::get_current_language();
-        $language_texts = get_option('delice_recipe_language_texts', array());
-        
-        if (isset($language_texts[$language][$key])) {
-            return $language_texts[$language][$key];
+    public static function get_text( $key, $default = '' ) {
+        $texts = self::get_all_texts();
+
+        if ( isset( $texts[ $key ] ) && $texts[ $key ] !== '' ) {
+            return $texts[ $key ];
         }
-        
-        // Fall back to English if available
-        if ($language !== 'en_US' && isset($language_texts['en_US'][$key])) {
-            return $language_texts['en_US'][$key];
-        }
-        
+
         return $default;
     }
 
@@ -47,31 +47,49 @@ class Delice_Recipe_Language {
      */
     public static function get_all_texts() {
         $language = self::get_current_language();
-        $language_texts = get_option('delice_recipe_language_texts', array());
-        
-        $texts = isset($language_texts[$language]) ? $language_texts[$language] : array();
-        
+
+        // Read from new option key (set by admin Settings > Languages tab)
+        $texts = get_option( "delice_recipe_translations_{$language}", array() );
+
+        // Backward compat: try old nested option format used by legacy admin forms
+        if ( empty( $texts ) ) {
+            $legacy = get_option( 'delice_recipe_language_texts', array() );
+            if ( isset( $legacy[ $language ] ) ) {
+                $texts = (array) $legacy[ $language ];
+            }
+        }
+
+        // Normalize key aliases: admin form saves print_button/rating, defaults use print/rate
+        $key_aliases = array(
+            'print_button' => 'print',
+            'rating'       => 'rate',
+        );
+        foreach ( $key_aliases as $alias => $canonical ) {
+            if ( isset( $texts[ $alias ] ) && ! isset( $texts[ $canonical ] ) ) {
+                $texts[ $canonical ] = $texts[ $alias ];
+            }
+        }
+
         // Merge with defaults to ensure all keys exist
         $defaults = array(
-            'servings' => 'Servings',
-            'prep_time' => 'Prep Time',
-            'cook_time' => 'Cook Time',
-            'total_time' => 'Total Time',
-            'calories' => 'Calories',
-            'difficulty' => 'Difficulty',
-            'ingredients' => 'Ingredients',
-            'instructions' => 'Instructions',
-            'notes' => 'Notes',
-            'faqs' => 'Frequently Asked Questions',
-            'print' => 'Print Recipe',
-            'copy' => 'Copy Ingredients',
-            'share' => 'Share',
-            'rate' => 'Rate this Recipe',
-            'submitted_by' => 'Submitted by',
-            'tested_by' => 'Tested by',
-            'min' => 'min',
-            'mins' => 'mins',
-            // v3.6.0 additions
+            'servings'             => 'Servings',
+            'prep_time'            => 'Prep Time',
+            'cook_time'            => 'Cook Time',
+            'total_time'           => 'Total Time',
+            'calories'             => 'Calories',
+            'difficulty'           => 'Difficulty',
+            'ingredients'          => 'Ingredients',
+            'instructions'         => 'Instructions',
+            'notes'                => 'Notes',
+            'faqs'                 => 'Frequently Asked Questions',
+            'print'                => 'Print Recipe',
+            'copy'                 => 'Copy Ingredients',
+            'share'                => 'Share',
+            'rate'                 => 'Rate this Recipe',
+            'submitted_by'         => 'Submitted by',
+            'tested_by'            => 'Tested by',
+            'min'                  => 'min',
+            'mins'                 => 'mins',
             'updated'              => 'Updated',
             'nutrition_disclaimer' => 'Nutrition values are estimates and may vary based on ingredients used.',
             'home'                 => 'Home',
@@ -83,8 +101,8 @@ class Delice_Recipe_Language {
             'timer_done'           => 'Timer done!',
             'related_recipes'      => 'You Might Also Like',
         );
-        
-        return array_merge($defaults, $texts);
+
+        return array_merge( $defaults, $texts );
     }
 
     /**
@@ -103,7 +121,7 @@ class Delice_Recipe_Language {
             'russian' => 'ru_RU',
             'arabic' => 'ar'
         );
-        
+
         $normalized = strtolower(trim($ai_language));
         return isset($mapping[$normalized]) ? $mapping[$normalized] : 'en_US';
     }
@@ -125,7 +143,7 @@ class Delice_Recipe_Language {
             'ru_RU' => 'russian',
             'ar' => 'arabic'
         );
-        
+
         return isset($mapping[$locale]) ? $mapping[$locale] : 'english';
     }
 
@@ -154,7 +172,7 @@ class Delice_Recipe_Language {
      */
     public static function get_frontend_script_data() {
         $texts = self::get_all_texts();
-        
+
         return array(
             'language' => self::get_current_language(),
             'texts' => $texts,
