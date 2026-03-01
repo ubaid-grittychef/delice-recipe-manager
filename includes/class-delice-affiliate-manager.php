@@ -445,6 +445,60 @@ class Delice_Affiliate_Manager {
     // ── Language detection ────────────────────────────────────────────────────
 
     /**
+     * Build an affiliate Amazon URL from a manually-supplied product URL.
+     *
+     * Strips any existing `tag=` parameter and appends the correct tracking ID
+     * for the recipe's language (same platform resolution used in inject_links).
+     *
+     * @param  string $product_url  Raw Amazon product URL pasted by the user.
+     * @param  int    $recipe_id    Recipe post ID (used for language detection).
+     * @return array  { url: string, store: string }
+     */
+    public static function build_amazon_url( $product_url, $recipe_id = 0 ) {
+        // Resolve the right Amazon platform the same way inject_links() does.
+        $current_lang = '';
+        if ( $recipe_id > 0 ) {
+            $recipe_locale = get_post_meta( absint( $recipe_id ), '_delice_recipe_language', true );
+            if ( $recipe_locale ) {
+                $current_lang = strtolower( substr( $recipe_locale, 0, 2 ) );
+            }
+        }
+        if ( ! $current_lang ) {
+            $current_lang = self::get_current_language();
+        }
+
+        $platform = null;
+        $fallback  = null;
+        foreach ( self::get_platforms() as $p ) {
+            if ( empty( $p['active'] ) || ( $p['type'] ?? '' ) !== 'amazon' || empty( $p['tracking_id'] ) ) {
+                continue;
+            }
+            $plat_lang = $p['language'] ?? '';
+            if ( $plat_lang && strtolower( $plat_lang ) === $current_lang ) {
+                $platform = $p;
+                break;
+            }
+            if ( ! $fallback ) {
+                $fallback = $p;
+            }
+        }
+        if ( ! $platform ) {
+            $platform = $fallback;
+        }
+
+        if ( ! $platform ) {
+            return array( 'url' => esc_url( $product_url ), 'store' => 'Amazon' );
+        }
+
+        // Strip any existing tag and append our tracking ID.
+        $url   = remove_query_arg( 'tag', esc_url_raw( $product_url ) );
+        $url   = add_query_arg( 'tag', rawurlencode( $platform['tracking_id'] ), $url );
+        $store = ! empty( $platform['name'] ) ? $platform['name'] : 'Amazon';
+
+        return array( 'url' => $url, 'store' => $store );
+    }
+
+    /**
      * Return the current 2-letter language code.
      *
      * Priority: WPML → Polylang → WordPress locale (fr_FR → fr).

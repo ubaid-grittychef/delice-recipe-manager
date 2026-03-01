@@ -434,13 +434,15 @@
 
     function equipmentRowHtml( index, data ) {
         data = data || {};
-        var name     = data.name     || '';
-        var notes    = data.notes    || '';
-        var required = data.required !== false;
+        var name       = data.name        || '';
+        var notes      = data.notes       || '';
+        var productUrl = data.product_url || '';
+        var required   = data.required !== false;
         return (
             '<div class="delice-recipe-equipment-row" style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;">' +
             '<input type="text" name="delice_recipe_equipment[' + index + '][name]" value="' + escEqAttr( name ) + '" placeholder="Equipment name (e.g. Stand Mixer)" style="flex:2;min-width:160px;">' +
             '<input type="text" name="delice_recipe_equipment[' + index + '][notes]" value="' + escEqAttr( notes ) + '" placeholder="Notes (optional)" style="flex:2;min-width:120px;">' +
+            '<input type="url" name="delice_recipe_equipment[' + index + '][product_url]" value="' + escEqAttr( productUrl ) + '" placeholder="Amazon product URL (optional)" style="flex:3;min-width:200px;">' +
             '<label style="white-space:nowrap;font-size:12px;display:flex;align-items:center;gap:4px;">' +
             '<input type="checkbox" name="delice_recipe_equipment[' + index + '][required]" value="1"' + ( required ? ' checked' : '' ) + '> Required' +
             '</label>' +

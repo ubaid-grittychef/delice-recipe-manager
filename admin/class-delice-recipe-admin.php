@@ -1367,6 +1367,10 @@ class Delice_Recipe_Admin {
                            value="<?php echo esc_attr( $item['notes'] ?? '' ); ?>"
                            placeholder="<?php esc_attr_e( 'Notes (optional)', 'delice-recipe-manager' ); ?>"
                            style="flex:2;min-width:120px;">
+                    <input type="url" name="delice_recipe_equipment[<?php echo absint( $index ); ?>][product_url]"
+                           value="<?php echo esc_attr( $item['product_url'] ?? '' ); ?>"
+                           placeholder="<?php esc_attr_e( 'Amazon product URL (optional)', 'delice-recipe-manager' ); ?>"
+                           style="flex:3;min-width:200px;">
                     <label style="white-space:nowrap;font-size:12px;display:flex;align-items:center;gap:4px;">
                         <input type="checkbox" name="delice_recipe_equipment[<?php echo absint( $index ); ?>][required]" value="1" <?php checked( ! empty( $item['required'] ) ); ?>>
                         <?php esc_html_e( 'Required', 'delice-recipe-manager' ); ?>
@@ -1383,7 +1387,7 @@ class Delice_Recipe_Admin {
                 <span id="extract-equipment-status" style="font-size:12px;color:#646970;"></span>
             </div>
             <p style="margin:8px 0 0;font-size:11px;color:#8c8f94;">
-                <?php esc_html_e( 'AI reads your saved Instructions and auto-fills equipment. Review, then save the post. Affiliate buy buttons appear automatically when keyword rules match.', 'delice-recipe-manager' ); ?>
+                <?php esc_html_e( 'AI reads your saved Instructions and auto-fills equipment. Paste an Amazon product URL to link directly to a specific product you\'ve chosen; leave blank to use keyword rules. Review, then save the post.', 'delice-recipe-manager' ); ?>
             </p>
         </div>
         <?php
