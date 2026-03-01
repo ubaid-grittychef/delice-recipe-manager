@@ -75,6 +75,7 @@ class Delice_Affiliate_Manager {
                 'name'        => sanitize_text_field( $p['name'] ?? '' ),
                 'tracking_id' => sanitize_text_field( $p['tracking_id'] ?? '' ),
                 'active'      => ! empty( $p['active'] ),
+                'language'    => strtolower( sanitize_text_field( $p['language'] ?? '' ) ),
             );
             if ( $type === 'amazon' ) {
                 $regions = array_keys( self::AMAZON_REGIONS );
@@ -329,16 +330,30 @@ class Delice_Affiliate_Manager {
         $cap         = min( $max_links, $density_cap );
         $linked      = 0;
 
-        // When auto_link is on, resolve the first active Amazon platform once.
+        // When auto_link is on, resolve the best Amazon platform for the current language once.
         $auto_amazon = null;
         if ( ! empty( $settings['auto_link'] ) ) {
+            $current_lang = self::get_current_language();
+            $fallback     = null;
             foreach ( self::get_platforms() as $platform ) {
-                if ( ! empty( $platform['active'] )
-                     && ( $platform['type'] ?? '' ) === 'amazon'
-                     && ! empty( $platform['tracking_id'] ) ) {
+                if ( empty( $platform['active'] )
+                     || ( $platform['type'] ?? '' ) !== 'amazon'
+                     || empty( $platform['tracking_id'] ) ) {
+                    continue;
+                }
+                // Exact language match wins immediately.
+                $plat_lang = $platform['language'] ?? '';
+                if ( $plat_lang && strtolower( $plat_lang ) === $current_lang ) {
                     $auto_amazon = $platform;
                     break;
                 }
+                // Keep first active Amazon as fallback for unmatched languages.
+                if ( ! $fallback ) {
+                    $fallback = $platform;
+                }
+            }
+            if ( ! $auto_amazon ) {
+                $auto_amazon = $fallback;
             }
         }
 
@@ -411,6 +426,32 @@ class Delice_Affiliate_Manager {
             'button_text'     => sanitize_text_field( $raw['button_text'] ?? 'Buy' ),
             'show_store_name' => ! empty( $raw['show_store_name'] ),
         );
+    }
+
+    // ── Language detection ────────────────────────────────────────────────────
+
+    /**
+     * Return the current 2-letter language code.
+     *
+     * Priority: WPML → Polylang → WordPress locale (fr_FR → fr).
+     */
+    private static function get_current_language() {
+        // WPML
+        if ( function_exists( 'apply_filters' ) ) {
+            $wpml = apply_filters( 'wpml_current_language', null );
+            if ( $wpml && is_string( $wpml ) ) {
+                return strtolower( substr( $wpml, 0, 5 ) );
+            }
+        }
+        // Polylang
+        if ( function_exists( 'pll_current_language' ) ) {
+            $pll = pll_current_language();
+            if ( $pll && is_string( $pll ) ) {
+                return strtolower( $pll );
+            }
+        }
+        // WordPress locale (fr_FR → fr, en_US → en)
+        return strtolower( substr( get_locale(), 0, 2 ) );
     }
 
     // ── Disclosure HTML ───────────────────────────────────────────────────────
