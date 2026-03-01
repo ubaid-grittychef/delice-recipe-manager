@@ -22,8 +22,15 @@
  *     fetched without making the repo public.
  *  5. upgrader_source_selection              – Renames the extracted GitHub
  *     archive directory to match the expected plugin folder name.
- *  6. upgrader_process_complete              – Clears the cached API response
- *     after a successful update.
+ *  6. upgrader_pre_install (priority 5)      – Sets a recovery transient and
+ *     registers the shutdown safety-net BEFORE WordPress deactivates the
+ *     plugin (WordPress does that at priority 10).
+ *  7. upgrader_process_complete              – Clears cache; force-reactivates
+ *     the plugin if WordPress's own reactivation silently failed (success path).
+ *  8. shutdown                               – Universal safety net: if the
+ *     upgrade request ended (even via exit/redirect/fatal) with the plugin
+ *     still deactivated, adds it back to active_plugins so the next page
+ *     load works normally (failure path).
  *
  * Update workflow (no GitHub Releases or tags needed):
  *  1. Bump the Version: line in the plugin's main PHP file.
@@ -59,6 +66,9 @@ class Delice_GitHub_Updater {
     /** How long to cache the API response (seconds).  Default: 12 hours. */
     private $cache_ttl = 43200;
 
+    /** Transient key for the upgrade-in-progress recovery flag */
+    private $recovery_key;
+
     /**
      * @param string $plugin_file  Absolute path to the main plugin file (__FILE__).
      * @param string $github_user  GitHub username or organisation.
@@ -66,19 +76,28 @@ class Delice_GitHub_Updater {
      * @param string $version      Current plugin version string.
      */
     public function __construct( $plugin_file, $github_user, $github_repo, $version ) {
-        $this->slug        = plugin_basename( $plugin_file );
-        $this->github_user = sanitize_text_field( $github_user );
-        $this->github_repo = sanitize_text_field( $github_repo );
-        $this->version     = $version;
-        $this->token       = get_option( 'delice_github_token', '' );
-        $this->cache_key   = 'delice_gh_updater_' . md5( $this->slug );
+        $this->slug         = plugin_basename( $plugin_file );
+        $this->github_user  = sanitize_text_field( $github_user );
+        $this->github_repo  = sanitize_text_field( $github_repo );
+        $this->version      = $version;
+        $this->token        = get_option( 'delice_github_token', '' );
+        $this->cache_key    = 'delice_gh_updater_' . md5( $this->slug );
+        $this->recovery_key = 'delice_upgrade_recovery_' . md5( $this->slug );
 
         add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_update' ) );
         add_filter( 'site_transient_update_plugins',         array( $this, 'inject_update_on_read' ) );
         add_filter( 'plugins_api',                           array( $this, 'plugin_info' ), 20, 3 );
         add_filter( 'upgrader_pre_download',                 array( $this, 'pre_download' ), 10, 3 );
         add_filter( 'upgrader_source_selection',             array( $this, 'fix_source_directory' ), 10, 4 );
-        add_action( 'upgrader_process_complete',             array( $this, 'purge_cache' ), 10, 2 );
+
+        // Priority 5 — runs BEFORE WordPress's own deactivate_plugin_before_upgrade (priority 10).
+        // Sets the recovery transient and registers the shutdown safety net so we can
+        // reactivate the plugin even if the upgrade fails part-way through.
+        add_filter( 'upgrader_pre_install', array( $this, 'before_self_upgrade' ), 5, 2 );
+
+        // Fires only on successful upgrade. Purges the cached release data and
+        // acts as an additional reactivation safety net for the success path.
+        add_action( 'upgrader_process_complete', array( $this, 'after_self_upgrade' ), 10, 2 );
     }
 
     // -------------------------------------------------------------------------
@@ -449,22 +468,140 @@ class Delice_GitHub_Updater {
         return trailingslashit( $target );
     }
 
+    // -------------------------------------------------------------------------
+    // Upgrade lifecycle — reactivation safety net
+    // -------------------------------------------------------------------------
+
     /**
-     * Hook: upgrader_process_complete
+     * Hook: upgrader_pre_install  (priority 5 — before WP's own priority-10 callback)
      *
-     * Deletes the cached API response after a plugin update so the next
-     * admin page load fetches fresh data from GitHub.
+     * Called just before WordPress deactivates the plugin and starts installing
+     * the new files. We set a recovery transient here and register a shutdown
+     * callback so that the plugin is guaranteed to end up in active_plugins
+     * regardless of whether the upgrade succeeds or fails.
+     *
+     * @param  bool|WP_Error $response   Current filter value.
+     * @param  array         $hook_extra Data about the upgrade (includes 'plugin').
+     * @return bool|WP_Error Unchanged $response.
+     */
+    public function before_self_upgrade( $response, $hook_extra ) {
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        // Only act when OUR plugin is being upgraded.
+        if ( ! isset( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== $this->slug ) {
+            return $response;
+        }
+
+        // Mark that an upgrade of this plugin is in progress.
+        // TTL of 10 minutes is generous; the transient is deleted on completion.
+        set_transient( $this->recovery_key, 1, 10 * MINUTE_IN_SECONDS );
+
+        // Register the shutdown safety net. PHP's shutdown handler fires even
+        // after wp_redirect()+exit() or a fatal error, so this always runs.
+        add_action( 'shutdown', array( $this, 'reactivate_on_shutdown' ) );
+
+        return $response;
+    }
+
+    /**
+     * Hook: upgrader_process_complete  (success path only)
+     *
+     * WordPress only fires this action when the upgrade fully succeeded.
+     * We use it to:
+     *   1. Purge our cached GitHub release info (so the update badge disappears).
+     *   2. Clear the recovery transient (signals reactivate_on_shutdown to skip).
+     *   3. Force-reactivate the plugin if WordPress's own reactivation silently
+     *      failed (e.g. activate_plugin_after_upgrade encountered a WP_Error
+     *      from a different filter but the overall install still completed).
      *
      * @param WP_Upgrader $upgrader Upgrader instance.
-     * @param array       $options  Upgrade options.
+     * @param array       $options  Upgrade options array.
      */
-    public function purge_cache( $upgrader, $options ) {
+    public function after_self_upgrade( $upgrader, $options ) {
         if (
-            isset( $options['action'], $options['type'] ) &&
-            'update' === $options['action'] &&
-            'plugin' === $options['type']
+            ! isset( $options['action'], $options['type'] ) ||
+            'update' !== $options['action'] ||
+            'plugin' !== $options['type']
         ) {
-            delete_transient( $this->cache_key );
+            return;
+        }
+
+        // Purge the cached GitHub release info.
+        delete_transient( $this->cache_key );
+        delete_site_transient( 'update_plugins' );
+
+        // Collect which plugins were updated (handle singular and bulk).
+        $updated = array();
+        if ( isset( $options['plugins'] ) ) {
+            $updated = (array) $options['plugins'];
+        } elseif ( isset( $options['plugin'] ) ) {
+            $updated = array( $options['plugin'] );
+        }
+
+        if ( ! in_array( $this->slug, $updated, true ) ) {
+            return; // Our plugin was not part of this upgrade batch.
+        }
+
+        // Upgrade succeeded — clear the recovery flag so shutdown does nothing.
+        delete_transient( $this->recovery_key );
+
+        // Extra safety: if WordPress's activate_plugin_after_upgrade silently
+        // failed to reactivate (e.g. because $hook_extra was malformed), fix it now.
+        $active = (array) get_option( 'active_plugins', array() );
+        if ( ! in_array( $this->slug, $active, true ) && file_exists( WP_PLUGIN_DIR . '/' . $this->slug ) ) {
+            $active[] = $this->slug;
+            sort( $active );
+            update_option( 'active_plugins', array_unique( $active ) );
+        }
+    }
+
+    /**
+     * Hook: shutdown  (registered only during an upgrade of our plugin)
+     *
+     * This fires at the very end of the upgrade request — after wp_redirect()+exit(),
+     * after a fatal error, after everything.  If the recovery transient still
+     * exists at this point, it means the upgrade either failed or the success
+     * path (after_self_upgrade) didn't clear it in time, so the plugin was
+     * left deactivated.  We restore it to active_plugins directly.
+     *
+     * Writing to active_plugins via update_option() is safe in a shutdown
+     * handler because the database connection is still alive at this point.
+     * We bypass activate_plugin() intentionally to avoid include_once
+     * complications and activation-hook side-effects during shutdown.
+     */
+    public function reactivate_on_shutdown() {
+        if ( ! get_transient( $this->recovery_key ) ) {
+            // Recovery transient was already deleted by after_self_upgrade
+            // (success path) — nothing to do.
+            return;
+        }
+
+        // Always clear the flag regardless of what we do next.
+        delete_transient( $this->recovery_key );
+
+        // Bail if the plugin file is not on disk (upgrade may have corrupted it).
+        if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->slug ) ) {
+            return;
+        }
+
+        // Re-add the plugin to active_plugins if it was left deactivated.
+        $active = (array) get_option( 'active_plugins', array() );
+        if ( in_array( $this->slug, $active, true ) ) {
+            return; // Already active — no action needed.
+        }
+
+        $active[] = $this->slug;
+        sort( $active );
+        update_option( 'active_plugins', array_unique( $active ) );
+
+        // Also clear any WordPress recovery-mode "paused plugin" entry so the
+        // plugin is not silently blocked on the next request.
+        $paused = (array) get_option( '_wp_paused_plugins', array() );
+        if ( isset( $paused[ $this->slug ] ) ) {
+            unset( $paused[ $this->slug ] );
+            update_option( '_wp_paused_plugins', $paused );
         }
     }
 }
