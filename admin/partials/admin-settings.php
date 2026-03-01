@@ -1,18 +1,33 @@
 <?php
 /**
- * Settings page — v3.8.2
- * Market-standard tabbed layout: General · Attribution · SEO & Schema ·
- *   AI Generator · Reviews · Updates
- *
- * All settings live in one <form> → options.php so WordPress handles saving,
- * nonces, and sanitisation via register_setting() / sanitize callbacks.
- * Tabs are JS-toggled (no page reload needed).
+ * Settings page — v3.9.2
+ * Tabbed layout: General · Attribution · SEO · AI Generator · Reviews ·
+ *   Languages · Updates
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+// ── Languages tab: handle form submission before any HTML output ─────────────
+if ( isset( $_POST['_delice_lang_save'] ) ) {
+    check_admin_referer( 'delice_language_settings_nonce', '_delice_lang_nonce' );
+    if ( current_user_can( 'manage_options' ) ) {
+        $selected_language = isset( $_POST['selected_language'] ) ? sanitize_key( $_POST['selected_language'] ) : 'en_US';
+        update_option( 'delice_recipe_selected_language', $selected_language );
+        $lang_fields = array( 'ingredients', 'instructions', 'servings', 'prep_time', 'cook_time', 'total_time', 'difficulty', 'calories', 'notes', 'faqs', 'print_button', 'rating', 'reviews', 'submitted_by', 'tested_by' );
+        $lang_translations = array();
+        foreach ( $lang_fields as $lf ) {
+            if ( isset( $_POST[ "translation_{$lf}" ] ) ) {
+                $lang_translations[ $lf ] = sanitize_text_field( $_POST[ "translation_{$lf}" ] );
+            }
+        }
+        update_option( "delice_recipe_translations_{$selected_language}", $lang_translations );
+        wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&tab=languages&saved=1' ) );
+        exit;
+    }
+}
+
 // ── Active tab (default: general) ────────────────────────────────────────────
 $active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
-$valid_tabs = array( 'general', 'attribution', 'seo', 'ai', 'reviews', 'updates' );
+$valid_tabs = array( 'general', 'attribution', 'seo', 'ai', 'reviews', 'languages', 'updates' );
 if ( ! in_array( $active_tab, $valid_tabs, true ) ) {
     $active_tab = 'general';
 }
@@ -73,6 +88,40 @@ $enable_ai_images  = get_option( 'delice_recipe_enable_ai_images', false );
 $image_style       = get_option( 'delice_recipe_image_style', 'vivid' );
 $image_size        = get_option( 'delice_recipe_image_size', '1024x1024' );
 $github_token      = get_option( 'delice_github_token', '' );
+
+// ── Language settings data (for Languages tab) ────────────────────────────────
+$lang_selected  = get_option( 'delice_recipe_selected_language', 'en_US' );
+$lang_translations_saved = get_option( "delice_recipe_translations_{$lang_selected}", array() );
+$lang_list = array(
+    'en_US' => 'English (US)',
+    'en_GB' => 'English (UK)',
+    'fr_FR' => 'French',
+    'es_ES' => 'Spanish',
+    'de_DE' => 'German',
+    'it_IT' => 'Italian',
+    'pt_BR' => 'Portuguese (Brazil)',
+    'ja'    => 'Japanese',
+    'zh_CN' => 'Chinese (Simplified)',
+    'ru_RU' => 'Russian',
+    'ar'    => 'Arabic',
+);
+$lang_label_fields = array(
+    'ingredients'  => 'Ingredients',
+    'instructions' => 'Instructions',
+    'servings'     => 'Servings',
+    'prep_time'    => 'Prep Time',
+    'cook_time'    => 'Cook Time',
+    'total_time'   => 'Total Time',
+    'difficulty'   => 'Difficulty',
+    'calories'     => 'Calories',
+    'notes'        => 'Notes',
+    'faqs'         => 'FAQs',
+    'print_button' => 'Print Button',
+    'rating'       => 'Rating',
+    'reviews'      => 'Reviews',
+    'submitted_by' => 'Submitted By',
+    'tested_by'    => 'Tested By',
+);
 
 // ── GitHub update status ──────────────────────────────────────────────────────
 $cache_key   = 'delice_gh_updater_' . md5( plugin_basename( DELICE_RECIPE_PLUGIN_FILE ) );
@@ -220,6 +269,90 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
         <span style="font-size:13px;font-weight:400;color:#8c8f94;margin-left:8px;">v<?php echo esc_html( $current_ver ); ?></span>
     </h1>
 
+<?php if ( $active_tab === 'languages' ) : ?>
+
+    <!-- ── LANGUAGES TAB: standalone form (not options.php) ──────────────── -->
+
+    <?php if ( isset( $_GET['saved'] ) && '1' === $_GET['saved'] ) : ?>
+        <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Language settings saved.', 'delice-recipe-manager' ); ?></p></div>
+    <?php endif; ?>
+
+    <!-- Nav tabs (outside any form) -->
+    <nav class="nav-tab-wrapper wp-clearfix" aria-label="<?php esc_attr_e( 'Settings sections', 'delice-recipe-manager' ); ?>">
+        <a href="<?php echo esc_url( $tab_url . 'general' ); ?>"      class="nav-tab"><?php esc_html_e( 'General', 'delice-recipe-manager' ); ?></a>
+        <a href="<?php echo esc_url( $tab_url . 'attribution' ); ?>"  class="nav-tab"><?php esc_html_e( 'Attribution', 'delice-recipe-manager' ); ?></a>
+        <a href="<?php echo esc_url( $tab_url . 'seo' ); ?>"          class="nav-tab"><?php esc_html_e( 'SEO &amp; Schema', 'delice-recipe-manager' ); ?></a>
+        <a href="<?php echo esc_url( $tab_url . 'ai' ); ?>"           class="nav-tab"><?php esc_html_e( 'AI Generator', 'delice-recipe-manager' ); ?></a>
+        <a href="<?php echo esc_url( $tab_url . 'reviews' ); ?>"      class="nav-tab"><?php esc_html_e( 'Reviews', 'delice-recipe-manager' ); ?></a>
+        <a href="<?php echo esc_url( $tab_url . 'languages' ); ?>"    class="nav-tab nav-tab-active"><?php esc_html_e( 'Languages', 'delice-recipe-manager' ); ?></a>
+        <a href="<?php echo esc_url( $tab_url . 'updates' ); ?>"      class="nav-tab">
+            <?php esc_html_e( 'Updates', 'delice-recipe-manager' ); ?>
+            <?php if ( $has_update ) : ?><span style="display:inline-block;width:8px;height:8px;background:#d63638;border-radius:50%;margin-left:4px;vertical-align:middle;"></span><?php endif; ?>
+        </a>
+    </nav>
+
+    <div style="padding-top: 16px;">
+    <form method="post" action="" id="drm-lang-form">
+        <?php wp_nonce_field( 'delice_language_settings_nonce', '_delice_lang_nonce' ); ?>
+        <input type="hidden" name="_delice_lang_save" value="1">
+
+        <div class="drm-card">
+            <div class="drm-card-header">
+                <h2><?php esc_html_e( 'Site Language', 'delice-recipe-manager' ); ?></h2>
+            </div>
+            <div class="drm-card-body">
+                <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row"><label for="drm-lang-select"><?php esc_html_e( 'Language', 'delice-recipe-manager' ); ?></label></th>
+                        <td>
+                            <select name="selected_language" id="drm-lang-select" class="regular-text">
+                                <?php foreach ( $lang_list as $code => $label ) : ?>
+                                    <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $lang_selected, $code ); ?>>
+                                        <?php echo esc_html( $label ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php esc_html_e( 'Choose the language for recipe labels, then save.', 'delice-recipe-manager' ); ?></p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="drm-card">
+            <div class="drm-card-header">
+                <h2><?php esc_html_e( 'Custom Labels', 'delice-recipe-manager' ); ?></h2>
+            </div>
+            <div class="drm-card-body">
+                <p class="description" style="margin-bottom:12px;"><?php esc_html_e( 'Override the text labels shown in recipe cards on the front end.', 'delice-recipe-manager' ); ?></p>
+                <table class="form-table" role="presentation">
+                    <?php foreach ( $lang_label_fields as $key => $default_label ) : ?>
+                    <tr>
+                        <th scope="row"><label for="drm-trans-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $default_label ); ?></label></th>
+                        <td>
+                            <input type="text"
+                                   name="translation_<?php echo esc_attr( $key ); ?>"
+                                   id="drm-trans-<?php echo esc_attr( $key ); ?>"
+                                   value="<?php echo esc_attr( $lang_translations_saved[ $key ] ?? '' ); ?>"
+                                   class="regular-text"
+                                   placeholder="<?php echo esc_attr( $default_label ); ?>">
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+
+        <p class="submit">
+            <?php submit_button( __( 'Save Language Settings', 'delice-recipe-manager' ), 'primary', 'submit', false ); ?>
+        </p>
+    </form>
+    </div>
+
+<?php else : ?>
+
+    <!-- ── ALL OTHER TABS: main options.php form ─────────────────────────── -->
+
     <form method="post" action="options.php" id="drm-settings-form">
         <?php
         settings_fields( 'delice_recipe_settings' );
@@ -259,6 +392,9 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
             </a>
             <a href="<?php echo esc_url( $tab_url . 'reviews' ); ?>" class="nav-tab<?php echo $active_tab === 'reviews'      ? ' nav-tab-active' : ''; ?>">
                 <?php esc_html_e( 'Reviews', 'delice-recipe-manager' ); ?>
+            </a>
+            <a href="<?php echo esc_url( $tab_url . 'languages' ); ?>" class="nav-tab<?php echo $active_tab === 'languages'   ? ' nav-tab-active' : ''; ?>">
+                <?php esc_html_e( 'Languages', 'delice-recipe-manager' ); ?>
             </a>
             <a href="<?php echo esc_url( $tab_url . 'updates' ); ?>" class="nav-tab<?php echo $active_tab === 'updates'      ? ' nav-tab-active' : ''; ?>">
                 <?php esc_html_e( 'Updates', 'delice-recipe-manager' ); ?>
@@ -545,6 +681,73 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                 </div>
             </div>
 
+            <!-- E-E-A-T Display Features (SEO trust signals) -->
+            <div class="drm-card">
+                <div class="drm-card-header">
+                    <h2><?php esc_html_e( 'E-E-A-T Display Features', 'delice-recipe-manager' ); ?></h2>
+                    <span class="drm-card-badge"><?php esc_html_e( 'SEO Trust Signals', 'delice-recipe-manager' ); ?></span>
+                </div>
+                <div class="drm-card-body">
+                    <p class="description" style="margin-bottom:12px;"><?php esc_html_e( 'Toggle Experience, Expertise, Authoritativeness and Trustworthiness features shown on recipe pages.', 'delice-recipe-manager' ); ?></p>
+
+                    <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:16px 0 8px;border-left:4px solid #FF6B35;padding-left:10px;">
+                        <?php esc_html_e( 'Experience', 'delice-recipe-manager' ); ?>
+                    </p>
+                    <div class="drm-toggle-grid" style="grid-template-columns:1fr;">
+                        <label class="drm-toggle-item">
+                            <span class="drm-sw"><input type="checkbox" name="delice_eeat_show_testing_badge" value="1" <?php checked( get_option( 'delice_eeat_show_testing_badge', 1 ), 1 ); ?>><span class="drm-sw-slider"></span></span>
+                            <div><div><?php esc_html_e( 'Testing Badge', 'delice-recipe-manager' ); ?></div><div class="drm-toggle-desc"><?php esc_html_e( 'Show recipe testing badge with success rate and test count', 'delice-recipe-manager' ); ?></div></div>
+                        </label>
+                        <label class="drm-toggle-item">
+                            <span class="drm-sw"><input type="checkbox" name="delice_eeat_show_user_cooks" value="1" <?php checked( get_option( 'delice_eeat_show_user_cooks', 1 ), 1 ); ?>><span class="drm-sw-slider"></span></span>
+                            <div><div><?php esc_html_e( 'User Cook Gallery', 'delice-recipe-manager' ); ?></div><div class="drm-toggle-desc"><?php esc_html_e( 'Display gallery of user cook submissions with photos and ratings', 'delice-recipe-manager' ); ?></div></div>
+                        </label>
+                        <label class="drm-toggle-item">
+                            <span class="drm-sw"><input type="checkbox" name="delice_eeat_show_submit_button" value="1" <?php checked( get_option( 'delice_eeat_show_submit_button', 1 ), 1 ); ?>><span class="drm-sw-slider"></span></span>
+                            <div><div><?php esc_html_e( '"I Made This" Button', 'delice-recipe-manager' ); ?></div><div class="drm-toggle-desc"><?php esc_html_e( 'Show button allowing users to submit their cook attempts', 'delice-recipe-manager' ); ?></div></div>
+                        </label>
+                    </div>
+
+                    <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:20px 0 8px;border-left:4px solid #16a34a;padding-left:10px;">
+                        <?php esc_html_e( 'Expertise', 'delice-recipe-manager' ); ?>
+                    </p>
+                    <div class="drm-toggle-grid" style="grid-template-columns:1fr;">
+                        <label class="drm-toggle-item">
+                            <span class="drm-sw"><input type="checkbox" name="delice_eeat_show_nutrition_review" value="1" <?php checked( get_option( 'delice_eeat_show_nutrition_review', 1 ), 1 ); ?>><span class="drm-sw-slider"></span></span>
+                            <div><div><?php esc_html_e( 'Nutrition Expert Review', 'delice-recipe-manager' ); ?></div><div class="drm-toggle-desc"><?php esc_html_e( 'Display nutritionist verification and professional review', 'delice-recipe-manager' ); ?></div></div>
+                        </label>
+                    </div>
+
+                    <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:20px 0 8px;border-left:4px solid #9333ea;padding-left:10px;">
+                        <?php esc_html_e( 'Authority', 'delice-recipe-manager' ); ?>
+                    </p>
+                    <div class="drm-toggle-grid" style="grid-template-columns:1fr;">
+                        <label class="drm-toggle-item">
+                            <span class="drm-sw"><input type="checkbox" name="delice_eeat_show_endorsements" value="1" <?php checked( get_option( 'delice_eeat_show_endorsements', 1 ), 1 ); ?>><span class="drm-sw-slider"></span></span>
+                            <div><div><?php esc_html_e( 'Expert Endorsements', 'delice-recipe-manager' ); ?></div><div class="drm-toggle-desc"><?php esc_html_e( 'Show endorsements from culinary experts and chefs', 'delice-recipe-manager' ); ?></div></div>
+                        </label>
+                    </div>
+
+                    <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:20px 0 8px;border-left:4px solid #ffd700;padding-left:10px;">
+                        <?php esc_html_e( 'Trust', 'delice-recipe-manager' ); ?>
+                    </p>
+                    <div class="drm-toggle-grid" style="grid-template-columns:1fr;">
+                        <label class="drm-toggle-item">
+                            <span class="drm-sw"><input type="checkbox" name="delice_eeat_show_safety_info" value="1" <?php checked( get_option( 'delice_eeat_show_safety_info', 1 ), 1 ); ?>><span class="drm-sw-slider"></span></span>
+                            <div><div><?php esc_html_e( 'Safety &amp; Allergen Information', 'delice-recipe-manager' ); ?></div><div class="drm-toggle-desc"><?php esc_html_e( 'Display allergen warnings, dietary tags, and food safety notes', 'delice-recipe-manager' ); ?></div></div>
+                        </label>
+                    </div>
+
+                    <p style="margin-top:16px;">
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=delice-recipe-community&tab=authors' ) ); ?>" class="button button-secondary"><?php esc_html_e( 'Manage Author Profiles &#8594;', 'delice-recipe-manager' ); ?></a>
+                        &nbsp;
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=delice-recipe-tools&tab=testing' ) ); ?>" class="button button-secondary"><?php esc_html_e( 'Manage Recipe Tests &#8594;', 'delice-recipe-manager' ); ?></a>
+                        &nbsp;
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=delice-recipe-community&tab=submissions' ) ); ?>" class="button button-secondary"><?php esc_html_e( 'View Submissions &#8594;', 'delice-recipe-manager' ); ?></a>
+                    </p>
+                </div>
+            </div>
+
         </div><!-- /#tab-seo -->
 
 
@@ -685,7 +888,7 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                         </tr>
                     </table>
                     <p style="margin-top:12px;">
-                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=delice-recipe-reviews' ) ); ?>" class="button button-secondary">
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=delice-recipe-community&tab=reviews' ) ); ?>" class="button button-secondary">
                             <?php esc_html_e( 'Manage Reviews &amp; Advanced Settings &#8594;', 'delice-recipe-manager' ); ?>
                         </a>
                     </p>
@@ -778,6 +981,20 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                                 <p class="description"><?php esc_html_e( 'GitHub API responses are cached for 12 hours.', 'delice-recipe-manager' ); ?></p>
                             </td>
                         </tr>
+                        <?php if ( $has_update ) : ?>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Install update', 'delice-recipe-manager' ); ?></th>
+                            <td>
+                                <button type="button" id="drm-update-plugin-btn"
+                                        class="button button-primary"
+                                        data-nonce="<?php echo esc_attr( wp_create_nonce( 'delice_run_update' ) ); ?>">
+                                    <?php printf( esc_html__( 'Update to v%s', 'delice-recipe-manager' ), esc_html( $remote_ver ) ); ?>
+                                </button>
+                                <span id="drm-update-status" style="display:none;margin-left:10px;font-style:italic;color:#646970;"></span>
+                                <p class="description"><?php esc_html_e( 'Installs the update directly — no need to visit the Plugins page.', 'delice-recipe-manager' ); ?></p>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
                     </table>
                 </div>
             </div>
@@ -791,19 +1008,25 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
         </div>
 
     </form>
+
+<?php endif; /* end languages / other-tabs split */ ?>
+
 </div><!-- /.wrap -->
 
 <script>
 (function() {
-    // Mark form dirty on any change
-    var dirty = false;
-    document.getElementById('drm-settings-form').addEventListener('change', function() {
-        dirty = true;
-        document.getElementById('drm-unsaved-notice').style.display = 'inline';
-    });
-    document.getElementById('drm-settings-form').addEventListener('submit', function() {
-        dirty = false;
-    });
+    // Main settings form: mark dirty on change, clear on submit
+    var form = document.getElementById('drm-settings-form');
+    if ( form ) {
+        form.addEventListener('change', function() {
+            var notice = document.getElementById('drm-unsaved-notice');
+            if ( notice ) notice.style.display = 'inline';
+        });
+        form.addEventListener('submit', function() {
+            var notice = document.getElementById('drm-unsaved-notice');
+            if ( notice ) notice.style.display = 'none';
+        });
+    }
 
     // Template card visual selection
     document.querySelectorAll('.drm-template-card input[type="radio"]').forEach(function(radio) {
@@ -812,5 +1035,39 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
             radio.closest('.drm-template-card').classList.add('is-selected');
         });
     });
+
+    // Update Plugin button
+    var updateBtn = document.getElementById('drm-update-plugin-btn');
+    if ( updateBtn ) {
+        updateBtn.addEventListener('click', function() {
+            var btn    = this;
+            var status = document.getElementById('drm-update-status');
+            btn.disabled    = true;
+            btn.textContent = '<?php echo esc_js( __( 'Updating…', 'delice-recipe-manager' ) ); ?>';
+            if ( status ) { status.style.display = 'inline'; status.textContent = '<?php echo esc_js( __( 'Installing update…', 'delice-recipe-manager' ) ); ?>'; }
+
+            var data = new FormData();
+            data.append( 'action', 'delice_run_plugin_update' );
+            data.append( 'nonce',  btn.dataset.nonce );
+
+            fetch( ajaxurl, { method: 'POST', body: data } )
+                .then( function(r) { return r.json(); } )
+                .then( function(resp) {
+                    if ( resp.success ) {
+                        if ( status ) status.textContent = '<?php echo esc_js( __( 'Updated! Reloading…', 'delice-recipe-manager' ) ); ?>';
+                        setTimeout( function() { location.reload(); }, 1800 );
+                    } else {
+                        if ( status ) status.textContent = ( resp.data || '<?php echo esc_js( __( 'Update failed.', 'delice-recipe-manager' ) ); ?>' );
+                        btn.disabled    = false;
+                        btn.textContent = '<?php echo esc_js( __( 'Retry Update', 'delice-recipe-manager' ) ); ?>';
+                    }
+                } )
+                .catch( function() {
+                    if ( status ) status.textContent = '<?php echo esc_js( __( 'Network error.', 'delice-recipe-manager' ) ); ?>';
+                    btn.disabled    = false;
+                    btn.textContent = '<?php echo esc_js( __( 'Retry Update', 'delice-recipe-manager' ) ); ?>';
+                } );
+        });
+    }
 })();
 </script>

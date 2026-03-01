@@ -42,6 +42,9 @@ class Delice_Recipe_Admin {
         // AJAX: scan / import WP Recipe Maker ingredient data
         add_action( 'wp_ajax_delice_wprm_scan',   array( $this, 'ajax_wprm_scan' ) );
         add_action( 'wp_ajax_delice_wprm_import', array( $this, 'ajax_wprm_import' ) );
+
+        // AJAX: run plugin update from the Settings > Updates tab
+        add_action( 'wp_ajax_delice_run_plugin_update', array( $this, 'handle_plugin_update_ajax' ) );
     }
     
     /**
@@ -83,9 +86,15 @@ class Delice_Recipe_Admin {
         
         // Load modern design system on dashboard pages
         $screen = get_current_screen();
-        if ($screen && strpos($screen->id, 'delice-recipe') !== false) {
+        $is_plugin_page = $screen && (
+            strpos( $screen->id, 'delice-recipe' ) !== false ||
+            strpos( $screen->id, 'delice-eeat'   ) !== false ||
+            strpos( $screen->id, 'delice-author' ) !== false ||
+            strpos( $screen->id, 'delice-user'   ) !== false
+        );
+        if ( $is_plugin_page ) {
             wp_enqueue_style('delice-recipe-modern', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-recipe-modern.css', array('delice-recipe-admin'), DELICE_RECIPE_VERSION, 'all');
-            
+
             // NEW: Enqueue hybrid modern CSS for new pages
             wp_enqueue_style('delice-hybrid-modern', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-hybrid-modern.css', array('delice-recipe-admin'), DELICE_RECIPE_VERSION, 'all');
 
@@ -146,7 +155,13 @@ class Delice_Recipe_Admin {
         
         // Load modern JS on dashboard pages
         $screen = get_current_screen();
-        if ($screen && strpos($screen->id, 'delice-recipe') !== false) {
+        $is_plugin_page = $screen && (
+            strpos( $screen->id, 'delice-recipe' ) !== false ||
+            strpos( $screen->id, 'delice-eeat'   ) !== false ||
+            strpos( $screen->id, 'delice-author' ) !== false ||
+            strpos( $screen->id, 'delice-user'   ) !== false
+        );
+        if ( $is_plugin_page ) {
             wp_enqueue_script('delice-recipe-modern', DELICE_RECIPE_PLUGIN_URL . 'admin/js/delice-recipe-modern.js', array('jquery'), DELICE_RECIPE_VERSION, false);
             
             // Localize modern script
@@ -258,54 +273,24 @@ class Delice_Recipe_Admin {
             array($this, 'display_ai_generator_page')
         );
         
-        // Settings submenu
+        // Community submenu (Reviews, Submissions, Authors)
         add_submenu_page(
             'delice-recipe-manager',
-            __('Settings', 'delice-recipe-manager'),
-            __('Settings', 'delice-recipe-manager'),
+            __('Community', 'delice-recipe-manager'),
+            __('Community', 'delice-recipe-manager'),
             'manage_options',
-            'delice-recipe-settings',
-            array($this, 'display_settings_hub_page')
+            'delice-recipe-community',
+            array($this, 'display_community_page')
         );
-        
-        // Languages submenu
+
+        // Tools submenu (Test Recipes, Import/Export, Migration)
         add_submenu_page(
             'delice-recipe-manager',
-            __('Languages', 'delice-recipe-manager'),
-            __('Languages', 'delice-recipe-manager'),
+            __('Tools', 'delice-recipe-manager'),
+            __('Tools', 'delice-recipe-manager'),
             'manage_options',
-            'delice-recipe-languages',
-            array($this, 'display_recipe_languages_page')
-        );
-        
-        // Reviews submenu
-        add_submenu_page(
-            'delice-recipe-manager',
-            __('Reviews', 'delice-recipe-manager'),
-            __('Reviews', 'delice-recipe-manager'),
-            'manage_options',
-            'delice-recipe-reviews',
-            array($this, 'display_review_settings_page')
-        );
-        
-        // Migration submenu
-        add_submenu_page(
-            'delice-recipe-manager',
-            __('Migration', 'delice-recipe-manager'),
-            __('Migration', 'delice-recipe-manager'),
-            'manage_options',
-            'delice-recipe-migration',
-            array($this, 'display_recipe_migration_page')
-        );
-        
-        // Import/Export submenu
-        add_submenu_page(
-            'delice-recipe-manager',
-            __('Import/Export', 'delice-recipe-manager'),
-            __('Import/Export', 'delice-recipe-manager'),
-            'manage_options',
-            'delice-recipe-import-export',
-            array($this, 'display_import_export_page')
+            'delice-recipe-tools',
+            array($this, 'display_tools_page')
         );
 
         // Affiliate Links submenu
@@ -316,6 +301,16 @@ class Delice_Recipe_Admin {
             'manage_options',
             'delice-recipe-affiliate',
             array($this, 'display_affiliate_links_page')
+        );
+
+        // Settings submenu
+        add_submenu_page(
+            'delice-recipe-manager',
+            __('Settings', 'delice-recipe-manager'),
+            __('Settings', 'delice-recipe-manager'),
+            'manage_options',
+            'delice-recipe-settings',
+            array($this, 'display_settings_hub_page')
         );
     }
 
@@ -539,6 +534,27 @@ class Delice_Recipe_Admin {
             )
         );
 
+        // ── E-E-A-T / SEO display feature toggles (Settings > SEO tab) ────────
+        $eeat_options = array(
+            'delice_eeat_show_testing_badge',
+            'delice_eeat_show_user_cooks',
+            'delice_eeat_show_submit_button',
+            'delice_eeat_show_nutrition_review',
+            'delice_eeat_show_endorsements',
+            'delice_eeat_show_safety_info',
+        );
+        foreach ( $eeat_options as $opt ) {
+            register_setting(
+                'delice_recipe_settings',
+                $opt,
+                array(
+                    'type'              => 'integer',
+                    'sanitize_callback' => 'absint',
+                    'default'           => 1,
+                )
+            );
+        }
+
     }
 
     /**
@@ -573,6 +589,39 @@ class Delice_Recipe_Admin {
 
         wp_safe_redirect( admin_url( 'admin.php?page=delice-recipe-settings&delice_cache_cleared=1' ) );
         exit;
+    }
+
+    /**
+     * AJAX handler: install the available plugin update directly.
+     *
+     * Called by the "Update Plugin" button in Settings > Updates tab.
+     * Uses WordPress's own Plugin_Upgrader so all existing GitHub-updater
+     * hooks (pre_download, fix_source_directory, purge_cache) fire normally.
+     */
+    public function handle_plugin_update_ajax() {
+        check_ajax_referer( 'delice_run_update', 'nonce' );
+
+        if ( ! current_user_can( 'update_plugins' ) ) {
+            wp_send_json_error( __( 'You do not have permission to update plugins.', 'delice-recipe-manager' ) );
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+        require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+        $plugin_file = plugin_basename( DELICE_RECIPE_PLUGIN_FILE );
+        $skin        = new WP_Ajax_Upgrader_Skin();
+        $upgrader    = new Plugin_Upgrader( $skin );
+        $result      = $upgrader->upgrade( $plugin_file );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( $result->get_error_message() );
+        } elseif ( false === $result ) {
+            $errors = $skin->get_upgrade_messages();
+            wp_send_json_error( ! empty( $errors ) ? implode( ' ', $errors ) : __( 'Update failed.', 'delice-recipe-manager' ) );
+        } else {
+            wp_send_json_success( __( 'Plugin updated successfully.', 'delice-recipe-manager' ) );
+        }
     }
 
     /**
@@ -1279,6 +1328,20 @@ class Delice_Recipe_Admin {
      */
     public function display_affiliate_links_page() {
         include_once DELICE_RECIPE_PLUGIN_DIR . 'admin/partials/admin-affiliate-links.php';
+    }
+
+    /**
+     * Display Community page (Reviews, Submissions, Authors tabs)
+     */
+    public function display_community_page() {
+        include_once DELICE_RECIPE_PLUGIN_DIR . 'admin/partials/admin-community.php';
+    }
+
+    /**
+     * Display Tools page (Test Recipes, Import/Export, Migration tabs)
+     */
+    public function display_tools_page() {
+        include_once DELICE_RECIPE_PLUGIN_DIR . 'admin/partials/admin-tools.php';
     }
 
     // ── Equipment meta box ────────────────────────────────────────────────────
