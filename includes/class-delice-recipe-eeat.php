@@ -248,48 +248,18 @@ class Delice_Recipe_EEAT {
     }
 
     /**
-     * Add E-E-A-T menu items to admin
+     * Add E-E-A-T menu items to admin.
+     *
+     * The four EEAT sub-pages (Hub, Author Profiles, Recipe Testing, User Submissions)
+     * are now embedded as tabs within Community and Settings > SEO, so we no
+     * longer register them as standalone submenu entries.
      */
     public function add_eeat_menu() {
-        // E-E-A-T Hub submenu
-        add_submenu_page(
-            'delice-recipe-manager',
-            __('E-E-A-T Features', 'delice-recipe-manager'),
-            __('E-E-A-T Features', 'delice-recipe-manager'),
-            'manage_options',
-            'delice-eeat-hub',
-            array($this, 'display_eeat_hub')
-        );
-        
-        // Author Profiles submenu
-        add_submenu_page(
-            'delice-recipe-manager',
-            __('Author Profiles', 'delice-recipe-manager'),
-            __('Author Profiles', 'delice-recipe-manager'),
-            'manage_options',
-            'delice-author-profiles',
-            array($this, 'display_author_profiles')
-        );
-        
-        // Recipe Testing submenu
-        add_submenu_page(
-            'delice-recipe-manager',
-            __('Recipe Testing', 'delice-recipe-manager'),
-            __('Recipe Testing', 'delice-recipe-manager'),
-            'manage_options',
-            'delice-recipe-testing',
-            array($this, 'display_recipe_testing')
-        );
-        
-        // User Submissions submenu
-        add_submenu_page(
-            'delice-recipe-manager',
-            __('User Submissions', 'delice-recipe-manager'),
-            __('User Submissions', 'delice-recipe-manager'),
-            'manage_options',
-            'delice-user-submissions',
-            array($this, 'display_user_submissions')
-        );
+        // Standalone EEAT menu items removed — content is now accessible via:
+        //   Community > Authors       (Author Profiles)
+        //   Community > Submissions   (User Submissions)
+        //   Tools     > Test Recipes  (Recipe Testing)
+        //   Settings  > SEO tab       (E-E-A-T display toggles)
     }
 
     /**
