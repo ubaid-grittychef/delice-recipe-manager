@@ -52,6 +52,7 @@ $dietary_meta = is_array( $dietary_meta ) ? $dietary_meta : array();
 // Rating data (v3.6.0)
 $rating_avg   = floatval( get_post_meta( $recipe_id, '_delice_recipe_rating_average', true ) );
 $rating_count = intval( get_post_meta( $recipe_id, '_delice_recipe_rating_count', true ) );
+$is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_rating', true );
 ?>
 
 <?php $drd_id = 'drd-' . absint( $recipe_id ); ?>
@@ -174,7 +175,11 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php endfor; ?>
       </div>
       <span class="delice-recipe-rating-score" itemprop="ratingValue"><?php echo number_format( $rating_avg, 1 ); ?></span>
+      <?php if ( $is_seed ) : ?>
+      <span class="delice-recipe-rating-count"><?php esc_html_e( 'Editor Tested', 'delice-recipe-manager' ); ?><meta itemprop="ratingCount" content="1"></span>
+      <?php else : ?>
       <span class="delice-recipe-rating-count">(<span itemprop="ratingCount"><?php echo $rating_count; ?></span> <?php echo esc_html( $lang_texts['ratings'] ); ?>)</span>
+      <?php endif; ?>
       <meta itemprop="bestRating" content="5"><meta itemprop="worstRating" content="1">
     </div>
     <?php endif; ?>
