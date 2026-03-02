@@ -169,6 +169,7 @@ class Delice_Affiliate_Manager {
 
     /**
      * Match a single ingredient name and return { url, store } or null.
+     * Returns the single globally best-scoring match (any platform).
      */
     public static function match_ingredient( $ingredient_name ) {
         $rules     = self::get_rules();
@@ -217,6 +218,151 @@ class Delice_Affiliate_Manager {
         }
 
         return $best;
+    }
+
+    /**
+     * Match a single ingredient name against ALL active platforms independently.
+     *
+     * For each platform, the highest-scoring rule for that platform wins.
+     * Returns one entry per matched platform — so if three platforms have rules
+     * for "olive oil", three entries are returned (one button each in the UI).
+     *
+     * When $auto_platform is supplied and NO rule-based match is found at all,
+     * a single auto-link entry is returned for that Amazon platform.
+     *
+     * @param  string     $ingredient_name
+     * @param  array|null $auto_platform  Active Amazon platform for auto_link fallback.
+     * @return array  Array of [ 'url' => string, 'store' => string, 'type' => string ]
+     */
+    private static function match_ingredient_all_platforms( $ingredient_name, $auto_platform = null ) {
+        $rules     = self::get_rules();
+        $platforms = self::get_platforms();
+        $needle    = mb_strtolower( trim( $ingredient_name ) );
+
+        // Best-scoring rule per platform_id.
+        $best_per_pid = array(); // platform_id => [ 'rule' => $rule, 'score' => int ]
+
+        foreach ( $rules as $rule ) {
+            if ( empty( $rule['active'] ) || empty( $rule['keyword'] ) ) continue;
+
+            $kw     = mb_strtolower( trim( $rule['keyword'] ) );
+            $kw_len = mb_strlen( $kw );
+            $mt     = $rule['match_type'] ?? 'contains';
+            $score  = 0;
+
+            if ( $mt === 'exact'    && $needle === $kw )                          $score = 30000 + $kw_len;
+            elseif ( $mt === 'starts'   && strncmp( $needle, $kw, $kw_len ) === 0 ) $score = 20000 + $kw_len;
+            elseif ( $mt === 'contains' && str_contains( $needle, $kw ) )           $score = 10000 + $kw_len;
+
+            if ( $score <= 0 ) continue;
+
+            $pid = $rule['platform_id'] ?? '';
+            if ( $score > ( $best_per_pid[ $pid ]['score'] ?? -1 ) ) {
+                $best_per_pid[ $pid ] = array( 'rule' => $rule, 'score' => $score );
+            }
+        }
+
+        $results      = array();
+        $matched_pids = array();
+
+        // Build one result per active platform that has a matched rule.
+        foreach ( $platforms as $platform ) {
+            if ( empty( $platform['active'] ) ) continue;
+            $pid = $platform['id'] ?? '';
+            if ( ! isset( $best_per_pid[ $pid ] ) ) continue;
+
+            $url = self::build_platform_url( $best_per_pid[ $pid ]['rule'], $platform, $ingredient_name );
+            if ( empty( $url ) ) continue;
+
+            $results[]      = array(
+                'url'   => $url,
+                'store' => ! empty( $platform['name'] ) ? $platform['name'] : sanitize_text_field( $best_per_pid[ $pid ]['rule']['store'] ?? '' ),
+                'type'  => $platform['type'] ?? 'custom',
+            );
+            $matched_pids[] = $pid;
+        }
+
+        // Rules with a custom_url but whose platform_id is inactive / deleted.
+        foreach ( $best_per_pid as $pid => $entry ) {
+            if ( in_array( $pid, $matched_pids, true ) ) continue;
+            $rule = $entry['rule'];
+            if ( ! empty( $rule['custom_url'] ) ) {
+                $results[] = array(
+                    'url'   => esc_url_raw( $rule['custom_url'] ),
+                    'store' => sanitize_text_field( $rule['store'] ?? '' ),
+                    'type'  => 'custom',
+                );
+            }
+        }
+
+        // Auto-link fallback: no rule match at all → Amazon search link.
+        if ( empty( $results ) && $auto_platform ) {
+            $url = self::build_platform_url( array(), $auto_platform, $ingredient_name );
+            if ( $url ) {
+                $results[] = array(
+                    'url'   => $url,
+                    'store' => $auto_platform['name'] ?? 'Amazon',
+                    'type'  => 'amazon',
+                );
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Render affiliate buy button(s) for a single ingredient / equipment row.
+     *
+     * When only one platform is matched a single button is returned.
+     * When multiple platforms match, one button per platform is returned inside
+     * a flex wrapper so readers can choose their preferred store.
+     *
+     * @param  array  $links     $ingredient['affiliate_links'] from inject_links().
+     * @param  string $item_name Ingredient / equipment name (used in aria-label).
+     * @param  array  $settings  Output of self::get_settings().
+     * @return string HTML, or empty string when $links is empty.
+     */
+    public static function render_ingredient_buttons( array $links, $item_name, array $settings ) {
+        if ( empty( $links ) ) return '';
+
+        $open          = ! empty( $settings['open_new_tab'] ) ? ' target="_blank"' : '';
+        $btn_base_text = esc_html( $settings['button_text'] ?? 'Buy' );
+        $show_store    = ! empty( $settings['show_store_name'] );
+        $rel           = esc_attr( self::LINK_REL );
+        $svg           = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'
+                       . '<path d="M2 10L10 2M5 2h5v5"/></svg>';
+
+        $inner = '';
+        foreach ( $links as $link ) {
+            $store = $link['store'] ?? '';
+            $type  = sanitize_html_class( $link['type'] ?? 'custom' );
+
+            // Build visible label — store name in a slightly lighter span.
+            $label = $btn_base_text;
+            if ( $show_store && $store !== '' ) {
+                $label .= ' <span class="delice-aff-sep" aria-hidden="true">·</span>'
+                        . ' <span class="delice-aff-store">' . esc_html( $store ) . '</span>';
+            }
+
+            $aria   = wp_strip_all_tags( $label ) . ' — ' . esc_attr( $item_name );
+
+            $inner .= '<a href="' . esc_url( $link['url'] ) . '"'
+                    . ' class="delice-aff-btn delice-aff-btn--' . $type . '"'
+                    . ' rel="' . $rel . '"'
+                    . $open
+                    . ' aria-label="' . esc_attr( $aria ) . '">'
+                    . $label
+                    . $svg
+                    . '</a>';
+        }
+
+        // Single button: return it without the wrapper (keeps existing layout intact).
+        if ( count( $links ) === 1 ) {
+            return $inner;
+        }
+
+        // Multiple buttons: wrap in a flex row.
+        return '<div class="delice-aff-btns">' . $inner . '</div>';
     }
 
     // ── Override ingredients (for old / manually-created recipes) ────────────
@@ -373,23 +519,16 @@ class Delice_Affiliate_Manager {
 
         foreach ( $ingredients as &$ing ) {
             if ( $linked >= $cap ) break;
-            $match = self::match_ingredient( $ing['name'] ?? '' );
 
-            // Auto-link fallback: if no rule matched and auto_link + Amazon are active,
-            // generate an Amazon search URL for the ingredient name automatically.
-            if ( ! $match && $auto_amazon ) {
-                $url = self::build_platform_url( array(), $auto_amazon, $ing['name'] ?? '' );
-                if ( $url ) {
-                    $match = array(
-                        'url'   => $url,
-                        'store' => $auto_amazon['name'],
-                    );
-                }
-            }
+            // Resolve links for all matching platforms simultaneously.
+            $all_links = self::match_ingredient_all_platforms( $ing['name'] ?? '', $auto_amazon );
 
-            if ( $match ) {
-                $ing['affiliate_url']   = $match['url'];
-                $ing['affiliate_store'] = $match['store'];
+            if ( ! empty( $all_links ) ) {
+                // Full set — used by render_ingredient_buttons() for multi-button display.
+                $ing['affiliate_links'] = $all_links;
+                // Back-compat: first entry is the canonical single link.
+                $ing['affiliate_url']   = $all_links[0]['url'];
+                $ing['affiliate_store'] = $all_links[0]['store'];
                 $linked++;
             }
         }
