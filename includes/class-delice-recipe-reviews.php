@@ -354,15 +354,19 @@ class Delice_Recipe_Reviews {
     private function update_recipe_rating_meta($recipe_id) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'delice_recipe_reviews';
-        
+
         $stats = $wpdb->get_row($wpdb->prepare(
             "SELECT AVG(rating) as average, COUNT(*) as count FROM $table_name WHERE recipe_id = %d AND status = 'approved'",
             $recipe_id
         ));
-        
+
         if ($stats) {
             update_post_meta($recipe_id, '_delice_recipe_rating_average', round($stats->average, 1));
             update_post_meta($recipe_id, '_delice_recipe_rating_count', $stats->count);
+            // When real user ratings exist, the seed is no longer active.
+            if ( intval( $stats->count ) > 0 ) {
+                delete_post_meta( $recipe_id, '_delice_recipe_is_seed_rating' );
+            }
         }
     }
     
@@ -455,25 +459,49 @@ class Delice_Recipe_Reviews {
     public function get_recipe_rating_data($recipe_id) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'delice_recipe_reviews';
-        
+
         $stats = $wpdb->get_row($wpdb->prepare(
             "SELECT AVG(rating) as average, COUNT(*) as count FROM $table_name WHERE recipe_id = %d AND status = 'approved'",
             $recipe_id
         ));
-        
+
+        $real_count = $stats ? intval( $stats->count ) : 0;
+
+        // If no real user ratings yet and the recipe is marked as editor-tested,
+        // return a legitimate seed rating from the recipe author.
+        if ( $real_count === 0 && get_post_meta( $recipe_id, '_delice_recipe_author_tested', true ) ) {
+            $author_id   = get_post_field( 'post_author', $recipe_id );
+            $author_name = get_the_author_meta( 'display_name', $author_id );
+            if ( empty( $author_name ) ) {
+                $author_name = get_bloginfo( 'name' );
+            }
+            $seed_review              = new \stdClass();
+            $seed_review->user_name  = $author_name;
+            $seed_review->rating     = 5;
+            $seed_review->comment    = __( 'Tested and approved by our kitchen team.', 'delice-recipe-manager' );
+            $seed_review->created_at = get_post_field( 'post_date', $recipe_id );
+            return array(
+                'average' => 5.0,
+                'count'   => 1,
+                'reviews' => array( $seed_review ),
+                'is_seed' => true,
+            );
+        }
+
         $reviews = $wpdb->get_results($wpdb->prepare(
-            "SELECT id, user_name, rating, comment, created_at 
-             FROM $table_name 
-             WHERE recipe_id = %d AND status = 'approved' AND comment IS NOT NULL AND comment != '' 
-             ORDER BY created_at DESC 
+            "SELECT id, user_name, rating, comment, created_at
+             FROM $table_name
+             WHERE recipe_id = %d AND status = 'approved' AND comment IS NOT NULL AND comment != ''
+             ORDER BY created_at DESC
              LIMIT 5",
             $recipe_id
         ));
-        
+
         return array(
-            'average' => $stats ? round($stats->average, 1) : 0,
-            'count' => $stats ? $stats->count : 0,
-            'reviews' => $reviews
+            'average' => $real_count > 0 ? round( $stats->average, 1 ) : 0,
+            'count'   => $real_count,
+            'reviews' => $reviews,
+            'is_seed' => false,
         );
     }
 }

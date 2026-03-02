@@ -84,6 +84,7 @@ $dietary_meta = is_array( $dietary_meta ) ? $dietary_meta : array();
 /* v3.6.0 — Rating summary */
 $dre_rating_avg   = floatval( get_post_meta( $recipe_id, '_delice_recipe_rating_average', true ) );
 $dre_rating_count = intval( get_post_meta( $recipe_id, '_delice_recipe_rating_count', true ) );
+$dre_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_rating', true );
 ?>
 
 <?php $dre_id = 'dre-' . absint( $recipe_id ); ?>
@@ -304,7 +305,11 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
             <?php endfor; ?>
           </div>
           <span class="delice-recipe-rating-score" itemprop="ratingValue"><?php echo number_format( $dre_rating_avg, 1 ); ?></span>
+          <?php if ( $dre_is_seed ) : ?>
+          <span class="delice-recipe-rating-count"><?php esc_html_e( 'Editor Tested', 'delice-recipe-manager' ); ?><meta itemprop="ratingCount" content="1"></span>
+          <?php else : ?>
           <span class="delice-recipe-rating-count">(<span itemprop="ratingCount"><?php echo $dre_rating_count; ?></span> <?php echo esc_html( $lang_texts['ratings'] ); ?>)</span>
+          <?php endif; ?>
           <meta itemprop="bestRating" content="5"><meta itemprop="worstRating" content="1">
         </div>
         <?php endif; ?>
@@ -568,15 +573,10 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
             <ul class="delice-elegant-ingredients-list">
                 <?php foreach ( $ingredients as $ing ) :
                     $ing_id        = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
-                    $dre_aff_url   = $ing['affiliate_url']   ?? '';
-                    $dre_aff_store = $ing['affiliate_store'] ?? '';
-                    $dre_open_tab  = ! empty( $dre_aff_settings['open_new_tab'] );
-                    $dre_btn_text  = esc_html( $dre_aff_settings['button_text'] ?? 'Buy' );
-                    if ( $dre_aff_url && ! empty( $dre_aff_store ) && ! empty( $dre_aff_settings['show_store_name'] ) ) {
-                        $dre_btn_text .= ' · ' . esc_html( $dre_aff_store );
-                    }
+                    $dre_aff_links = $ing['affiliate_links'] ?? array();
+                    $dre_has_aff   = ! empty( $dre_aff_links );
                 ?>
-                    <li class="delice-elegant-ingredient delice-recipe-ingredient<?php echo $dre_aff_url ? ' delice-recipe-ingredient--linked' : ''; ?>">
+                    <li class="delice-elegant-ingredient delice-recipe-ingredient<?php echo $dre_has_aff ? ' delice-recipe-ingredient--linked' : ''; ?>">
                         <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
                             <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
                             <span class="delice-elegant-check-icon" aria-hidden="true">
@@ -593,16 +593,9 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                                 <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
                             </span>
                         <?php endif; ?>
-                        <?php if ( $dre_aff_url ) : ?>
-                            <a href="<?php echo esc_url( $dre_aff_url ); ?>"
-                               class="delice-aff-btn"
-                               rel="<?php echo esc_attr( Delice_Affiliate_Manager::LINK_REL ); ?>"
-                               <?php echo $dre_open_tab ? 'target="_blank"' : ''; ?>
-                               aria-label="<?php echo esc_attr( $dre_btn_text . ' — ' . ( $ing['name'] ?? '' ) ); ?>">
-                                <?php echo $dre_btn_text; ?>
-                                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10L10 2M5 2h5v5"/></svg>
-                            </a>
-                        <?php endif; ?>
+                        <?php if ( $dre_has_aff ) :
+                            echo Delice_Affiliate_Manager::render_ingredient_buttons( $dre_aff_links, $ing['name'] ?? '', $dre_aff_settings );
+                        endif; ?>
                     </li>
                 <?php endforeach; ?>
             </ul>

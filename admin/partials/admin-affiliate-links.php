@@ -396,6 +396,16 @@ $amazon_region   = $amazon_platform['region']       ?? 'us';
 $amazon_tag      = $amazon_platform['tracking_id']  ?? '';
 $amazon_active   = ! empty( $amazon_platform['active'] );
 $amazon_id       = $amazon_platform['id']           ?? '';
+$amazon_lang     = $amazon_platform['language']     ?? '';
+
+// All additional Amazon platforms (every Amazon entry after the first).
+$extra_amazons = array();
+$seen_first    = false;
+foreach ( $platforms as $p ) {
+    if ( ( $p['type'] ?? '' ) !== 'amazon' ) continue;
+    if ( ! $seen_first ) { $seen_first = true; continue; } // skip the first (main) one
+    $extra_amazons[] = $p;
+}
 ?>
 <div class="drm-card">
     <div class="drm-card-header">
@@ -440,6 +450,15 @@ $amazon_id       = $amazon_platform['id']           ?? '';
             </div>
         </div>
 
+        <div class="drm-aff-field" style="margin-top:10px;">
+            <label class="drm-aff-field-label" for="amazon-lang"><?php esc_html_e( 'Language code (optional)', 'delice-recipe-manager' ); ?></label>
+            <input type="text" id="amazon-lang"
+                   name="delice_affiliate_platforms[0][language]"
+                   value="<?php echo esc_attr( $amazon_lang ); ?>"
+                   placeholder="en" class="small-text" maxlength="10">
+            <p class="description"><?php esc_html_e( 'Used by Auto-link to route the right language to this marketplace. E.g. "en" for English pages, "fr" for French. Leave blank for default/fallback.', 'delice-recipe-manager' ); ?></p>
+        </div>
+
         <?php if ( ! empty( $amazon_tag ) ) : ?>
         <div style="margin-top:12px;padding:10px 14px;background:#f8f9fa;border-radius:5px;font-size:12px;color:#555;">
             <?php
@@ -463,6 +482,112 @@ $amazon_id       = $amazon_platform['id']           ?? '';
         </label>
     </div>
 </div>
+
+<!-- Additional Amazon Marketplaces (multilingual support) -->
+<?php $extra_base_idx = 50; /* form indexes 50+ are reserved for extra Amazon entries */ ?>
+<div class="drm-card" id="drm-extra-amazon-card">
+    <div class="drm-card-header">
+        <div class="drm-card-header-left">
+            <h2><?php esc_html_e( 'Additional Amazon Marketplaces', 'delice-recipe-manager' ); ?></h2>
+            <span class="drm-card-badge"><?php esc_html_e( 'Multilingual auto-link routing', 'delice-recipe-manager' ); ?></span>
+        </div>
+    </div>
+    <div class="drm-card-body">
+        <p class="description" style="margin-bottom:14px;"><?php esc_html_e( 'Add one row per additional language. When Auto-link is on, each page\'s language is detected (WPML / Polylang / WP locale) and the matching marketplace is used automatically. The main Amazon entry above acts as the default fallback.', 'delice-recipe-manager' ); ?></p>
+
+        <table class="widefat striped" id="drm-extra-amazon-table" style="font-size:13px;">
+            <thead>
+                <tr>
+                    <th style="width:90px;"><?php esc_html_e( 'Language', 'delice-recipe-manager' ); ?></th>
+                    <th><?php esc_html_e( 'Marketplace', 'delice-recipe-manager' ); ?></th>
+                    <th><?php esc_html_e( 'Associates ID', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:70px;"><?php esc_html_e( 'Active', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:50px;"></th>
+                </tr>
+            </thead>
+            <tbody id="drm-extra-amazon-rows">
+            <?php foreach ( $extra_amazons as $ea_i => $ea ) :
+                $ea_fi = $extra_base_idx + $ea_i;
+            ?>
+                <tr class="drm-extra-amazon-row">
+                    <td>
+                        <input type="hidden" name="delice_affiliate_platforms[<?php echo $ea_fi; ?>][id]"   value="<?php echo esc_attr( $ea['id'] ); ?>">
+                        <input type="hidden" name="delice_affiliate_platforms[<?php echo $ea_fi; ?>][type]" value="amazon">
+                        <input type="hidden" name="delice_affiliate_platforms[<?php echo $ea_fi; ?>][name]" value="Amazon">
+                        <input type="text" name="delice_affiliate_platforms[<?php echo $ea_fi; ?>][language]"
+                               value="<?php echo esc_attr( $ea['language'] ?? '' ); ?>"
+                               placeholder="fr" class="small-text" maxlength="10"
+                               title="<?php esc_attr_e( '2-letter language code, e.g. fr, de, ar', 'delice-recipe-manager' ); ?>">
+                    </td>
+                    <td>
+                        <select name="delice_affiliate_platforms[<?php echo $ea_fi; ?>][region]" style="width:100%;">
+                            <?php foreach ( $regions as $rc => $rd ) : ?>
+                                <option value="<?php echo esc_attr( $rc ); ?>" <?php selected( $ea['region'] ?? 'us', $rc ); ?>><?php echo esc_html( $rd['label'] ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="delice_affiliate_platforms[<?php echo $ea_fi; ?>][tracking_id]"
+                               value="<?php echo esc_attr( $ea['tracking_id'] ?? '' ); ?>"
+                               placeholder="yoursite-fr-21" class="regular-text">
+                    </td>
+                    <td style="text-align:center;">
+                        <label class="drm-sw" title="<?php esc_attr_e( 'Enable', 'delice-recipe-manager' ); ?>">
+                            <input type="checkbox" name="delice_affiliate_platforms[<?php echo $ea_fi; ?>][active]" value="1" <?php checked( ! empty( $ea['active'] ) ); ?>>
+                            <span class="drm-sw-slider"></span>
+                        </label>
+                    </td>
+                    <td><button type="button" class="button button-small drm-remove-amazon-row" title="<?php esc_attr_e( 'Remove', 'delice-recipe-manager' ); ?>">✕</button></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <p style="margin-top:12px;">
+            <button type="button" id="drm-add-amazon-row" class="button"><?php esc_html_e( '+ Add Marketplace', 'delice-recipe-manager' ); ?></button>
+        </p>
+    </div>
+</div>
+
+<script>
+(function(){
+    var counter = <?php echo (int) ( $extra_base_idx + count( $extra_amazons ) ); ?>;
+    var regions = <?php echo wp_json_encode( array_map( fn( $r ) => $r['label'], $regions ) ); ?>;
+    var regionCodes = <?php echo wp_json_encode( array_keys( $regions ) ); ?>;
+
+    function buildRegionOptions( selectedCode ) {
+        var html = '';
+        for ( var i = 0; i < regionCodes.length; i++ ) {
+            html += '<option value="' + regionCodes[i] + '"' + ( regionCodes[i] === selectedCode ? ' selected' : '' ) + '>' + regions[ regionCodes[i] ] + '<\/option>';
+        }
+        return html;
+    }
+
+    document.getElementById('drm-add-amazon-row').addEventListener('click', function(){
+        var idx = counter++;
+        var row = document.createElement('tr');
+        row.className = 'drm-extra-amazon-row';
+        row.innerHTML =
+            '<td>' +
+                '<input type="hidden" name="delice_affiliate_platforms[' + idx + '][id]" value="plat_amazon_' + idx + '">' +
+                '<input type="hidden" name="delice_affiliate_platforms[' + idx + '][type]" value="amazon">' +
+                '<input type="hidden" name="delice_affiliate_platforms[' + idx + '][name]" value="Amazon">' +
+                '<input type="text" name="delice_affiliate_platforms[' + idx + '][language]" placeholder="fr" class="small-text" maxlength="10">' +
+            '<\/td>' +
+            '<td><select name="delice_affiliate_platforms[' + idx + '][region]" style="width:100%;">' + buildRegionOptions('us') + '<\/select><\/td>' +
+            '<td><input type="text" name="delice_affiliate_platforms[' + idx + '][tracking_id]" placeholder="yoursite-fr-21" class="regular-text"><\/td>' +
+            '<td style="text-align:center;"><label class="drm-sw"><input type="checkbox" name="delice_affiliate_platforms[' + idx + '][active]" value="1" checked><span class="drm-sw-slider"><\/span><\/label><\/td>' +
+            '<td><button type="button" class="button button-small drm-remove-amazon-row">✕<\/button><\/td>';
+        document.getElementById('drm-extra-amazon-rows').appendChild(row);
+    });
+
+    document.getElementById('drm-extra-amazon-rows').addEventListener('click', function(e){
+        if ( e.target.classList.contains('drm-remove-amazon-row') ) {
+            e.target.closest('tr').remove();
+        }
+    });
+})();
+</script>
 
 <!-- Other Platforms (ShareASale, CJ, Impact, Custom) -->
 <?php
@@ -997,6 +1122,18 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                 <?php esc_html_e( 'Enable affiliate link injection on all recipe pages', 'delice-recipe-manager' ); ?>
             </label>
             <p class="description"><?php esc_html_e( 'When disabled, no links or disclosure appear on the frontend. All rules and platform connections are preserved.', 'delice-recipe-manager' ); ?></p>
+        </div>
+
+        <div class="drm-aff-field">
+            <label class="drm-aff-field-label"><?php esc_html_e( 'Auto-link All Ingredients', 'delice-recipe-manager' ); ?></label>
+            <label class="drm-toggle-row">
+                <span class="drm-sw">
+                    <input type="checkbox" name="delice_affiliate_settings[auto_link]" value="1" <?php checked( $settings['auto_link'] ); ?>>
+                    <span class="drm-sw-slider"></span>
+                </span>
+                <?php esc_html_e( 'Automatically link every ingredient to Amazon — no keyword rules needed', 'delice-recipe-manager' ); ?>
+            </label>
+            <p class="description"><?php esc_html_e( 'When on, any ingredient without a matching keyword rule falls back to an Amazon search link using your Associates ID. Requires an active Amazon platform above. Manual rules still take priority and can point to specific products.', 'delice-recipe-manager' ); ?></p>
         </div>
 
         <hr class="drm-aff-divider">

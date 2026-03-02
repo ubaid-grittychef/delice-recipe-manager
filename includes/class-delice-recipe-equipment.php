@@ -3,9 +3,9 @@
  * Delice Recipe Equipment Manager — v3.9.0
  *
  * Handles kitchen equipment per recipe:
- *  - Storage: _delice_recipe_equipment meta (array of { name, notes, required })
+ *  - Storage: _delice_recipe_equipment meta (array of { name, notes, required, product_url })
  *  - AI extraction: reads Instructions text → OpenAI → returns equipment list
- *  - Affiliate matching: reuses Delice_Affiliate_Manager::match_ingredient()
+ *  - Affiliate matching: direct product_url (preferred) or keyword-rule fallback
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -29,9 +29,10 @@ class Delice_Recipe_Equipment {
             $name = sanitize_text_field( $item['name'] ?? '' );
             if ( empty( $name ) ) continue;
             $clean[] = array(
-                'name'     => $name,
-                'notes'    => sanitize_text_field( $item['notes'] ?? '' ),
-                'required' => ! empty( $item['required'] ),
+                'name'        => $name,
+                'notes'       => sanitize_text_field( $item['notes'] ?? '' ),
+                'required'    => ! empty( $item['required'] ),
+                'product_url' => esc_url_raw( $item['product_url'] ?? '' ),
             );
         }
         return $clean;
@@ -57,10 +58,19 @@ class Delice_Recipe_Equipment {
         if ( empty( $settings['enabled'] ) ) return $equipment;
 
         foreach ( $equipment as &$item ) {
-            $match = Delice_Affiliate_Manager::match_ingredient( $item['name'] ?? '' );
-            if ( $match ) {
-                $item['affiliate_url']   = $match['url'];
-                $item['affiliate_store'] = $match['store'];
+            if ( ! empty( $item['product_url'] ) ) {
+                // User pinned a specific product — link directly to it with the
+                // correct affiliate tag for this recipe's language.
+                $result = Delice_Affiliate_Manager::build_amazon_url( $item['product_url'], $recipe_id );
+                $item['affiliate_url']   = $result['url'];
+                $item['affiliate_store'] = $result['store'];
+            } else {
+                // Fall back to keyword-rule matching (same engine as ingredients).
+                $match = Delice_Affiliate_Manager::match_ingredient( $item['name'] ?? '' );
+                if ( $match ) {
+                    $item['affiliate_url']   = $match['url'];
+                    $item['affiliate_store'] = $match['store'];
+                }
             }
         }
         unset( $item );

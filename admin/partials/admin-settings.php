@@ -16,7 +16,7 @@ if ( isset( $_POST['_delice_lang_save'] ) ) {
         $lang_translations = array();
         foreach ( $lang_fields as $lf ) {
             if ( isset( $_POST[ "translation_{$lf}" ] ) ) {
-                $lang_translations[ $lf ] = sanitize_text_field( $_POST[ "translation_{$lf}" ] );
+                $lang_translations[ $lf ] = sanitize_text_field( wp_unslash( $_POST[ "translation_{$lf}" ] ) );
             }
         }
         update_option( "delice_recipe_translations_{$selected_language}", $lang_translations );

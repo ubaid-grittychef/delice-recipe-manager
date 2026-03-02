@@ -108,8 +108,11 @@ class Delice_Recipe_Schema {
             }
 
             // Get review data from new review system
-            $review_system = new Delice_Recipe_Reviews();
-            $review_data = $review_system->get_recipe_rating_data($recipe_id);
+            $review_data = array();
+            if ( class_exists( 'Delice_Recipe_Reviews' ) ) {
+                $review_system = new Delice_Recipe_Reviews();
+                $review_data   = $review_system->get_recipe_rating_data( $recipe_id );
+            }
 
             $rating_average = floatval( get_post_meta( $recipe_id, '_delice_recipe_rating_average', true ) );
             $rating_count   = intval( get_post_meta( $recipe_id, '_delice_recipe_rating_count', true ) );
@@ -200,13 +203,15 @@ class Delice_Recipe_Schema {
 
             $schema['dateModified'] = get_the_modified_date( 'c', $recipe_id );
 
-            if ( $prep_time )  {
+            // Use strict check so a value of "0" (zero-minute prep) is still omitted
+            // but any positive value — including integers — is included correctly.
+            if ( $prep_time !== '' && $prep_time !== null && intval( $prep_time ) > 0 ) {
                 $schema['prepTime'] = 'PT' . intval( $prep_time ) . 'M';
             }
-            if ( $cook_time )  {
+            if ( $cook_time !== '' && $cook_time !== null && intval( $cook_time ) > 0 ) {
                 $schema['cookTime'] = 'PT' . intval( $cook_time ) . 'M';
             }
-            if ( $total_time ) {
+            if ( $total_time !== '' && $total_time !== null && intval( $total_time ) > 0 ) {
                 $schema['totalTime'] = 'PT' . intval( $total_time ) . 'M';
             }
 
@@ -289,6 +294,9 @@ class Delice_Recipe_Schema {
             }
 
             if ( $review_data['count'] > 0 && $review_data['average'] > 0 ) {
+                // reviewCount = reviews that have written text; ratingCount = all ratings (including text-only stars).
+                // Google uses both: ratingCount for the number shown next to stars in SERPs.
+                $text_review_count = ! empty( $review_data['reviews'] ) ? count( $review_data['reviews'] ) : 0;
                 $schema['aggregateRating'] = array(
                     '@type'       => 'AggregateRating',
                     'ratingValue' => number_format( $review_data['average'], 1 ),
@@ -296,6 +304,9 @@ class Delice_Recipe_Schema {
                     'bestRating'  => '5',
                     'worstRating' => '1',
                 );
+                if ( $text_review_count > 0 ) {
+                    $schema['aggregateRating']['reviewCount'] = $text_review_count;
+                }
 
                 // Add individual reviews to schema
                 if (!empty($review_data['reviews'])) {
@@ -330,6 +341,28 @@ class Delice_Recipe_Schema {
             $course_terms = wp_get_object_terms( $recipe_id, 'delice_course', array( 'fields' => 'names' ) );
             if ( ! is_wp_error( $course_terms ) && ! empty( $course_terms ) ) {
                 $schema['recipeCategory'] = implode( ', ', $course_terms );
+            }
+
+            // cookingMethod — map course slug to a cooking method label.
+            $course_slugs = wp_get_object_terms( $recipe_id, 'delice_course', array( 'fields' => 'slugs' ) );
+            if ( ! is_wp_error( $course_slugs ) && ! empty( $course_slugs ) ) {
+                $method_map = array(
+                    'dessert'     => 'Baking',
+                    'breakfast'   => 'Pan-frying',
+                    'soup'        => 'Simmering',
+                    'salad'       => 'No-cook',
+                    'beverage'    => 'Blending',
+                    'side-dish'   => 'Roasting',
+                    'main-course' => 'Roasting',
+                    'appetizer'   => 'Pan-frying',
+                    'snack'       => 'Baking',
+                );
+                foreach ( $course_slugs as $slug ) {
+                    if ( isset( $method_map[ $slug ] ) ) {
+                        $schema['cookingMethod'] = $method_map[ $slug ];
+                        break;
+                    }
+                }
             }
 
             // Read keyword terms from taxonomy – note the assignment must be
@@ -451,15 +484,8 @@ class Delice_Recipe_Schema {
                     return;
                 }
                 $this->extract_and_output_shortcode_schemas( $post->post_content );
-            }
-            
-            // Output FAQ schema if exists
-            if (isset($this->faq_schema) && !empty($this->faq_schema['mainEntity'])) {
-                $json = wp_json_encode($this->faq_schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-                if ($json !== false && json_last_error() === JSON_ERROR_NONE) {
-                    echo "\n<!-- Delice Recipe FAQ Schema.org markup -->\n";
-                    echo '<script type="application/ld+json">' . $json . '</script>' . "\n";
-                }
+                // For shortcode-embedded recipes, FAQ schema was already output
+                // inside extract_and_output_shortcode_schemas → output_single_recipe_schema.
             }
         } catch ( Exception $e ) {
             if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -676,6 +702,16 @@ class Delice_Recipe_Schema {
         $image_url   = '';
         $img_w       = '';
         $img_h       = '';
+
+        if ( has_post_thumbnail( $recipe_id ) ) {
+            $thumb_id = get_post_thumbnail_id( $recipe_id );
+            $img      = wp_get_attachment_image_src( $thumb_id, 'large' );
+            if ( ! empty( $img[0] ) ) {
+                $image_url = $img[0];
+                $img_w     = $img[1];
+                $img_h     = $img[2];
+            }
+        }
 
         // Open Graph
         echo '<meta property="og:type"        content="article">' . "\n";

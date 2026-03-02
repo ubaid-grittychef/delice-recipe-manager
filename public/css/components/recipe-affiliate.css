@@ -1,5 +1,5 @@
 /**
- * Affiliate link frontend styles — v3.8.4
+ * Affiliate link frontend styles — v3.9.14
  *
  * Scoped under the recipe container ID (#drd-*, #drm-*, #dre-*)
  * via the inline <style> ID-selector pattern from CLAUDE.md rule 9.
@@ -27,31 +27,32 @@
     margin-top: 1px;
 }
 
-/* ── Affiliate buy button on ingredient rows ─────────────────────────────── */
+/* ── Base affiliate buy button ───────────────────────────────────────────── */
 .delice-aff-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     margin-left: auto;
     flex-shrink: 0;
-    padding: 3px 9px;
-    border-radius: 4px;
-    background: #ff9900;
+    padding: 4px 10px;
+    border-radius: 5px;
+    background: #ff9900;   /* Amazon orange — overridden by platform modifier */
     color: #111 !important;
     font-size: 11px;
     font-weight: 600;
     line-height: 1.4;
     text-decoration: none !important;
     white-space: nowrap;
-    transition: background .15s, transform .1s;
+    transition: background .15s, box-shadow .15s, transform .1s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
     /* Google requires sponsored rel — added in PHP/template, not here */
 }
 .delice-aff-btn:hover {
-    background: #e68900;
     transform: translateY(-1px);
-    color: #111 !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,.18);
+    color: inherit !important;
 }
-.delice-aff-btn:focus {
+.delice-aff-btn:focus-visible {
     outline: 2px solid #0073aa;
     outline-offset: 2px;
 }
@@ -59,14 +60,73 @@
     width: 10px;
     height: 10px;
     flex-shrink: 0;
+    opacity: .75;
+}
+/* Store name shown slightly lighter inside the button */
+.delice-aff-btn .delice-aff-sep {
+    opacity: .5;
+}
+.delice-aff-btn .delice-aff-store {
+    opacity: .85;
+    font-weight: 500;
 }
 
-/* ── Ingredient row adjustment when button is present ────────────────────── */
+/* ── Platform-specific button colours ───────────────────────────────────── */
+
+/* Amazon — warm orange */
+.delice-aff-btn--amazon            { background: #ff9900; color: #111 !important; }
+.delice-aff-btn--amazon:hover      { background: #e68900; color: #111 !important; }
+
+/* ShareASale — vibrant green */
+.delice-aff-btn--shareasale        { background: #17b978; color: #fff !important; }
+.delice-aff-btn--shareasale:hover  { background: #12a068; color: #fff !important; }
+.delice-aff-btn--shareasale .delice-aff-sep,
+.delice-aff-btn--shareasale .delice-aff-store { color: #fff !important; }
+
+/* CJ Affiliate — strong blue */
+.delice-aff-btn--cj                { background: #0052b4; color: #fff !important; }
+.delice-aff-btn--cj:hover          { background: #003d8f; color: #fff !important; }
+.delice-aff-btn--cj .delice-aff-sep,
+.delice-aff-btn--cj .delice-aff-store { color: #fff !important; }
+
+/* Impact — violet */
+.delice-aff-btn--impact            { background: #7c3aed; color: #fff !important; }
+.delice-aff-btn--impact:hover      { background: #6d28d9; color: #fff !important; }
+.delice-aff-btn--impact .delice-aff-sep,
+.delice-aff-btn--impact .delice-aff-store { color: #fff !important; }
+
+/* Custom / fallback — neutral slate */
+.delice-aff-btn--custom            { background: #475569; color: #fff !important; }
+.delice-aff-btn--custom:hover      { background: #334155; color: #fff !important; }
+.delice-aff-btn--custom .delice-aff-sep,
+.delice-aff-btn--custom .delice-aff-store { color: #fff !important; }
+
+/* ── Multi-platform button container ─────────────────────────────────────── */
+/*
+ * Shown when an ingredient has rules on more than one connected platform.
+ * Single-button case skips this wrapper entirely (no visual change).
+ */
+.delice-aff-btns {
+    display: inline-flex !important;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+/* Remove the per-button left margin that pushes a lone button to the right */
+.delice-aff-btns .delice-aff-btn {
+    margin-left: 0;
+}
+
+/* ── Ingredient row adjustment when button(s) are present ────────────────── */
 .delice-recipe-ingredient--linked {
     position: relative;
 }
-/* The ingredient name shrinks to make room for the button */
-.delice-recipe-ingredient--linked .delice-recipe-ingredient-name {
+/* The ingredient name shrinks to make room for the button(s) */
+.delice-recipe-ingredient--linked .delice-recipe-ingredient-name,
+.delice-recipe-ingredient--linked .delice-modern-ingredient-name,
+.delice-recipe-ingredient--linked .delice-elegant-ingredient-name {
     flex: 1;
     min-width: 0;
 }
@@ -74,5 +134,6 @@
 /* ── Print: hide all affiliate elements ─────────────────────────────────── */
 @media print {
     .delice-affiliate-disclosure,
-    .delice-aff-btn { display: none !important; }
+    .delice-aff-btn,
+    .delice-aff-btns { display: none !important; }
 }

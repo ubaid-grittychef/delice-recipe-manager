@@ -733,6 +733,17 @@ class Delice_Recipe_Admin {
                     <option value="hard" <?php selected($difficulty, 'hard'); ?>><?php esc_html_e('Difficile', 'delice-recipe-manager'); ?></option>
                 </select>
             </div>
+
+            <?php
+            $author_tested = get_post_meta( $post->ID, '_delice_recipe_author_tested', true );
+            ?>
+            <div class="delice-recipe-field">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" name="delice_recipe_author_tested" value="1" <?php checked( $author_tested, '1' ); ?>>
+                    <?php esc_html_e( 'Editor Tested (seed 5-star rating for SERP until users rate)', 'delice-recipe-manager' ); ?>
+                </label>
+                <p class="description" style="margin-top:4px;"><?php esc_html_e( 'Adds a legitimate author rating to the schema so recipe stars appear in search results before any user reviews are submitted. Automatically replaced by real ratings once users start rating.', 'delice-recipe-manager' ); ?></p>
+            </div>
         </div>
         <?php
     }
@@ -948,7 +959,32 @@ class Delice_Recipe_Admin {
         if (isset($_POST['delice_recipe_difficulty'])) {
             update_post_meta($post_id, '_delice_recipe_difficulty', sanitize_text_field($_POST['delice_recipe_difficulty']));
         }
-        
+
+        // Save editor-tested flag and sync seed rating post meta for templates.
+        $author_tested = isset( $_POST['delice_recipe_author_tested'] ) ? '1' : '0';
+        update_post_meta( $post_id, '_delice_recipe_author_tested', $author_tested );
+
+        global $wpdb;
+        $reviews_table = $wpdb->prefix . 'delice_recipe_reviews';
+        $real_count    = intval( $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM $reviews_table WHERE recipe_id = %d AND status = 'approved'",
+            $post_id
+        ) ) );
+
+        if ( $author_tested === '1' && $real_count === 0 ) {
+            // Seed the template-facing post meta so stars render without a DB query.
+            update_post_meta( $post_id, '_delice_recipe_rating_average', 5.0 );
+            update_post_meta( $post_id, '_delice_recipe_rating_count', 1 );
+            update_post_meta( $post_id, '_delice_recipe_is_seed_rating', '1' );
+        } elseif ( $author_tested === '0' && $real_count === 0 ) {
+            // Checkbox unchecked and no real ratings — remove the seed values.
+            delete_post_meta( $post_id, '_delice_recipe_rating_average' );
+            delete_post_meta( $post_id, '_delice_recipe_rating_count' );
+            delete_post_meta( $post_id, '_delice_recipe_is_seed_rating' );
+        }
+        // If real ratings exist ($real_count > 0) we never touch the meta here;
+        // update_recipe_rating_meta() in the Reviews class owns those values.
+
         // Save ingredients
         if (isset($_POST['delice_recipe_ingredients']) && is_array($_POST['delice_recipe_ingredients'])) {
             $ingredients = array();
@@ -1331,6 +1367,10 @@ class Delice_Recipe_Admin {
                            value="<?php echo esc_attr( $item['notes'] ?? '' ); ?>"
                            placeholder="<?php esc_attr_e( 'Notes (optional)', 'delice-recipe-manager' ); ?>"
                            style="flex:2;min-width:120px;">
+                    <input type="url" name="delice_recipe_equipment[<?php echo absint( $index ); ?>][product_url]"
+                           value="<?php echo esc_attr( $item['product_url'] ?? '' ); ?>"
+                           placeholder="<?php esc_attr_e( 'Amazon product URL (optional)', 'delice-recipe-manager' ); ?>"
+                           style="flex:3;min-width:200px;">
                     <label style="white-space:nowrap;font-size:12px;display:flex;align-items:center;gap:4px;">
                         <input type="checkbox" name="delice_recipe_equipment[<?php echo absint( $index ); ?>][required]" value="1" <?php checked( ! empty( $item['required'] ) ); ?>>
                         <?php esc_html_e( 'Required', 'delice-recipe-manager' ); ?>
@@ -1347,7 +1387,7 @@ class Delice_Recipe_Admin {
                 <span id="extract-equipment-status" style="font-size:12px;color:#646970;"></span>
             </div>
             <p style="margin:8px 0 0;font-size:11px;color:#8c8f94;">
-                <?php esc_html_e( 'AI reads your saved Instructions and auto-fills equipment. Review, then save the post. Affiliate buy buttons appear automatically when keyword rules match.', 'delice-recipe-manager' ); ?>
+                <?php esc_html_e( 'AI reads your saved Instructions and auto-fills equipment. Paste an Amazon product URL to link directly to a specific product you\'ve chosen; leave blank to use keyword rules. Review, then save the post.', 'delice-recipe-manager' ); ?>
             </p>
         </div>
         <?php

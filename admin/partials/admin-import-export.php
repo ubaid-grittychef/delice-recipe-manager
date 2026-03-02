@@ -360,19 +360,31 @@ jQuery(document).ready(function($) {
                     match_by: 'title'
                 },
                 success: function(response) {
+                    function escImpHtml(s) {
+                        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+                    }
                     if (response.success) {
                         const results = response.data;
-                        $('#import-recipes-results').html(`
-                            <div class="delice-success-box">
-                                <h4>Import Complete!</h4>
-                                <p>Total: ${results.total} | Imported: ${results.imported} | Skipped: ${results.skipped} | Failed: ${results.failed}</p>
-                                ${results.errors.length > 0 ? '<p><strong>Errors:</strong><br>' + results.errors.join('<br>') + '</p>' : ''}
-                            </div>
-                        `).show();
+                        var errorsHtml = '';
+                        if (results.errors && results.errors.length > 0) {
+                            errorsHtml = '<p><strong>Errors:</strong><br>' +
+                                results.errors.map(function(e) { return escImpHtml(e); }).join('<br>') +
+                                '</p>';
+                        }
+                        $('#import-recipes-results').html(
+                            '<div class="delice-success-box">' +
+                                '<h4>Import Complete!</h4>' +
+                                '<p>Total: ' + parseInt(results.total, 10) +
+                                ' | Imported: ' + parseInt(results.imported, 10) +
+                                ' | Skipped: ' + parseInt(results.skipped, 10) +
+                                ' | Failed: ' + parseInt(results.failed, 10) + '</p>' +
+                                errorsHtml +
+                            '</div>'
+                        ).show();
                     } else {
-                        $('#import-recipes-results').html(`
-                            <div class="delice-error-box">Error: ${response.data.message}</div>
-                        `).show();
+                        $('#import-recipes-results').html(
+                            '<div class="delice-error-box">Error: ' + escImpHtml((response.data && response.data.message) ? response.data.message : 'Unknown error') + '</div>'
+                        ).show();
                     }
                 },
                 error: function() {

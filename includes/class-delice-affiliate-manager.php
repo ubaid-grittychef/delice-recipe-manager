@@ -75,6 +75,7 @@ class Delice_Affiliate_Manager {
                 'name'        => sanitize_text_field( $p['name'] ?? '' ),
                 'tracking_id' => sanitize_text_field( $p['tracking_id'] ?? '' ),
                 'active'      => ! empty( $p['active'] ),
+                'language'    => strtolower( sanitize_text_field( $p['language'] ?? '' ) ),
             );
             if ( $type === 'amazon' ) {
                 $regions = array_keys( self::AMAZON_REGIONS );
@@ -145,6 +146,7 @@ class Delice_Affiliate_Manager {
     public static function get_settings() {
         $defaults = array(
             'enabled'         => false,
+            'auto_link'       => false,
             'max_links'       => 5,
             'density_pct'     => 50,
             'open_new_tab'    => true,
@@ -167,6 +169,7 @@ class Delice_Affiliate_Manager {
 
     /**
      * Match a single ingredient name and return { url, store } or null.
+     * Returns the single globally best-scoring match (any platform).
      */
     public static function match_ingredient( $ingredient_name ) {
         $rules     = self::get_rules();
@@ -215,6 +218,151 @@ class Delice_Affiliate_Manager {
         }
 
         return $best;
+    }
+
+    /**
+     * Match a single ingredient name against ALL active platforms independently.
+     *
+     * For each platform, the highest-scoring rule for that platform wins.
+     * Returns one entry per matched platform — so if three platforms have rules
+     * for "olive oil", three entries are returned (one button each in the UI).
+     *
+     * When $auto_platform is supplied and NO rule-based match is found at all,
+     * a single auto-link entry is returned for that Amazon platform.
+     *
+     * @param  string     $ingredient_name
+     * @param  array|null $auto_platform  Active Amazon platform for auto_link fallback.
+     * @return array  Array of [ 'url' => string, 'store' => string, 'type' => string ]
+     */
+    private static function match_ingredient_all_platforms( $ingredient_name, $auto_platform = null ) {
+        $rules     = self::get_rules();
+        $platforms = self::get_platforms();
+        $needle    = mb_strtolower( trim( $ingredient_name ) );
+
+        // Best-scoring rule per platform_id.
+        $best_per_pid = array(); // platform_id => [ 'rule' => $rule, 'score' => int ]
+
+        foreach ( $rules as $rule ) {
+            if ( empty( $rule['active'] ) || empty( $rule['keyword'] ) ) continue;
+
+            $kw     = mb_strtolower( trim( $rule['keyword'] ) );
+            $kw_len = mb_strlen( $kw );
+            $mt     = $rule['match_type'] ?? 'contains';
+            $score  = 0;
+
+            if ( $mt === 'exact'    && $needle === $kw )                          $score = 30000 + $kw_len;
+            elseif ( $mt === 'starts'   && strncmp( $needle, $kw, $kw_len ) === 0 ) $score = 20000 + $kw_len;
+            elseif ( $mt === 'contains' && str_contains( $needle, $kw ) )           $score = 10000 + $kw_len;
+
+            if ( $score <= 0 ) continue;
+
+            $pid = $rule['platform_id'] ?? '';
+            if ( $score > ( $best_per_pid[ $pid ]['score'] ?? -1 ) ) {
+                $best_per_pid[ $pid ] = array( 'rule' => $rule, 'score' => $score );
+            }
+        }
+
+        $results      = array();
+        $matched_pids = array();
+
+        // Build one result per active platform that has a matched rule.
+        foreach ( $platforms as $platform ) {
+            if ( empty( $platform['active'] ) ) continue;
+            $pid = $platform['id'] ?? '';
+            if ( ! isset( $best_per_pid[ $pid ] ) ) continue;
+
+            $url = self::build_platform_url( $best_per_pid[ $pid ]['rule'], $platform, $ingredient_name );
+            if ( empty( $url ) ) continue;
+
+            $results[]      = array(
+                'url'   => $url,
+                'store' => ! empty( $platform['name'] ) ? $platform['name'] : sanitize_text_field( $best_per_pid[ $pid ]['rule']['store'] ?? '' ),
+                'type'  => $platform['type'] ?? 'custom',
+            );
+            $matched_pids[] = $pid;
+        }
+
+        // Rules with a custom_url but whose platform_id is inactive / deleted.
+        foreach ( $best_per_pid as $pid => $entry ) {
+            if ( in_array( $pid, $matched_pids, true ) ) continue;
+            $rule = $entry['rule'];
+            if ( ! empty( $rule['custom_url'] ) ) {
+                $results[] = array(
+                    'url'   => esc_url_raw( $rule['custom_url'] ),
+                    'store' => sanitize_text_field( $rule['store'] ?? '' ),
+                    'type'  => 'custom',
+                );
+            }
+        }
+
+        // Auto-link fallback: no rule match at all → Amazon search link.
+        if ( empty( $results ) && $auto_platform ) {
+            $url = self::build_platform_url( array(), $auto_platform, $ingredient_name );
+            if ( $url ) {
+                $results[] = array(
+                    'url'   => $url,
+                    'store' => $auto_platform['name'] ?? 'Amazon',
+                    'type'  => 'amazon',
+                );
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Render affiliate buy button(s) for a single ingredient / equipment row.
+     *
+     * When only one platform is matched a single button is returned.
+     * When multiple platforms match, one button per platform is returned inside
+     * a flex wrapper so readers can choose their preferred store.
+     *
+     * @param  array  $links     $ingredient['affiliate_links'] from inject_links().
+     * @param  string $item_name Ingredient / equipment name (used in aria-label).
+     * @param  array  $settings  Output of self::get_settings().
+     * @return string HTML, or empty string when $links is empty.
+     */
+    public static function render_ingredient_buttons( array $links, $item_name, array $settings ) {
+        if ( empty( $links ) ) return '';
+
+        $open          = ! empty( $settings['open_new_tab'] ) ? ' target="_blank"' : '';
+        $btn_base_text = esc_html( $settings['button_text'] ?? 'Buy' );
+        $show_store    = ! empty( $settings['show_store_name'] );
+        $rel           = esc_attr( self::LINK_REL );
+        $svg           = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'
+                       . '<path d="M2 10L10 2M5 2h5v5"/></svg>';
+
+        $inner = '';
+        foreach ( $links as $link ) {
+            $store = $link['store'] ?? '';
+            $type  = sanitize_html_class( $link['type'] ?? 'custom' );
+
+            // Build visible label — store name in a slightly lighter span.
+            $label = $btn_base_text;
+            if ( $show_store && $store !== '' ) {
+                $label .= ' <span class="delice-aff-sep" aria-hidden="true">·</span>'
+                        . ' <span class="delice-aff-store">' . esc_html( $store ) . '</span>';
+            }
+
+            $aria   = wp_strip_all_tags( $label ) . ' — ' . esc_attr( $item_name );
+
+            $inner .= '<a href="' . esc_url( $link['url'] ) . '"'
+                    . ' class="delice-aff-btn delice-aff-btn--' . $type . '"'
+                    . ' rel="' . $rel . '"'
+                    . $open
+                    . ' aria-label="' . esc_attr( $aria ) . '">'
+                    . $label
+                    . $svg
+                    . '</a>';
+        }
+
+        // Single button: return it without the wrapper (keeps existing layout intact).
+        if ( count( $links ) === 1 ) {
+            return $inner;
+        }
+
+        // Multiple buttons: wrap in a flex row.
+        return '<div class="delice-aff-btns">' . $inner . '</div>';
     }
 
     // ── Override ingredients (for old / manually-created recipes) ────────────
@@ -328,12 +476,59 @@ class Delice_Affiliate_Manager {
         $cap         = min( $max_links, $density_cap );
         $linked      = 0;
 
+        // When auto_link is on, resolve the best Amazon platform for this recipe's language.
+        $auto_amazon = null;
+        if ( ! empty( $settings['auto_link'] ) ) {
+            // Priority 1: the recipe's own language stored by the AI generator
+            // (_delice_recipe_language holds a locale like fr_FR, es_ES, en_US, ar).
+            $current_lang = '';
+            if ( $recipe_id > 0 ) {
+                $recipe_locale = get_post_meta( absint( $recipe_id ), '_delice_recipe_language', true );
+                if ( $recipe_locale ) {
+                    // fr_FR → fr,  es_ES → es,  ar → ar,  zh_CN → zh
+                    $current_lang = strtolower( substr( $recipe_locale, 0, 2 ) );
+                }
+            }
+            // Priority 2: WPML / Polylang / WP locale fallback
+            if ( ! $current_lang ) {
+                $current_lang = self::get_current_language();
+            }
+
+            $fallback = null;
+            foreach ( self::get_platforms() as $platform ) {
+                if ( empty( $platform['active'] )
+                     || ( $platform['type'] ?? '' ) !== 'amazon'
+                     || empty( $platform['tracking_id'] ) ) {
+                    continue;
+                }
+                // Exact language match wins immediately.
+                $plat_lang = $platform['language'] ?? '';
+                if ( $plat_lang && strtolower( $plat_lang ) === $current_lang ) {
+                    $auto_amazon = $platform;
+                    break;
+                }
+                // Keep first active Amazon as fallback for unmatched languages.
+                if ( ! $fallback ) {
+                    $fallback = $platform;
+                }
+            }
+            if ( ! $auto_amazon ) {
+                $auto_amazon = $fallback;
+            }
+        }
+
         foreach ( $ingredients as &$ing ) {
             if ( $linked >= $cap ) break;
-            $match = self::match_ingredient( $ing['name'] ?? '' );
-            if ( $match ) {
-                $ing['affiliate_url']   = $match['url'];
-                $ing['affiliate_store'] = $match['store'];
+
+            // Resolve links for all matching platforms simultaneously.
+            $all_links = self::match_ingredient_all_platforms( $ing['name'] ?? '', $auto_amazon );
+
+            if ( ! empty( $all_links ) ) {
+                // Full set — used by render_ingredient_buttons() for multi-button display.
+                $ing['affiliate_links'] = $all_links;
+                // Back-compat: first entry is the canonical single link.
+                $ing['affiliate_url']   = $all_links[0]['url'];
+                $ing['affiliate_store'] = $all_links[0]['store'];
                 $linked++;
             }
         }
@@ -374,6 +569,7 @@ class Delice_Affiliate_Manager {
         if ( ! is_array( $raw ) ) return array();
         return array(
             'enabled'         => ! empty( $raw['enabled'] ),
+            'auto_link'       => ! empty( $raw['auto_link'] ),
             'max_links'       => max( 1, min( 20, intval( $raw['max_links'] ?? 5 ) ) ),
             'density_pct'     => max( 1, min( 100, intval( $raw['density_pct'] ?? 50 ) ) ),
             'open_new_tab'    => ! empty( $raw['open_new_tab'] ),
@@ -383,6 +579,86 @@ class Delice_Affiliate_Manager {
             'button_text'     => sanitize_text_field( $raw['button_text'] ?? 'Buy' ),
             'show_store_name' => ! empty( $raw['show_store_name'] ),
         );
+    }
+
+    // ── Language detection ────────────────────────────────────────────────────
+
+    /**
+     * Build an affiliate Amazon URL from a manually-supplied product URL.
+     *
+     * Strips any existing `tag=` parameter and appends the correct tracking ID
+     * for the recipe's language (same platform resolution used in inject_links).
+     *
+     * @param  string $product_url  Raw Amazon product URL pasted by the user.
+     * @param  int    $recipe_id    Recipe post ID (used for language detection).
+     * @return array  { url: string, store: string }
+     */
+    public static function build_amazon_url( $product_url, $recipe_id = 0 ) {
+        // Resolve the right Amazon platform the same way inject_links() does.
+        $current_lang = '';
+        if ( $recipe_id > 0 ) {
+            $recipe_locale = get_post_meta( absint( $recipe_id ), '_delice_recipe_language', true );
+            if ( $recipe_locale ) {
+                $current_lang = strtolower( substr( $recipe_locale, 0, 2 ) );
+            }
+        }
+        if ( ! $current_lang ) {
+            $current_lang = self::get_current_language();
+        }
+
+        $platform = null;
+        $fallback  = null;
+        foreach ( self::get_platforms() as $p ) {
+            if ( empty( $p['active'] ) || ( $p['type'] ?? '' ) !== 'amazon' || empty( $p['tracking_id'] ) ) {
+                continue;
+            }
+            $plat_lang = $p['language'] ?? '';
+            if ( $plat_lang && strtolower( $plat_lang ) === $current_lang ) {
+                $platform = $p;
+                break;
+            }
+            if ( ! $fallback ) {
+                $fallback = $p;
+            }
+        }
+        if ( ! $platform ) {
+            $platform = $fallback;
+        }
+
+        if ( ! $platform ) {
+            return array( 'url' => esc_url( $product_url ), 'store' => 'Amazon' );
+        }
+
+        // Strip any existing tag and append our tracking ID.
+        $url   = remove_query_arg( 'tag', esc_url_raw( $product_url ) );
+        $url   = add_query_arg( 'tag', rawurlencode( $platform['tracking_id'] ), $url );
+        $store = ! empty( $platform['name'] ) ? $platform['name'] : 'Amazon';
+
+        return array( 'url' => $url, 'store' => $store );
+    }
+
+    /**
+     * Return the current 2-letter language code.
+     *
+     * Priority: WPML → Polylang → WordPress locale (fr_FR → fr).
+     */
+    private static function get_current_language() {
+        // WPML
+        if ( function_exists( 'apply_filters' ) ) {
+            $wpml = apply_filters( 'wpml_current_language', null );
+            if ( $wpml && is_string( $wpml ) ) {
+                return strtolower( substr( $wpml, 0, 5 ) );
+            }
+        }
+        // Polylang
+        if ( function_exists( 'pll_current_language' ) ) {
+            $pll = pll_current_language();
+            if ( $pll && is_string( $pll ) ) {
+                return strtolower( $pll );
+            }
+        }
+        // WordPress locale (fr_FR → fr, en_US → en)
+        return strtolower( substr( get_locale(), 0, 2 ) );
     }
 
     // ── Disclosure HTML ───────────────────────────────────────────────────────

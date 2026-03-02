@@ -71,6 +71,8 @@ class Delice_Recipe_AI {
     private function build_prompt($params) {
         $keyword  = sanitize_text_field($params['keyword'] ?? '');
         $lang     = sanitize_text_field($params['target_language'] ?? 'english');
+        // Strip anything that isn't letters or spaces to prevent prompt injection.
+        $lang     = trim( preg_replace( '/[^a-zA-Z\s]/', '', $lang ) ) ?: 'english';
         $vars     = $params['variations'] ?? [];
 
         $system = "You are a world-class French culinary expert who outputs *raw JSON only*, without any markdown fences or code blocks. Write it as if you were the author of the best recipe website in the world. If you present any uncommon ingredients, provide similar/alternatives in brackets. Imagine you were jamie oliver teaching his neighbour to cook, that type of tone, patience and detail. The recipe should be halal without mentioning the word halal anywhere in recipe and strictly follow dietery rules.";

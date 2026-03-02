@@ -51,8 +51,9 @@
             updateButton(btn, true);
 
             wakeLock.addEventListener('release', function () {
-                // Re-acquire when tab becomes visible again (if still in cook mode)
-                cookModeActive = wakeLock.released === false;
+                // After a release event wakeLock.released is always true, so we
+                // preserve cookModeActive separately and null out the lock handle.
+                wakeLock = null;
             });
             return true;
         } catch (err) {

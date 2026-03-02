@@ -11,6 +11,15 @@
 
     var TIME_PATTERN = /(\d+)\s*(?:to\s*\d+\s*)?(hours?|hrs?|minutes?|mins?|seconds?|secs?)/gi;
 
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function getLang(key, fallback) {
         return (typeof deliceRecipe !== 'undefined' && deliceRecipe[key])
             ? deliceRecipe[key]
@@ -80,9 +89,9 @@
         var el = document.createElement('div');
         el.className = 'delice-timer-item';
         el.innerHTML =
-            '<span class="delice-timer-label">' + label + '</span>' +
-            '<span class="delice-timer-time">' + formatTime(seconds) + '</span>' +
-            '<button class="delice-timer-cancel" aria-label="Cancel timer">✕</button>';
+            '<span class="delice-timer-label">' + escHtml(label) + '</span>' +
+            '<span class="delice-timer-time">' + escHtml(formatTime(seconds)) + '</span>' +
+            '<button class="delice-timer-cancel" aria-label="Cancel timer">&#x2715;</button>';
 
         el.querySelector('.delice-timer-cancel').addEventListener('click', function () {
             removeTimer(timerObj);
@@ -126,9 +135,9 @@
                 if (secs < 10) return full; // skip trivially small values
                 var startLabel = getLang('startTimer', 'Start Timer');
                 modified = true;
-                return '<span class="delice-timer-trigger" data-seconds="' + secs + '" data-label="Step ' + (stepIdx + 1) + '" title="' + startLabel + '" role="button" tabindex="0">' +
-                    full +
-                    ' <span class="delice-timer-icon" aria-hidden="true">⏱</span></span>';
+                return '<span class="delice-timer-trigger" data-seconds="' + secs + '" data-label="Step ' + (stepIdx + 1) + '" title="' + escHtml(startLabel) + '" role="button" tabindex="0">' +
+                    escHtml(full) +
+                    ' <span class="delice-timer-icon" aria-hidden="true">&#x23F1;</span></span>';
             });
 
             if (modified) {

@@ -700,7 +700,7 @@ jQuery(document).ready(function($) {
                     $('#progress-log').prepend('<div style="color: #ef4444;">✗ Recipe ID ' + recipeId + ' failed: Network error</div>');
                 },
                 complete: function() {
-                    completed + failed;
+                    void(completed + failed); // no-op retained for reference; counts tracked individually above
                     var progress = ((index + 1) / recipeIds.length) * 100;
                     $('#progress-fill').css('width', progress + '%');
                     $('#progress-text').text((index + 1) + ' / ' + recipeIds.length);

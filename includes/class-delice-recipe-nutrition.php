@@ -35,10 +35,17 @@ class Delice_Recipe_Nutrition {
         // Add nonce for security
         wp_nonce_field('delice_recipe_nutrition_meta', 'delice_recipe_nutrition_nonce');
         
-        // Get saved values
-        $nutrition = get_post_meta($post->ID, '_delice_recipe_nutrition', true);
-        
-        if (!is_array($nutrition)) {
+        // Get saved values — stored as JSON string; fall back gracefully for old array format.
+        $nutrition_raw = get_post_meta( $post->ID, '_delice_recipe_nutrition', true );
+        if ( is_string( $nutrition_raw ) && ! empty( $nutrition_raw ) ) {
+            $nutrition = json_decode( wp_unslash( $nutrition_raw ), true );
+            if ( ! is_array( $nutrition ) ) {
+                $nutrition = array();
+            }
+        } elseif ( is_array( $nutrition_raw ) ) {
+            // Legacy: was stored as serialized array — migrate transparently.
+            $nutrition = $nutrition_raw;
+        } else {
             $nutrition = array();
         }
         
@@ -149,10 +156,22 @@ class Delice_Recipe_Nutrition {
             return;
         }
         
-        // Get nutrition data
+        // Get nutrition data — validate per-field and store as JSON
+        // (same format as AI-generated recipes so the schema reader is consistent).
         if (isset($_POST['nutrition']) && is_array($_POST['nutrition'])) {
-            $nutrition = array_map('sanitize_text_field', $_POST['nutrition']);
-            update_post_meta($post_id, '_delice_recipe_nutrition', $nutrition);
+            $allowed_keys = array( 'calories', 'carbs', 'protein', 'fat', 'saturated_fat', 'sugar', 'fiber', 'sodium' );
+            $raw          = wp_unslash( $_POST['nutrition'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+            $nutrition    = array();
+
+            foreach ( $allowed_keys as $key ) {
+                if ( ! isset( $raw[ $key ] ) || $raw[ $key ] === '' ) {
+                    continue;
+                }
+                // calories stored as integer; all others as float.
+                $nutrition[ $key ] = ( $key === 'calories' ) ? absint( $raw[ $key ] ) : round( floatval( $raw[ $key ] ), 2 );
+            }
+
+            update_post_meta( $post_id, '_delice_recipe_nutrition', wp_json_encode( $nutrition ) );
         }
     }
     

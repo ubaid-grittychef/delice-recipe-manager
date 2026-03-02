@@ -74,20 +74,23 @@
         // Submit rating button click - FIXED: Don't scroll immediately
         $(document).on('click', '.delice-recipe-rating-submit', function(e) {
             e.preventDefault();
-            const $modal = $(this).closest('.delice-recipe-rating-modal');
+            const $btn = $(this);
+            // Prevent double-submission: ignore click if already in flight.
+            if ($btn.prop('disabled')) return;
+
+            const $modal = $btn.closest('.delice-recipe-rating-modal');
             const recipeId = $modal.data('recipe-id');
             const rating = $modal.data('selected-rating');
-            
+
             if (!rating) {
                 showModalMessage('Please select a rating first.', 'error');
                 return;
             }
-            
+
             // Show loading state in modal
-            const $btn = $(this);
             const originalText = $btn.text();
             $btn.text('Submitting...').prop('disabled', true);
-            
+
             // Submit rating first, THEN scroll on success
             submitModalRating(recipeId, rating, $btn, originalText);
         });
@@ -469,43 +472,54 @@
         });
     }
     
+    /**
+     * Escape a string for safe insertion into HTML.
+     */
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function displayReviews(recipeId, reviews) {
         const $reviewsDisplay = $('#reviewsDisplay-' + recipeId);
-        
+
         if (!$reviewsDisplay.length) {
             console.error('Reviews display container not found');
             return;
         }
-        
-        let reviewsHtml = '<h3>Customer Reviews (' + reviews.length + ')</h3><div class="delice-reviews-list">';
-        
+
+        let reviewsHtml = '<h3>Customer Reviews (' + parseInt(reviews.length, 10) + ')</h3><div class="delice-reviews-list">';
+
         reviews.forEach(function(review) {
             let starsHtml = '';
             for (let i = 1; i <= 5; i++) {
                 const activeClass = i <= review.rating ? ' active' : '';
                 starsHtml += '<i class="fas fa-star' + activeClass + '"></i>';
             }
-            
+
             let imageHtml = '';
             if (review.image_url) {
-                imageHtml = '<div class="delice-review-image"><img src="' + review.image_url + '" alt="Review image" loading="lazy" /></div>';
+                imageHtml = '<div class="delice-review-image"><img src="' + escHtml(review.image_url) + '" alt="Review image" loading="lazy" /></div>';
             }
-            
-            reviewsHtml += `
-                <div class="delice-review-item">
-                    <div class="delice-review-header">
-                        <span class="delice-review-author">${review.user_name}</span>
-                        <div class="delice-review-rating">${starsHtml}</div>
-                        <span class="delice-review-date">${review.date}</span>
-                    </div>
-                    <div class="delice-review-comment">${review.comment}</div>
-                    ${imageHtml}
-                </div>
-            `;
+
+            reviewsHtml +=
+                '<div class="delice-review-item">' +
+                    '<div class="delice-review-header">' +
+                        '<span class="delice-review-author">' + escHtml(review.user_name) + '</span>' +
+                        '<div class="delice-review-rating">' + starsHtml + '</div>' +
+                        '<span class="delice-review-date">' + escHtml(review.date) + '</span>' +
+                    '</div>' +
+                    '<div class="delice-review-comment">' + escHtml(review.comment) + '</div>' +
+                    imageHtml +
+                '</div>';
         });
-        
+
         reviewsHtml += '</div>';
-        
+
         $reviewsDisplay.html(reviewsHtml).show();
         console.log('Reviews displayed for recipe:', recipeId);
     }
