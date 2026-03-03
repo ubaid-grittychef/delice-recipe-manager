@@ -439,25 +439,18 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     <div class="delice-recipe-panel-body">
       <ul class="delice-recipe-equipment-list">
         <?php foreach ( $drd_equipment as $eq ) :
+          $eq_links = $eq['affiliate_links'] ?? array();
           $eq_url   = $eq['affiliate_url']   ?? '';
-          $eq_store = $eq['affiliate_store'] ?? '';
-          $eq_open  = ! empty( $drd_aff_settings_eq['open_new_tab'] );
-          $eq_btn   = esc_html( $drd_aff_settings_eq['button_text'] ?? 'Buy' );
-          if ( $eq_url && ! empty( $eq_store ) && ! empty( $drd_aff_settings_eq['show_store_name'] ) ) {
-              $eq_btn .= ' · ' . esc_html( $eq_store );
-          }
         ?>
         <li class="delice-recipe-equipment-item<?php echo $eq_url ? ' delice-recipe-equipment-item--linked' : ''; ?>">
           <span class="delice-recipe-equipment-name"><?php echo esc_html( $eq['name'] ); ?></span>
           <?php if ( empty( $eq['required'] ) ) : ?><span class="delice-recipe-equipment-optional"><?php esc_html_e( 'Optional', 'delice-recipe-manager' ); ?></span><?php endif; ?>
           <?php if ( ! empty( $eq['notes'] ) ) : ?><span class="delice-recipe-equipment-notes"><?php echo esc_html( $eq['notes'] ); ?></span><?php endif; ?>
-          <?php if ( $eq_url ) : ?>
-            <a href="<?php echo esc_url( $eq_url ); ?>" class="delice-aff-btn"
-               rel="<?php echo esc_attr( Delice_Affiliate_Manager::LINK_REL ); ?>"
-               <?php echo $eq_open ? 'target="_blank"' : ''; ?>
-               aria-label="<?php echo esc_attr( $eq_btn . ' — ' . $eq['name'] ); ?>">
-              <?php echo $eq_btn; ?><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10L10 2M5 2h5v5"/></svg>
-            </a>
+          <?php if ( $eq_url && class_exists( 'Delice_Affiliate_Manager' ) ) : ?>
+            <?php 
+            // Use render_ingredient_buttons for multi-platform support
+            echo Delice_Affiliate_Manager::render_ingredient_buttons( $eq_links, $eq['name'], $drd_aff_settings_eq ); 
+            ?>
           <?php endif; ?>
         </li>
         <?php endforeach; ?>

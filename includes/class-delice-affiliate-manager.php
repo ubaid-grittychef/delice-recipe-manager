@@ -234,7 +234,17 @@ class Delice_Affiliate_Manager {
      * @param  array|null $auto_platform  Active Amazon platform for auto_link fallback.
      * @return array  Array of [ 'url' => string, 'store' => string, 'type' => string ]
      */
-    private static function match_ingredient_all_platforms( $ingredient_name, $auto_platform = null ) {
+    /**
+     * Match a single ingredient/equipment name against ALL active platforms independently.
+     *
+     * For each platform, the highest-scoring rule for that platform wins.
+     * Returns one entry per matched platform.
+     *
+     * @param  string     $ingredient_name
+     * @param  array|null $auto_platform  Active Amazon platform for auto_link fallback.
+     * @return array  Array of [ 'url' => string, 'store' => string, 'type' => string ]
+     */
+    public static function match_ingredient_all_platforms( $ingredient_name, $auto_platform = null ) {
         $rules     = self::get_rules();
         $platforms = self::get_platforms();
         $needle    = mb_strtolower( trim( $ingredient_name ) );
