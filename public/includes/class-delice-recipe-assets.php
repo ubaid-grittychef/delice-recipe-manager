@@ -3,6 +3,11 @@
 /**
  * Public asset loader for CSS and JS
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Assets extends Delice_Recipe_Asset_Loader {
     /**
      * Enqueue stylesheets

@@ -1,8 +1,11 @@
-
 <?php
 /**
  * Author utilities for recipe management
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!class_exists('Delice_Recipe_Author_Utils')) {
 class Delice_Recipe_Author_Utils {

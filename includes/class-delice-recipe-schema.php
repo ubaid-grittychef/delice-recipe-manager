@@ -5,6 +5,10 @@
  * Handles the generation of structured data schema.org markup for recipes
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 if (!class_exists('Delice_Recipe_Schema')) {
 class Delice_Recipe_Schema {
     /**

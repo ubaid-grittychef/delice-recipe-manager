@@ -3,6 +3,10 @@
  * Recipe review system with comments and images
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 if (!class_exists('Delice_Recipe_Reviews')) {
 class Delice_Recipe_Reviews {
     

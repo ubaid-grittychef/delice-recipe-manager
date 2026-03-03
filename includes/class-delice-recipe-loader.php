@@ -3,6 +3,10 @@
  * Register all actions, filters, and shortcodes for the plugin
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 if (!class_exists('Delice_Recipe_Loader')) {
 class Delice_Recipe_Loader {
 

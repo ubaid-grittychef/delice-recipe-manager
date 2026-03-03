@@ -3,6 +3,11 @@
 /**
  * Public‐facing functionality for Délice Recipe Manager
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Public {
     /**
      * Scripts handler instance

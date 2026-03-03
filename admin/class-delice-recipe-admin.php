@@ -2,6 +2,11 @@
 /**
  * The admin-specific functionality of the plugin
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Admin {
 
     /**
@@ -402,7 +407,7 @@ class Delice_Recipe_Admin {
             'delice_recipe_ai_api_key',
             array(
                 'type' => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
+                'sanitize_callback' => array($this, 'sanitize_api_key'),
                 'default' => '',
             )
         );
@@ -1217,6 +1222,27 @@ class Delice_Recipe_Admin {
     }
 
     /**
+     * Sanitize and encrypt API key
+     * 
+     * @param string $value The API key to sanitize and encrypt
+     * @return string Encrypted API key
+     */
+    public function sanitize_api_key($value) {
+        // First sanitize
+        $value = sanitize_text_field($value);
+        
+        if (empty($value)) {
+            return '';
+        }
+        
+        // Load crypto utility
+        require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-crypto.php';
+        
+        // Encrypt the value
+        return Delice_Recipe_Crypto::encrypt($value);
+    }
+
+    /**
      * Show admin notices for settings validation
      */
     public function show_settings_notices() {
@@ -1239,7 +1265,9 @@ class Delice_Recipe_Admin {
             <?php
             
             // Check for configuration issues
-            $api_key = get_option('delice_recipe_ai_api_key', '');
+            $stored_key = get_option('delice_recipe_ai_api_key', '');
+            require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-crypto.php';
+            $api_key = Delice_Recipe_Crypto::decrypt($stored_key);
             if (empty($api_key)) {
                 ?>
                 <div class="notice notice-warning">

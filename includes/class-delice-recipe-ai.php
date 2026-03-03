@@ -3,6 +3,9 @@
  * AI recipe generator functionality
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!class_exists('Delice_Recipe_AI')) {
 class Delice_Recipe_AI {
@@ -17,7 +20,13 @@ class Delice_Recipe_AI {
     private $cache_ttl = 43200; // 12 hours
 
     public function __construct() {
-        $this->api_key = get_option('delice_recipe_ai_api_key','');
+        // Load crypto utility
+        require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-crypto.php';
+        
+        // Decrypt API key if encrypted
+        $stored_key = get_option('delice_recipe_ai_api_key','');
+        $this->api_key = Delice_Recipe_Crypto::decrypt($stored_key);
+        
         // Background image generation hook (cron callback)
         add_action('delice_recipe_generate_image_bg', [$this, 'generate_and_attach_image_bg'], 10, 2);
     }

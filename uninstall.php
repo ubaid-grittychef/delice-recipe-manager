@@ -57,11 +57,17 @@ $wpdb->query(
 
 if ( $delete_data ) {
     // Drop custom database tables.
+    // Note: Table names must match those created in class-delice-recipe-eeat.php
     $tables = array(
+        // Reviews table (from class-delice-recipe-reviews.php)
         $wpdb->prefix . 'delice_recipe_reviews',
-        $wpdb->prefix . 'delice_eeat_author_profiles',
-        $wpdb->prefix . 'delice_eeat_recipe_testing',
-        $wpdb->prefix . 'delice_eeat_user_submissions',
+        // E-E-A-T tables (from class-delice-recipe-eeat.php)
+        $wpdb->prefix . 'delice_recipe_testing',
+        $wpdb->prefix . 'delice_user_cooks',
+        $wpdb->prefix . 'delice_author_profiles',
+        $wpdb->prefix . 'delice_expert_endorsements',
+        $wpdb->prefix . 'delice_recipe_history',
+        $wpdb->prefix . 'delice_nutrition_reviews',
     );
 
     foreach ( $tables as $table ) {

@@ -1,8 +1,13 @@
-
 <?php
 /**
  * Handle recipe template management - Enhanced with reviews control
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+if (!class_exists('Delice_Recipe_Templates')) {
 class Delice_Recipe_Templates {
     /**
      * Initialize the class
@@ -435,4 +440,5 @@ class Delice_Recipe_Templates {
 
         return $standardized;
     }
+}
 }

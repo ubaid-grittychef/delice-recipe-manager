@@ -1,8 +1,11 @@
-
 <?php
 /**
  * Recipe search enhancement features
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!class_exists('Delice_Recipe_Search')) {
 class Delice_Recipe_Search {
