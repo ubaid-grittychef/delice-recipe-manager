@@ -400,7 +400,8 @@ class Delice_Affiliate_Manager {
      * Return coverage data for every delice_recipe post — used by the Coverage tab.
      *
      * @return array[]  Each entry: id, title, edit_url, post_status, has_struct,
-     *                  ingredient_count, has_override, override_text, match_count, status.
+     *                  ingredient_count, has_override, override_text, match_count, status,
+     *                  equipment_count, equipment_match_count.
      */
     public static function get_recipe_coverage() {
         $posts = get_posts( array(
@@ -434,6 +435,20 @@ class Delice_Affiliate_Manager {
                 }
             }
 
+            // Get equipment coverage
+            $equipment = array();
+            $equipment_match_count = 0;
+            if ( class_exists( 'Delice_Recipe_Equipment' ) ) {
+                $equipment = get_post_meta( $pid, Delice_Recipe_Equipment::META_KEY, true );
+                if ( is_array( $equipment ) ) {
+                    foreach ( $equipment as $eq ) {
+                        if ( self::match_ingredient( $eq['name'] ?? '' ) ) {
+                            $equipment_match_count++;
+                        }
+                    }
+                }
+            }
+
             if ( $match_count > 0 ) {
                 $status = 'ready';
             } elseif ( $has_struct || $has_override ) {
@@ -443,16 +458,18 @@ class Delice_Affiliate_Manager {
             }
 
             $coverage[] = array(
-                'id'               => $pid,
-                'title'            => get_the_title( $pid ),
-                'edit_url'         => get_edit_post_link( $pid, 'raw' ),
-                'post_status'      => get_post_status( $pid ),
-                'has_struct'       => $has_struct,
-                'ingredient_count' => count( $ingredients ),
-                'has_override'     => $has_override,
-                'override_text'    => trim( $override ?? '' ),
-                'match_count'      => $match_count,
-                'status'           => $status,
+                'id'                    => $pid,
+                'title'                 => get_the_title( $pid ),
+                'edit_url'              => get_edit_post_link( $pid, 'raw' ),
+                'post_status'           => get_post_status( $pid ),
+                'has_struct'            => $has_struct,
+                'ingredient_count'      => count( $ingredients ),
+                'has_override'          => $has_override,
+                'override_text'         => trim( $override ?? '' ),
+                'match_count'           => $match_count,
+                'status'                => $status,
+                'equipment_count'       => is_array( $equipment ) ? count( $equipment ) : 0,
+                'equipment_match_count' => $equipment_match_count,
             );
         }
         return $coverage;

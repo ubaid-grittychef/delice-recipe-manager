@@ -1566,6 +1566,7 @@ class Delice_Recipe_Admin {
 
     /**
      * AJAX handler — save per-recipe affiliate ingredient tags from the Coverage tab.
+     * Returns updated status for immediate UI refresh.
      */
     public function ajax_save_aff_tags() {
         check_ajax_referer( 'delice_aff_tags_nonce', 'nonce' );
@@ -1581,6 +1582,61 @@ class Delice_Recipe_Admin {
         }
         $tags = sanitize_textarea_field( wp_unslash( $_POST['tags'] ?? '' ) );
         update_post_meta( $post_id, Delice_Affiliate_Manager::OVERRIDE_META, $tags );
-        wp_send_json_success( array( 'saved' => true ) );
+        
+        // Calculate new status
+        $status_data = self::calculate_recipe_coverage_status( $post_id );
+        
+        wp_send_json_success( array(
+            'saved'        => true,
+            'status'       => $status_data['status'],
+            'label'        => $status_data['label'],
+            'match_count'  => $status_data['match_count'],
+            'total_count'  => $status_data['total_count'],
+        ) );
+    }
+    
+    /**
+     * Calculate coverage status for a single recipe.
+     *
+     * @param int $post_id Recipe post ID.
+     * @return array Status data.
+     */
+    private static function calculate_recipe_coverage_status( $post_id ) {
+        $structured = get_post_meta( $post_id, '_delice_recipe_ingredients', true );
+        $override   = get_post_meta( $post_id, Delice_Affiliate_Manager::OVERRIDE_META, true );
+        $has_struct = ! empty( $structured ) && is_array( $structured );
+        $has_override = ! empty( trim( $override ?? '' ) );
+        
+        $ingredients = array();
+        if ( $has_struct ) {
+            $ingredients = $structured;
+        } elseif ( $has_override ) {
+            $ingredients = Delice_Affiliate_Manager::parse_text_ingredients( $override );
+        }
+        
+        $match_count = 0;
+        foreach ( $ingredients as $ing ) {
+            if ( Delice_Affiliate_Manager::match_ingredient( $ing['name'] ?? '' ) ) {
+                $match_count++;
+            }
+        }
+        
+        if ( $match_count > 0 ) {
+            $status = 'ready';
+            $label  = _x( 'Ready', 'Coverage status', 'delice-recipe-manager' );
+        } elseif ( $has_struct || $has_override ) {
+            $status = 'no-match';
+            $label  = _x( 'No Match', 'Coverage status', 'delice-recipe-manager' );
+        } else {
+            $status = 'needs-tags';
+            $label  = _x( 'Needs Tags', 'Coverage status', 'delice-recipe-manager' );
+        }
+        
+        return array(
+            'status'       => $status,
+            'label'        => $label,
+            'match_count'  => $match_count,
+            'total_count'  => count( $ingredients ),
+        );
     }
 }

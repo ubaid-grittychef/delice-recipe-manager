@@ -106,6 +106,11 @@ $aff_tags_nonce   = wp_create_nonce( 'delice_aff_tags_nonce' );
 .drm-pill-orange { background:#fcf9e8;color:#996800; }
 .drm-pill-dot { width:6px;height:6px;border-radius:50%;background:currentColor; }
 
+/* Dynamic status classes for JS updates */
+.drm-pill.is-ready, .drm-cov-status.is-ready { background:#edfaef !important;color:#008a20 !important; }
+.drm-pill.is-no-match, .drm-cov-status.is-no-match { background:#fcf9e8 !important;color:#996800 !important; }
+.drm-pill.is-needs-tags, .drm-cov-status.is-needs-tags { background:#f0f0f1 !important;color:#646970 !important; }
+
 /* ── Platform cards grid ─────────────────────────────────────────────────── */
 .drm-platform-grid {
     display: grid;
@@ -947,14 +952,27 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                 <p><?php esc_html_e( 'No recipes found. Create or import some recipes first.', 'delice-recipe-manager' ); ?></p>
             </div>
         <?php else : ?>
+        <!-- Bulk actions bar -->
+        <div class="drm-cov-bulk-bar" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+                <input type="checkbox" id="drm-cov-select-all" title="<?php esc_attr_e( 'Select all visible recipes', 'delice-recipe-manager' ); ?>">
+                <?php esc_html_e( 'Select All', 'delice-recipe-manager' ); ?>
+            </label>
+            <button type="button" id="drm-cov-bulk-save" class="button" disabled>
+                <?php esc_html_e( 'Save Selected', 'delice-recipe-manager' ); ?>
+            </button>
+            <span id="drm-cov-bulk-status" style="font-size:13px;color:#646970;"></span>
+        </div>
+
         <table class="drm-cov-table" id="drm-cov-table">
             <thead>
                 <tr>
+                    <th style="width:36px;"><input type="checkbox" id="drm-cov-select-all-header" title="<?php esc_attr_e( 'Select all', 'delice-recipe-manager' ); ?>"></th>
                     <th style="width:100px;"><?php esc_html_e( 'Status', 'delice-recipe-manager' ); ?></th>
                     <th><?php esc_html_e( 'Recipe', 'delice-recipe-manager' ); ?></th>
-                    <th style="width:90px;text-align:center;"><?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></th>
-                    <th style="width:80px;text-align:center;"><?php esc_html_e( 'Matched', 'delice-recipe-manager' ); ?></th>
-                    <th style="width:260px;"><?php esc_html_e( 'Affiliate Tags Override', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:90px;text-align:center;" title="<?php esc_attr_e( 'Ingredients with affiliate matches', 'delice-recipe-manager' ); ?>"><?php esc_html_e( 'Ing. Match', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:90px;text-align:center;" title="<?php esc_attr_e( 'Equipment with affiliate matches', 'delice-recipe-manager' ); ?>"><?php esc_html_e( 'Equip. Match', 'delice-recipe-manager' ); ?></th>
+                    <th style="width:220px;"><?php esc_html_e( 'Affiliate Tags Override', 'delice-recipe-manager' ); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -971,9 +989,12 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                 )[ $recipe['status'] ] ?? 'drm-pill-grey';
                 $post_state = $recipe['post_status'] !== 'publish' ? ' (' . esc_html( $recipe['post_status'] ) . ')' : '';
             ?>
-            <tr class="drm-cov-row" data-status="<?php echo esc_attr( $recipe['status'] ); ?>">
+            <tr class="drm-cov-row" data-status="<?php echo esc_attr( $recipe['status'] ); ?>" data-post-id="<?php echo intval( $recipe['id'] ); ?>">
+                <td style="text-align:center;">
+                    <input type="checkbox" class="drm-cov-chk" data-post-id="<?php echo intval( $recipe['id'] ); ?>" title="<?php esc_attr_e( 'Select this recipe', 'delice-recipe-manager' ); ?>">
+                </td>
                 <td>
-                    <span class="drm-pill <?php echo esc_attr( $status_pill ); ?>">
+                    <span class="drm-pill <?php echo esc_attr( $status_pill ); ?> drm-cov-status" data-status="<?php echo esc_attr( $recipe['status'] ); ?>">
                         <span class="drm-pill-dot"></span>
                         <?php echo esc_html( $status_label ); ?>
                     </span>
@@ -992,9 +1013,11 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                         <span class="drm-cov-source-badge drm-cov-source-badge--none"><?php esc_html_e( 'No data', 'delice-recipe-manager' ); ?></span>
                     <?php endif; ?>
                 </td>
-                <td style="text-align:center;font-weight:600;"><?php echo intval( $recipe['ingredient_count'] ); ?></td>
-                <td style="text-align:center;font-weight:600;color:<?php echo $recipe['match_count'] > 0 ? '#008a20' : '#8c8f94'; ?>;">
-                    <?php echo intval( $recipe['match_count'] ); ?>
+                <td style="text-align:center;font-weight:600;color:<?php echo $recipe['match_count'] > 0 ? '#008a20' : '#8c8f94'; ?>;" class="drm-cov-ing-match">
+                    <?php echo intval( $recipe['match_count'] ); ?>/<?php echo intval( $recipe['ingredient_count'] ); ?>
+                </td>
+                <td style="text-align:center;font-weight:600;color:<?php echo $recipe['equipment_match_count'] > 0 ? '#008a20' : '#8c8f94'; ?>;" class="drm-cov-eq-match">
+                    <?php echo intval( $recipe['equipment_match_count'] ); ?>/<?php echo intval( $recipe['equipment_count'] ); ?>
                 </td>
                 <td>
                     <div class="drm-cov-tag-wrap">
