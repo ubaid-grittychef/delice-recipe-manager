@@ -14,6 +14,14 @@
 ( function ( $ ) {
     'use strict';
 
+    // Debug logging
+    var DEBUG = false;
+    function log() {
+        if ( DEBUG && window.console ) {
+            console.log.apply( console, arguments );
+        }
+    }
+
     /* ── Keyword Rules ──────────────────────────────────────────────────────── */
 
     var $tbody     = $( '#drm-rules-tbody' );
@@ -214,35 +222,50 @@
             .replace( /</g, '&lt;' ).replace( />/g, '&gt;' );
     }
 
-    $( '#drm-wprm-scan' ).on( 'click', function () {
+    // WPRM Scan Button
+    $( document ).on( 'click', '#drm-wprm-scan', function () {
+        log( 'WPRM Scan clicked' );
         var $btn    = $( this );
         var $status = $( '#drm-wprm-status' );
         var $res    = $( '#drm-wprm-results' );
         var nonce   = window.drmAffTagsNonce || '';
         var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
 
+        log( 'nonce:', nonce ? 'present' : 'missing', 'ajaxUrl:', ajaxUrl ? 'present' : 'missing' );
+
         if ( ! nonce || ! ajaxUrl ) {
-            alert( 'Configuration error: AJAX URL or nonce missing.' );
+            alert( 'Configuration error: AJAX URL or nonce missing. Please reload the page.' );
             return;
         }
 
-        $btn.prop( 'disabled', true ).text( 'Scanning\u2026' );
+        $btn.prop( 'disabled', true ).text( 'Scanning...' );
         $status.text( '' ).removeClass( 'is-error is-success' );
 
-        $.post( ajaxUrl, { action: 'delice_wprm_scan', nonce: nonce }, function ( res ) {
-            $btn.prop( 'disabled', false ).text( 'Re-scan WP Recipe Maker' );
-            if ( res && res.success ) {
-                buildWprmTable( res.data );
-                $res.slideDown( 200 );
-                $status.text( res.data.length + ' recipe(s) found.' ).addClass( 'is-success' );
-            } else {
-                var msg = ( res && res.data && res.data.msg ) ? res.data.msg : ( res && res.data ? res.data : 'Scan failed.' );
-                $status.text( 'Error: ' + msg ).addClass( 'is-error' );
+        $.ajax({
+            url: ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'delice_wprm_scan',
+                nonce: nonce
+            },
+            success: function ( res ) {
+                log( 'WPRM scan response:', res );
+                $btn.prop( 'disabled', false ).text( 'Re-scan WP Recipe Maker' );
+                if ( res && res.success ) {
+                    buildWprmTable( res.data );
+                    $res.slideDown( 200 );
+                    $status.text( res.data.length + ' recipe(s) found.' ).addClass( 'is-success' );
+                } else {
+                    var msg = ( res && res.data && res.data.msg ) ? res.data.msg : 'Scan failed.';
+                    $status.text( 'Error: ' + msg ).addClass( 'is-error' );
+                }
+            },
+            error: function ( xhr, status, error ) {
+                log( 'WPRM scan error:', status, error );
+                $btn.prop( 'disabled', false ).text( 'Scan WP Recipe Maker' );
+                $status.text( 'Network error: ' + error ).addClass( 'is-error' );
             }
-        } ).fail( function () {
-            $btn.prop( 'disabled', false ).text( 'Scan WP Recipe Maker' );
-            $status.text( 'Network error. Please try again.' ).addClass( 'is-error' );
-        } );
+        });
     } );
 
     function buildWprmTable( recipes ) {
@@ -267,12 +290,11 @@
                 '</tr>'
             );
         } );
-        // Reset select all and import button
         $( '#drm-wprm-select-all' ).prop( 'checked', false );
         updateWprmImportButton();
     }
 
-    /* Update checkbox data-delice-id when user picks from match dropdown */
+    /* Update checkbox when selecting from dropdown */
     $( document ).on( 'change', '.drm-wprm-match', function () {
         var $sel   = $( this );
         var $chk   = $sel.closest( 'tr' ).find( '.drm-wprm-chk' );
@@ -284,12 +306,14 @@
         }
     } );
 
-    $( '#drm-wprm-select-all' ).on( 'change', function () {
-        $( '.drm-wprm-chk' ).prop( 'checked', this.checked );
+    $( document ).on( 'change', '#drm-wprm-select-all', function () {
+        var isChecked = $( this ).prop( 'checked' );
+        $( '.drm-wprm-chk' ).each( function () {
+            $( this ).prop( 'checked', isChecked );
+        } );
         updateWprmImportButton();
     } );
     
-    /* Enable/disable import button based on selection */
     $( document ).on( 'change', '.drm-wprm-chk', function () {
         updateWprmImportButton();
     } );
@@ -299,7 +323,7 @@
         $( '#drm-wprm-import' ).prop( 'disabled', ! hasChecked );
     }
 
-    $( '#drm-wprm-import' ).on( 'click', function () {
+    $( document ).on( 'click', '#drm-wprm-import', function () {
         var $btn  = $( this );
         var items = [];
         $( '.drm-wprm-chk:checked' ).each( function () {
@@ -311,51 +335,76 @@
             alert( 'No recipes selected with matched Delice recipes. Match recipes first, then import.' );
             return;
         }
-        $btn.prop( 'disabled', true ).text( 'Importing\u2026' );
-        $.post( window.drmAjaxUrl || window.ajaxurl || '', {
-            action: 'delice_wprm_import',
-            nonce:  window.drmAffTagsNonce || '',
-            items:  JSON.stringify( items ),
-        }, function ( res ) {
-            $btn.prop( 'disabled', false ).text( 'Import Selected' );
-            if ( res && res.success ) {
-                alert( res.data.imported + ' recipe(s) imported. Reload the page to see updated status.' );
-            } else {
-                alert( 'Import failed: ' + ( res && res.data ? res.data : 'unknown error' ) );
+        $btn.prop( 'disabled', true ).text( 'Importing...' );
+        $.ajax({
+            url: window.drmAjaxUrl || window.ajaxurl || '',
+            type: 'POST',
+            data: {
+                action: 'delice_wprm_import',
+                nonce: window.drmAffTagsNonce || '',
+                items: JSON.stringify( items )
+            },
+            success: function ( res ) {
+                $btn.prop( 'disabled', false ).text( 'Import Selected' );
+                if ( res && res.success ) {
+                    alert( res.data.imported + ' recipe(s) imported. Reload the page to see updated status.' );
+                } else {
+                    alert( 'Import failed: ' + ( res && res.data ? res.data : 'unknown error' ) );
+                }
+            },
+            error: function () {
+                $btn.prop( 'disabled', false ).text( 'Import Selected' );
+                alert( 'Network error. Please try again.' );
             }
-        } ).fail( function () {
-            $btn.prop( 'disabled', false ).text( 'Import Selected' );
-            alert( 'Network error. Please try again.' );
-        } );
+        });
     } );
 
     /* ── Coverage Tab ────────────────────────────────────────────────────────── */
 
-    /* Select all / header select all */
-    $( '#drm-cov-select-all' ).on( 'change', function () {
+    // Select All (main checkbox above table)
+    $( document ).on( 'click', '#drm-cov-select-all', function () {
+        log( 'Select All clicked, checked:', this.checked );
         var isChecked = this.checked;
-        $( '.drm-cov-chk:visible' ).each( function () {
+        
+        // Select ALL checkboxes, not just visible ones
+        $( '.drm-cov-chk' ).each( function () {
             this.checked = isChecked;
         } );
+        
+        // Sync header checkbox too
+        $( '#drm-cov-select-all-header' ).prop( 'checked', isChecked );
+        
         updateCovBulkButton();
     } );
     
-    $( '#drm-cov-select-all-header' ).on( 'change', function () {
+    // Header checkbox in table
+    $( document ).on( 'click', '#drm-cov-select-all-header', function () {
+        log( 'Header select all clicked, checked:', this.checked );
         var isChecked = this.checked;
-        $( '.drm-cov-chk:visible' ).each( function () {
+        
+        $( '.drm-cov-chk' ).each( function () {
             this.checked = isChecked;
         } );
+        
         $( '#drm-cov-select-all' ).prop( 'checked', isChecked );
         updateCovBulkButton();
     } );
     
+    // Individual checkbox change
     $( document ).on( 'change', '.drm-cov-chk', function () {
+        log( 'Individual checkbox changed' );
         updateCovBulkButton();
+        
+        // Check if all are checked to update "select all" checkboxes
+        var allChecked = $( '.drm-cov-chk' ).length === $( '.drm-cov-chk:checked' ).length;
+        $( '#drm-cov-select-all' ).prop( 'checked', allChecked );
+        $( '#drm-cov-select-all-header' ).prop( 'checked', allChecked );
     } );
     
     function updateCovBulkButton() {
         var count = $( '.drm-cov-chk:checked' ).length;
         var $btn = $( '#drm-cov-bulk-save' );
+        log( 'Update bulk button, count:', count );
         if ( count > 0 ) {
             $btn.prop( 'disabled', false ).text( 'Save Selected (' + count + ')' );
         } else {
@@ -363,15 +412,16 @@
         }
     }
     
-    /* Bulk save selected recipes */
-    $( '#drm-cov-bulk-save' ).on( 'click', function () {
+    // Bulk Save Button
+    $( document ).on( 'click', '#drm-cov-bulk-save', function () {
+        log( 'Bulk save clicked' );
         var $btn = $( this );
         var $status = $( '#drm-cov-bulk-status' );
         var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
         var nonce = window.drmAffTagsNonce || '';
         
         if ( ! ajaxUrl || ! nonce ) {
-            alert( 'Configuration error: AJAX URL or nonce missing.' );
+            alert( 'Configuration error: AJAX URL or nonce missing. Please reload the page.' );
             return;
         }
         
@@ -386,6 +436,8 @@
             }
         } );
         
+        log( 'Items to save:', items.length );
+        
         if ( ! items.length ) {
             alert( 'No recipes selected.' );
             return;
@@ -396,157 +448,175 @@
         
         var completed = 0;
         var failed = 0;
-        var running = 0;
         var concurrency = 3;
+        var queue = items.slice(); // Copy array
         
-        function saveNext() {
-            if ( completed + failed >= items.length ) {
-                // All done
-                updateCoverageStats();
-                $status.removeClass( 'is-saving' );
-                if ( failed > 0 ) {
-                    $status.addClass( 'is-error' ).text( 'Saved ' + completed + ' recipes (' + failed + ' failed)' );
-                } else {
-                    $status.addClass( 'is-success' ).text( 'Saved ' + completed + ' recipes successfully!' );
+        function processNext() {
+            if ( queue.length === 0 ) {
+                // Queue empty, check if all done
+                if ( completed + failed >= items.length ) {
+                    finishBulkSave();
                 }
-                $btn.prop( 'disabled', false );
-                updateCovBulkButton();
-                
-                // Clear checkboxes after successful save
-                setTimeout( function () {
-                    $( '.drm-cov-chk' ).prop( 'checked', false );
-                    $( '#drm-cov-select-all' ).prop( 'checked', false );
-                    $( '#drm-cov-select-all-header' ).prop( 'checked', false );
-                    updateCovBulkButton();
-                }, 500 );
                 return;
             }
             
-            if ( running >= concurrency ) return;
+            var item = queue.shift();
             
-            var idx = completed + failed;
-            var item = items[ idx ];
-            running++;
-            
-            $.post( ajaxUrl, {
-                action:  'delice_save_aff_tags',
-                nonce:   nonce,
-                post_id: item.post_id,
-                tags:    item.tags,
-            }, function ( res ) {
-                if ( res && res.success ) {
-                    // Update row UI
-                    if ( res.data && res.data.status && res.data.label ) {
-                        var $pill = item.$row.find( '.drm-cov-status' );
-                        $pill.text( res.data.label );
-                        $pill.attr( 'class', 'drm-pill is-' + res.data.status + ' drm-cov-status' );
-                        item.$row.attr( 'data-status', res.data.status );
-                        
-                        if ( res.data.match_count !== undefined && res.data.total_count !== undefined ) {
-                            item.$row.find( '.drm-cov-ing-match' ).text( res.data.match_count + '/' + res.data.total_count );
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'delice_save_aff_tags',
+                    nonce: nonce,
+                    post_id: item.post_id,
+                    tags: item.tags
+                },
+                success: function ( res ) {
+                    if ( res && res.success ) {
+                        // Update row UI
+                        if ( res.data && res.data.status && res.data.label ) {
+                            var $pill = item.$row.find( '.drm-cov-status' );
+                            $pill.text( res.data.label );
+                            $pill.attr( 'class', 'drm-pill is-' + res.data.status + ' drm-cov-status' );
+                            item.$row.attr( 'data-status', res.data.status );
+                            
+                            if ( res.data.match_count !== undefined && res.data.total_count !== undefined ) {
+                                item.$row.find( '.drm-cov-ing-match' ).text( res.data.match_count + '/' + res.data.total_count );
+                            }
                         }
+                    } else {
+                        failed++;
+                        log( 'Save failed for post', item.post_id, res );
                     }
-                } else {
+                },
+                error: function () {
                     failed++;
+                    log( 'AJAX error for post', item.post_id );
+                },
+                complete: function () {
+                    completed++;
+                    $status.text( 'Saving ' + completed + '/' + items.length + '...' );
+                    // Process next item
+                    processNext();
                 }
-            } ).fail( function () {
-                failed++;
-            } ).always( function () {
-                completed++;
-                running--;
-                $status.text( 'Saving ' + completed + '/' + items.length + '...' );
-                saveNext();
-            } );
+            });
         }
         
-        // Start concurrent saves
+        function finishBulkSave() {
+            updateCoverageStats();
+            $status.removeClass( 'is-saving' );
+            if ( failed > 0 ) {
+                $status.addClass( 'is-error' ).text( 'Saved ' + completed + ' recipes (' + failed + ' failed)' );
+            } else {
+                $status.addClass( 'is-success' ).text( 'Saved ' + completed + ' recipes successfully!' );
+            }
+            $btn.prop( 'disabled', false );
+            updateCovBulkButton();
+            
+            // Clear checkboxes after a delay
+            setTimeout( function () {
+                $( '.drm-cov-chk' ).prop( 'checked', false );
+                $( '#drm-cov-select-all' ).prop( 'checked', false );
+                $( '#drm-cov-select-all-header' ).prop( 'checked', false );
+                updateCovBulkButton();
+            }, 1000 );
+        }
+        
+        // Start processing with concurrency
         for ( var i = 0; i < concurrency && i < items.length; i++ ) {
-            saveNext();
+            processNext();
         }
     } );
 
-    /* Filter buttons */
+    // Filter buttons
     $( document ).on( 'click', '.drm-cov-filter-btn', function () {
-        var filter   = $( this ).data( 'filter' );
-        var $table   = $( '#drm-cov-table' );
-
+        var filter = $( this ).data( 'filter' );
+        
         $( '.drm-cov-filter-btn' ).removeClass( 'is-active' );
         $( this ).addClass( 'is-active' );
-
-        $table.find( '.drm-cov-row' ).each( function () {
+        
+        $( '.drm-cov-row' ).each( function () {
             var status = $( this ).data( 'status' );
-            var visible = ( filter === 'all' || filter === status );
-            $( this ).toggle( visible );
+            var show = ( filter === 'all' || filter === status );
+            $( this ).toggle( show );
         } );
         
-        // Update "select all" to only select visible
+        // Reset selections when filtering
+        $( '.drm-cov-chk' ).prop( 'checked', false );
         $( '#drm-cov-select-all' ).prop( 'checked', false );
         $( '#drm-cov-select-all-header' ).prop( 'checked', false );
         updateCovBulkButton();
     } );
 
-    /* AJAX save per-recipe ingredient tags */
+    // Individual Save Button
     $( document ).on( 'click', '.drm-cov-save', function () {
-        var $btn   = $( this );
-        var $wrap  = $btn.closest( '.drm-cov-tag-wrap' );
-        var pid    = parseInt( $btn.data( 'post-id' ), 10 );
-        var tags   = $wrap.find( '.drm-cov-tags' ).val();
-        var nonce  = window.drmAffTagsNonce || '';
+        log( 'Individual save clicked' );
+        var $btn = $( this );
+        var $wrap = $btn.closest( '.drm-cov-tag-wrap' );
+        var pid = parseInt( $btn.data( 'post-id' ), 10 );
+        var tags = $wrap.find( '.drm-cov-tags' ).val();
+        var nonce = window.drmAffTagsNonce || '';
         var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
 
-        if ( ! pid || ! nonce || ! ajaxUrl ) {
-            alert( 'Configuration error. Please reload the page.' );
+        if ( ! pid ) {
+            alert( 'Error: No recipe ID found.' );
+            return;
+        }
+        if ( ! nonce || ! ajaxUrl ) {
+            alert( 'Configuration error: AJAX URL or nonce missing. Please reload the page.' );
             return;
         }
 
-        $btn.prop( 'disabled', true ).text( 'Saving\u2026' );
+        $btn.prop( 'disabled', true ).text( 'Saving...' );
 
-        $.post( ajaxUrl, {
-            action:  'delice_save_aff_tags',
-            nonce:   nonce,
-            post_id: pid,
-            tags:    tags,
-        }, function ( res ) {
-            if ( res && res.success ) {
-                $btn.text( 'Saved \u2713' ).addClass( 'is-saved' );
-                
-                // Update status pill and row attributes
-                if ( res.data && res.data.status && res.data.label ) {
-                    var $row = $btn.closest( 'tr' );
-                    var $pill = $row.find( '.drm-cov-status' );
+        $.ajax({
+            url: ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'delice_save_aff_tags',
+                nonce: nonce,
+                post_id: pid,
+                tags: tags
+            },
+            success: function ( res ) {
+                if ( res && res.success ) {
+                    $btn.text( 'Saved!' ).addClass( 'is-saved' );
                     
-                    // Update pill text and class
-                    $pill.text( res.data.label );
-                    $pill.attr( 'class', 'drm-pill is-' + res.data.status + ' drm-cov-status' );
-                    $row.attr( 'data-status', res.data.status );
-                    
-                    // Update match count if provided
-                    if ( res.data.match_count !== undefined && res.data.total_count !== undefined ) {
-                        $row.find( '.drm-cov-ing-match' ).text( res.data.match_count + '/' + res.data.total_count );
+                    if ( res.data && res.data.status && res.data.label ) {
+                        var $row = $btn.closest( 'tr' );
+                        var $pill = $row.find( '.drm-cov-status' );
+                        
+                        $pill.text( res.data.label );
+                        $pill.attr( 'class', 'drm-pill is-' + res.data.status + ' drm-cov-status' );
+                        $row.attr( 'data-status', res.data.status );
+                        
+                        if ( res.data.match_count !== undefined && res.data.total_count !== undefined ) {
+                            $row.find( '.drm-cov-ing-match' ).text( res.data.match_count + '/' + res.data.total_count );
+                        }
+                        
+                        updateCoverageStats();
                     }
                     
-                    // Update stats counters
-                    updateCoverageStats();
+                    setTimeout( function () {
+                        $btn.text( 'Save' ).removeClass( 'is-saved' ).prop( 'disabled', false );
+                    }, 2000 );
+                } else {
+                    var msg = ( res && res.data ) ? res.data : 'Save failed.';
+                    $btn.text( 'Error' ).prop( 'disabled', false );
+                    alert( 'Error saving: ' + msg );
                 }
-                
-                setTimeout( function () {
-                    $btn.text( 'Save' ).removeClass( 'is-saved' ).prop( 'disabled', false );
-                }, 2200 );
-            } else {
-                var msg = ( res && res.data ) ? res.data : 'Save failed.';
+            },
+            error: function ( xhr, status, error ) {
                 $btn.text( 'Error' ).prop( 'disabled', false );
-                alert( 'Error saving: ' + msg );
+                alert( 'Network error: ' + error );
             }
-        } ).fail( function () {
-            $btn.text( 'Error' ).prop( 'disabled', false );
-            alert( 'Network error. Please try again.' );
-        } );
+        });
     } );
     
-    // Update coverage stats after status change
+    // Update coverage stats
     function updateCoverageStats() {
         var counts = { ready: 0, 'no-match': 0, 'needs-tags': 0, total: 0 };
-        $( '.drm-cov-table .drm-cov-row[data-status]' ).each( function () {
+        $( '.drm-cov-row' ).each( function () {
             var status = $( this ).data( 'status' );
             if ( counts.hasOwnProperty( status ) ) {
                 counts[ status ]++;
@@ -554,7 +624,6 @@
             counts.total++;
         } );
         
-        // Update stat cards with animation
         $( '.drm-cov-stat--ready .drm-cov-stat-num' ).text( counts.ready );
         $( '.drm-cov-stat--nomatch .drm-cov-stat-num' ).text( counts[ 'no-match' ] );
         $( '.drm-cov-stat--needs .drm-cov-stat-num' ).text( counts[ 'needs-tags' ] );
@@ -571,5 +640,7 @@
         var $asin = $( this ).closest( 'tr' ).find( '.drm-asin-field' );
         $asin.prop( 'disabled', type !== 'amazon' && type !== '' );
     } );
+
+    log( 'Affiliate admin JS initialized' );
 
 } )( jQuery );
