@@ -259,19 +259,81 @@ $aff_tags_nonce   = wp_create_nonce( 'delice_aff_tags_nonce' );
 
 /* ── Coverage tab ────────────────────────────────────────────────────────── */
 .drm-cov-stats {
-    display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0 4px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0 4px;
 }
 .drm-cov-stat {
-    flex: 1; min-width: 120px; background: #fff; border: 1px solid #e2e8f0;
-    border-radius: 6px; padding: 14px 18px; text-align: center;
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 16px 12px; text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    transition: transform .15s, box-shadow .15s;
 }
-.drm-cov-stat-num { display: block; font-size: 28px; font-weight: 700; line-height: 1.1; }
-.drm-cov-stat-lbl { font-size: 11px; color: #8c8f94; margin-top: 4px; text-transform: uppercase; letter-spacing: .05em; }
-.drm-cov-stat--ready   .drm-cov-stat-num { color: #008a20; }
+.drm-cov-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+.drm-cov-stat-num { display: block; font-size: 32px; font-weight: 700; line-height: 1; }
+.drm-cov-stat-lbl { font-size: 11px; color: #6b7280; margin-top: 6px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+.drm-cov-stat--ready   { border-top: 3px solid #00a32a; }
+.drm-cov-stat--ready .drm-cov-stat-num { color: #00a32a; }
+.drm-cov-stat--nomatch { border-top: 3px solid #dba617; }
 .drm-cov-stat--nomatch .drm-cov-stat-num { color: #996800; }
-.drm-cov-stat--needs   .drm-cov-stat-num { color: #cc1818; }
+.drm-cov-stat--needs   { border-top: 3px solid #cc1818; }
+.drm-cov-stat--needs .drm-cov-stat-num { color: #cc1818; }
 
-.drm-cov-table { width: 100%; border-collapse: collapse; }
+/* Bulk operations bar */
+.drm-cov-bulk-bar {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.drm-cov-bulk-bar label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+}
+.drm-cov-bulk-bar input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+#drm-cov-bulk-save {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 16px;
+    transition: all .15s;
+}
+#drm-cov-bulk-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+#drm-cov-bulk-save:not(:disabled) {
+    background: #0073aa;
+    border-color: #0073aa;
+    color: #fff;
+}
+#drm-cov-bulk-save:not(:disabled):hover {
+    background: #005a87;
+    border-color: #005a87;
+}
+#drm-cov-bulk-status {
+    font-size: 13px;
+    font-weight: 500;
+}
+#drm-cov-bulk-status.is-saving { color: #0073aa; }
+#drm-cov-bulk-status.is-success { color: #00a32a; }
+#drm-cov-bulk-status.is-error { color: #cc1818; }
+
+.drm-cov-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .drm-cov-table thead th {
     background: #f8f9fa; border-bottom: 2px solid #e2e8f0;
     padding: 9px 12px; text-align: left;
@@ -320,6 +382,51 @@ $aff_tags_nonce   = wp_create_nonce( 'delice_aff_tags_nonce' );
 .drm-cov-note {
     font-size: 12px; color: #646970; line-height: 1.6;
     background: #f6f7f7; border-radius: 4px; padding: 10px 14px; margin: 12px 0 0;
+}
+
+/* WPRM scan status messages */
+#drm-wprm-status.is-success { color: #00a32a; font-weight: 500; }
+#drm-wprm-status.is-error { color: #cc1818; font-weight: 500; }
+
+/* Table row transition for filter */
+.drm-cov-row { transition: background-color .15s; }
+
+/* Enhanced checkbox styling */
+.drm-cov-chk,
+#drm-cov-select-all,
+#drm-cov-select-all-header,
+#drm-wprm-select-all {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Button hover states */
+.drm-cov-save:hover:not(:disabled) {
+    background: #0073aa;
+    border-color: #0073aa;
+    color: #fff;
+}
+
+/* Empty state enhancement */
+.drm-aff-empty {
+    padding: 48px 20px;
+    text-align: center;
+    color: #6b7280;
+    background: #f9fafb;
+    border-radius: 6px;
+    margin: 16px;
+}
+.drm-aff-empty svg {
+    width: 48px;
+    height: 48px;
+    stroke: #d1d5db;
+    display: block;
+    margin: 0 auto 16px;
+}
+.drm-aff-empty p {
+    margin: 0;
+    font-size: 14px;
 }
 </style>
 
