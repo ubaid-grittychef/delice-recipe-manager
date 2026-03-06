@@ -103,6 +103,193 @@ $is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_rating
 @media (max-width: 768px) {
     #<?php echo $drd_id; ?> .delice-recipe-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   CLASSIC COOKBOOK DESIGN — Default Template
+   Warm, clean, traditional cookbook feel with orange accents
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Panels: warm cream card ── */
+#<?php echo $drd_id; ?> .delice-recipe-ingredients,
+#<?php echo $drd_id; ?> .delice-recipe-instructions {
+    background: #fffdf9 !important;
+    border: 1px solid #f5e6d3 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 12px rgba(249,115,22,.07) !important;
+    overflow: hidden !important;
+}
+
+/* ── Panel header: warm amber strip, space-between ── */
+#<?php echo $drd_id; ?> .delice-recipe-panel-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 12px 18px !important;
+    background: #fff7ed !important;
+    border-bottom: 2px solid #fed7aa !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-panel-header h3 {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    letter-spacing: .09em !important;
+    text-transform: uppercase !important;
+    color: #9a3412 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-panel-header h3::before {
+    content: '✦' !important;
+    color: #f97316 !important;
+    font-size: 10px !important;
+}
+
+/* ── Panel body ── */
+#<?php echo $drd_id; ?> .delice-recipe-panel-body {
+    padding: 0 18px 12px !important;
+}
+
+/* ── Ingredient rows: clean dotted separator ── */
+#<?php echo $drd_id; ?> .delice-recipe-ingredient {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 9px 0 !important;
+    border-bottom: 1px dashed #f0e0d0 !important;
+    background: none !important;
+    transition: background .15s !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-ingredient:last-child {
+    border-bottom: none !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-ingredient:hover {
+    background: #fff8f0 !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    border-radius: 6px !important;
+}
+
+/* ── Ingredient name: left-stretch ── */
+#<?php echo $drd_id; ?> .delice-recipe-ingredient-name {
+    flex: 1 !important;
+    min-width: 0 !important;
+    font-size: 14px !important;
+    color: #374151 !important;
+    font-weight: 400 !important;
+    line-height: 1.45 !important;
+    display: block !important;
+    align-items: unset !important;
+    gap: unset !important;
+}
+
+/* ── Ingredient quantity: orange pill badge ── */
+#<?php echo $drd_id; ?> .delice-recipe-ingredient-quantity {
+    background: #f97316 !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 3px 9px !important;
+    border-radius: 20px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    line-height: 1.6 !important;
+}
+
+/* ── Copy button: ghost outline style ── */
+#<?php echo $drd_id; ?> .delice-recipe-copy-ingredients {
+    display: block !important;
+    margin: 14px 0 4px !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: 1.5px solid #f97316 !important;
+    color: #f97316 !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    box-shadow: none !important;
+    transition: background .15s, color .15s !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-copy-ingredients:hover {
+    background: #f97316 !important;
+    color: #fff !important;
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(249,115,22,.25) !important;
+}
+
+/* ── Ingredient checkbox: visible orange tick box ── */
+#<?php echo $drd_id; ?> .delice-recipe-ingredient-checkbox {
+    position: relative !important;
+    opacity: 1 !important;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    pointer-events: auto !important;
+    border: 2px solid #f97316 !important;
+    border-radius: 4px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    transition: background .15s !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-ingredient-checkbox:checked {
+    background: #f97316 !important;
+    border-color: #f97316 !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-ingredient-checkbox:checked::after {
+    content: '' !important;
+    position: absolute !important;
+    left: 4px !important;
+    top: 1px !important;
+    width: 5px !important;
+    height: 9px !important;
+    border: solid white !important;
+    border-width: 0 2px 2px 0 !important;
+    transform: rotate(45deg) !important;
+}
+
+/* ── Instruction steps: card-style with spaced layout ── */
+#<?php echo $drd_id; ?> .delice-recipe-instruction {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid #f5ede6 !important;
+    gap: 14px !important;
+    align-items: flex-start !important;
+    background: none !important;
+    transition: background .15s !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-instruction:hover {
+    background: #fff8f0 !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    border-radius: 6px !important;
+    margin: 0 !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-step-num {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    background: #f97316 !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 6px rgba(249,115,22,.3) !important;
+}
+#<?php echo $drd_id; ?> .delice-recipe-instruction-text {
+    font-size: 14px !important;
+    line-height: 1.65 !important;
+    color: #374151 !important;
+    padding-top: 3px !important;
+}
 </style>
 <?php
 // Visible breadcrumb (v3.6.0) — skip when Yoast/RankMath handle breadcrumbs — feature toggle v3.8.0

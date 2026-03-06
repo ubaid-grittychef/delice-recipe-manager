@@ -93,7 +93,7 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 #<?php echo $drm_id; ?> .delice-modern-body            { padding: 28px 24px !important; background: #f8fafc !important; }
 #<?php echo $drm_id; ?> .delice-modern-section         { display: block !important; overflow: hidden !important; margin-bottom: 20px !important; border-radius: 12px !important; }
 /* ── Two-column layout: ingredients (left) + instructions (right) ── */
-#<?php echo $drm_id; ?> .delice-modern-cols            { display: flex !important; flex-direction: column !important; gap: 20px !important; margin-bottom: 20px !important; }
+#<?php echo $drm_id; ?> .delice-modern-cols            { display: grid !important; grid-template-columns: 5fr 7fr !important; gap: 20px !important; margin-bottom: 20px !important; align-items: start !important; }
 #<?php echo $drm_id; ?> .delice-modern-cols .delice-modern-section { margin-bottom: 0 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-header  { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 18px 20px 14px !important; margin: 0 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-title   { display: flex !important; align-items: center !important; gap: 10px !important; padding: 18px 20px 14px !important; margin: 0 !important; }
@@ -149,6 +149,182 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
     #<?php echo $drm_id; ?> .delice-modern-actions  { width: 100% !important; justify-content: flex-start !important; }
     #<?php echo $drm_id; ?> .delice-modern-body     { padding: 16px !important; }
     #<?php echo $drm_id; ?> .delice-modern-cols     { grid-template-columns: 1fr !important; gap: 16px !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   EDITORIAL BOLD DESIGN — Modern Template
+   Dark headers · high-contrast · magazine editorial aesthetic
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Section cards: sharp edge with left accent ── */
+#<?php echo $drm_id; ?> .delice-modern-section {
+    border-radius: 10px !important;
+    border: none !important;
+    box-shadow: 0 3px 16px rgba(0,0,0,.10) !important;
+    overflow: hidden !important;
+}
+
+/* ── Ingredients section: dark charcoal header ── */
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-header {
+    background: #1e293b !important;
+    padding: 16px 20px 14px !important;
+    border-bottom: 3px solid #f97316 !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-title {
+    color: #fff !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    padding: 0 !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-icon {
+    background: rgba(249,115,22,.25) !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-icon svg {
+    stroke: #f97316 !important;
+}
+
+/* ── Instructions section: dark navy header ── */
+#<?php echo $drm_id; ?> .delice-modern-section--instructions .delice-modern-section-title {
+    background: #0f172a !important;
+    padding: 16px 20px !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    border-bottom: 3px solid #0ea5e9 !important;
+    margin: 0 !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--instructions .delice-modern-section-icon {
+    background: rgba(14,165,233,.25) !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--instructions .delice-modern-section-icon svg {
+    stroke: #7dd3fc !important;
+}
+
+/* ── Servings control on dark bg: white text ── */
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-control {
+    border-color: rgba(255,255,255,.3) !important;
+    background: rgba(255,255,255,.1) !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-btn {
+    color: #fdba74 !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-btn:hover:not(:disabled) {
+    background: #f97316 !important;
+    color: #fff !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-value {
+    color: #fff !important;
+    font-weight: 700 !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-label {
+    color: rgba(255,255,255,.7) !important;
+}
+
+/* ── Copy button on dark bg ── */
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-copy-btn {
+    background: rgba(249,115,22,.2) !important;
+    color: #fdba74 !important;
+    border: 1px solid rgba(249,115,22,.4) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-copy-btn:hover {
+    background: #f97316 !important;
+    color: #fff !important;
+    border-color: #f97316 !important;
+}
+
+/* ── Ingredient list: clean white bg, alternating rows ── */
+#<?php echo $drm_id; ?> .delice-modern-ingredients-list {
+    padding: 4px 0 8px !important;
+    background: #fff !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-ingredient {
+    padding: 10px 18px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    gap: 10px !important;
+    align-items: center !important;
+    background: #fff !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-ingredient:nth-child(even) {
+    background: #f8fafc !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-ingredient:last-child {
+    border-bottom: none !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-ingredient-label {
+    gap: 9px !important;
+}
+
+/* ── Ingredient quantity: bold orange badge ── */
+#<?php echo $drm_id; ?> .delice-modern-ingredient-qty {
+    background: #f97316 !important;
+    color: #fff !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    padding: 4px 10px !important;
+    border-radius: 20px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    line-height: 1.5 !important;
+}
+
+/* ── Ingredient name: medium weight dark ── */
+#<?php echo $drm_id; ?> .delice-modern-ingredient-name {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    line-height: 1.4 !important;
+}
+
+/* ── Checkbox mark: orange square indicator ── */
+#<?php echo $drm_id; ?> .delice-modern-checkbox-mark {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    border: 2px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    flex-shrink: 0 !important;
+    transition: background .15s, border-color .15s !important;
+}
+
+/* ── Instruction steps: white bg, bold numbered cards ── */
+#<?php echo $drm_id; ?> .delice-modern-steps {
+    background: #fff !important;
+    padding: 8px 20px 20px !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-step {
+    padding: 14px 0 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    gap: 16px !important;
+    background: none !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-step:last-child {
+    border-bottom: none !important;
+    padding-bottom: 6px !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-step-num {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    background: #0f172a !important;
+    color: #7dd3fc !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    font-style: italic !important;
+    letter-spacing: -.02em !important;
+    box-shadow: none !important;
+}
+#<?php echo $drm_id; ?> .delice-modern-step-text {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+    color: #334155 !important;
 }
 </style>
 <?php
