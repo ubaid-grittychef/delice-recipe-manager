@@ -110,12 +110,14 @@
 .delice-recipe-ingredient--linked {
     position: relative;
 }
-/* Ingredient name shrinks to make room for the chip(s) */
+/* Ingredient name: prevent crush when affiliate chip(s) are present.
+ * With the 2-row grid layout the name occupies its own 1fr column so it
+ * cannot be squeezed to zero width regardless of how many chips exist. */
 .delice-recipe-ingredient--linked .delice-recipe-ingredient-name,
 .delice-recipe-ingredient--linked .delice-modern-ingredient-name,
 .delice-recipe-ingredient--linked .delice-elegant-ingredient-name {
-    flex: 1;
-    min-width: 0;
+    min-width: 80px;
+    word-break: break-word;
 }
 
 /* ── Equipment card grid — v3.9.17 ──────────────────────────────────────── */
