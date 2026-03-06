@@ -512,43 +512,87 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
     ob_start();
 
-    // Equipment — v3.9.0
+    // Equipment — v3.9.17
     if ( class_exists( 'Delice_Recipe_Equipment' ) &&
          ( ! isset( $display_options['show_equipment'] ) || ! empty( $display_options['show_equipment'] ) ) ) :
-        $dre_equipment      = Delice_Recipe_Equipment::get_with_affiliate( $recipe_id );
+        $dre_equipment       = Delice_Recipe_Equipment::get_with_affiliate( $recipe_id );
         $dre_aff_settings_eq = $dre_aff_settings ?? array();
         if ( ! empty( $dre_equipment ) ) : ?>
-    <section class="delice-elegant-section delice-elegant-equipment">
+    <style>
+    #<?php echo $dre_id; ?> .delice-eq-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important;gap:14px!important;padding:16px 0 24px!important;}
+    #<?php echo $dre_id; ?> .delice-eq-card{display:flex!important;flex-direction:column!important;background:#faf8f5!important;border:1px solid #e7e5e4!important;border-radius:12px!important;overflow:hidden!important;transition:transform .2s,box-shadow .2s!important;}
+    #<?php echo $dre_id; ?> .delice-eq-card:hover{transform:translateY(-3px)!important;box-shadow:0 10px 24px rgba(0,0,0,.08)!important;}
+    #<?php echo $dre_id; ?> .delice-eq-card-top{padding:18px 16px 10px!important;display:flex!important;align-items:flex-start!important;gap:12px!important;flex:1!important;}
+    #<?php echo $dre_id; ?> .delice-eq-icon{width:40px!important;height:40px!important;border-radius:50%!important;background:linear-gradient(135deg,#fdf4e7,#fde9c3)!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;color:#a16207!important;}
+    #<?php echo $dre_id; ?> .delice-eq-card-info{flex:1!important;min-width:0!important;}
+    #<?php echo $dre_id; ?> .delice-eq-name{display:block!important;font-weight:600!important;font-size:14px!important;line-height:1.35!important;color:#292524!important;font-family:Georgia,serif!important;}
+    #<?php echo $dre_id; ?> .delice-eq-notes{display:block!important;font-size:12px!important;color:#78716c!important;margin-top:4px!important;line-height:1.4!important;}
+    #<?php echo $dre_id; ?> .delice-eq-badge-row{padding:0 16px 10px!important;}
+    #<?php echo $dre_id; ?> .delice-eq-badge{display:inline-block!important;font-size:10px!important;font-weight:700!important;letter-spacing:.06em!important;text-transform:uppercase!important;padding:3px 9px!important;border-radius:20px!important;}
+    #<?php echo $dre_id; ?> .delice-eq-badge--req{background:#fef3c7!important;color:#92400e!important;}
+    #<?php echo $dre_id; ?> .delice-eq-badge--opt{background:#f5f5f4!important;color:#78716c!important;}
+    #<?php echo $dre_id; ?> .delice-eq-btn-wrap{padding:0 16px 16px!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:100%!important;box-sizing:border-box!important;padding:10px 14px!important;border-radius:8px!important;font-size:13px!important;font-weight:700!important;text-decoration:none!important;transition:transform .15s,filter .15s!important;white-space:nowrap!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn--amazon{background:linear-gradient(135deg,#ff9900,#e67700)!important;color:#111!important;box-shadow:0 3px 10px rgba(255,153,0,.4)!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn--shareasale{background:linear-gradient(135deg,#17b978,#0d9c63)!important;color:#fff!important;box-shadow:0 3px 10px rgba(23,185,120,.35)!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn--cj{background:linear-gradient(135deg,#0052b4,#003d8f)!important;color:#fff!important;box-shadow:0 3px 10px rgba(0,82,180,.3)!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn--impact{background:linear-gradient(135deg,#7c3aed,#5b21b6)!important;color:#fff!important;box-shadow:0 3px 10px rgba(124,58,237,.35)!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn--custom,#<?php echo $dre_id; ?> .delice-eq-buy-btn--default{background:linear-gradient(135deg,#57534e,#292524)!important;color:#fff!important;box-shadow:0 3px 10px rgba(41,37,36,.3)!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn:hover{transform:translateY(-1px)!important;filter:brightness(1.1)!important;}
+    #<?php echo $dre_id; ?> .delice-eq-buy-btn svg{flex-shrink:0!important;}
+    @media(max-width:600px){#<?php echo $dre_id; ?> .delice-eq-grid{grid-template-columns:repeat(2,1fr)!important;}}
+    @media(max-width:380px){#<?php echo $dre_id; ?> .delice-eq-grid{grid-template-columns:1fr!important;}}
+    </style>
+    <div class="delice-elegant-section delice-elegant-equipment">
         <h3 class="delice-elegant-section-title">
             <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
             <?php echo esc_html( $lang_texts['equipment'] ?? __( 'Equipment', 'delice-recipe-manager' ) ); ?>
         </h3>
-        <ul class="delice-recipe-equipment-list" style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,1fr);gap:0;">
+        <div class="delice-eq-grid">
         <?php foreach ( $dre_equipment as $eq ) :
-            $eq_url   = $eq['affiliate_url']   ?? '';
-            $eq_store = $eq['affiliate_store'] ?? '';
-            $eq_open  = ! empty( $dre_aff_settings_eq['open_new_tab'] );
-            $eq_btn   = esc_html( $dre_aff_settings_eq['button_text'] ?? 'Buy' );
-            if ( $eq_url && ! empty( $eq_store ) && ! empty( $dre_aff_settings_eq['show_store_name'] ) ) {
-                $eq_btn .= ' · ' . esc_html( $eq_store );
-            }
+            $eq_url      = $eq['affiliate_url']   ?? '';
+            $eq_store    = $eq['affiliate_store'] ?? '';
+            $eq_open     = ! empty( $dre_aff_settings_eq['open_new_tab'] );
+            $eq_btn_text = esc_html( $dre_aff_settings_eq['button_text'] ?? 'Shop Now' );
+            $eq_platform = ! empty( $eq_store ) ? strtolower( preg_replace('/[^a-z0-9]/i', '', $eq_store) ) : 'default';
+            $eq_btn_cls  = 'delice-eq-buy-btn delice-eq-buy-btn--' . esc_attr( $eq_platform );
         ?>
-            <li class="delice-recipe-equipment-item<?php echo $eq_url ? ' delice-recipe-equipment-item--linked' : ''; ?>" style="display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #e7e5e4;background:#fff;">
-                <span style="font-weight:500;"><?php echo esc_html( $eq['name'] ); ?></span>
-                <?php if ( empty( $eq['required'] ) ) : ?><span style="font-size:10px;color:#a8a29e;border:1px solid #e7e5e4;border-radius:3px;padding:1px 4px;"><?php esc_html_e( 'Optional', 'delice-recipe-manager' ); ?></span><?php endif; ?>
-                <?php if ( ! empty( $eq['notes'] ) ) : ?><span style="font-size:11px;color:#a8a29e;"><?php echo esc_html( $eq['notes'] ); ?></span><?php endif; ?>
+            <div class="delice-eq-card<?php echo $eq_url ? ' delice-eq-card--linked' : ''; ?>">
+                <div class="delice-eq-card-top">
+                    <div class="delice-eq-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <div class="delice-eq-card-info">
+                        <span class="delice-eq-name"><?php echo esc_html( $eq['name'] ); ?></span>
+                        <?php if ( ! empty( $eq['notes'] ) ) : ?>
+                        <span class="delice-eq-notes"><?php echo esc_html( $eq['notes'] ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="delice-eq-badge-row">
+                    <?php if ( ! empty( $eq['required'] ) ) : ?>
+                    <span class="delice-eq-badge delice-eq-badge--req"><?php esc_html_e( 'Required', 'delice-recipe-manager' ); ?></span>
+                    <?php else : ?>
+                    <span class="delice-eq-badge delice-eq-badge--opt"><?php esc_html_e( 'Optional', 'delice-recipe-manager' ); ?></span>
+                    <?php endif; ?>
+                </div>
                 <?php if ( $eq_url ) : ?>
-                <a href="<?php echo esc_url( $eq_url ); ?>" class="delice-aff-btn"
-                   rel="<?php echo esc_attr( Delice_Affiliate_Manager::LINK_REL ); ?>"
-                   <?php echo $eq_open ? 'target="_blank"' : ''; ?>
-                   aria-label="<?php echo esc_attr( $eq_btn . ' — ' . $eq['name'] ); ?>">
-                    <?php echo $eq_btn; ?><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 10L10 2M5 2h5v5"/></svg>
-                </a>
+                <div class="delice-eq-btn-wrap">
+                    <a href="<?php echo esc_url( $eq_url ); ?>"
+                       class="<?php echo esc_attr( $eq_btn_cls ); ?>"
+                       rel="<?php echo esc_attr( Delice_Affiliate_Manager::LINK_REL ); ?>"
+                       <?php echo $eq_open ? 'target="_blank"' : ''; ?>
+                       aria-label="<?php echo esc_attr( $eq_btn_text . ' — ' . $eq['name'] ); ?>">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <?php echo $eq_btn_text; ?>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
                 <?php endif; ?>
-            </li>
+            </div>
         <?php endforeach; ?>
-        </ul>
-    </section>
+        </div>
+    </div>
         <?php endif;
     endif;
 
