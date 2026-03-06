@@ -3,6 +3,11 @@
 /**
  * Abstract base class for asset loading
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 abstract class Delice_Recipe_Asset_Loader {
     /**
      * Get the plugin URL

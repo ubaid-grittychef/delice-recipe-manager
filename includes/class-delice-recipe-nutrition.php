@@ -1,8 +1,11 @@
-
 <?php
 /**
  * Recipe nutritional information
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!class_exists('Delice_Recipe_Nutrition')) {
 class Delice_Recipe_Nutrition {

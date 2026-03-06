@@ -3,6 +3,10 @@
  * The main plugin class - Fixed architecture and dependencies
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 if (!class_exists('Delice_Recipe_Manager')) {
 class Delice_Recipe_Manager {
 

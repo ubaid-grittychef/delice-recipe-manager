@@ -39,7 +39,7 @@
  *     after clicking "Clear Cache & Check Now") and shows "Update Now".
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
     exit;
 }
 

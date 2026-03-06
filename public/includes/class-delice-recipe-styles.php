@@ -3,6 +3,11 @@
 /**
  * Handles loading of CSS assets
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Styles extends Delice_Recipe_Asset_Loader {
     /**
      * Register and enqueue public CSS files

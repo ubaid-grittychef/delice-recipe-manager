@@ -2,6 +2,11 @@
 /**
  * Language selector widget for frontend
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Language_Widget {
 
     public function __construct() {

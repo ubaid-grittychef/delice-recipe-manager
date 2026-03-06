@@ -1,8 +1,11 @@
-
 <?php
 /**
  * Handles clean recipe URLs and redirects
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!class_exists('Delice_Recipe_URL_Handler')) {
 class Delice_Recipe_URL_Handler {

@@ -2,6 +2,11 @@
 /**
  * Handles recipe shortcodes - Fixed constructor and registration
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Shortcode {
     
     /**

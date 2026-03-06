@@ -3,6 +3,10 @@
  * Recipe post type registration - Fixed constructor
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 if (!class_exists('Delice_Recipe_Post_Type')) {
 class Delice_Recipe_Post_Type {
     

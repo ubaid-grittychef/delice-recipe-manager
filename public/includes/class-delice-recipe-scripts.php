@@ -3,6 +3,11 @@
 /**
  * Handle public script enqueuing
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Scripts {
     
     public function __construct() {

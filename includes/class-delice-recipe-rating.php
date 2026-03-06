@@ -1,8 +1,11 @@
-
 <?php
 /**
  * Recipe rating functionality
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!class_exists('Delice_Recipe_Rating')) {
 class Delice_Recipe_Rating {

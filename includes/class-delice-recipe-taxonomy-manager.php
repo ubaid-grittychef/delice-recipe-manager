@@ -1,8 +1,11 @@
-
 <?php
 /**
  * Manages recipe taxonomies and automatic categorization
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 if (!class_exists('Delice_Recipe_Taxonomy_Manager')) {
 class Delice_Recipe_Taxonomy_Manager {

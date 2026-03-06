@@ -42,11 +42,10 @@ class Delice_Recipe_Equipment {
 
     /**
      * Return the equipment array for a recipe with affiliate URLs attached.
-     * The same keyword-matching engine used for ingredients is applied to
-     * each equipment name.
+     * Uses the same multi-platform matching engine as ingredients.
      *
      * @param  int   $recipe_id  Post ID.
-     * @return array             Equipment items, each optionally with affiliate_url + affiliate_store.
+     * @return array             Equipment items, each optionally with affiliate_links, affiliate_url, affiliate_store.
      */
     public static function get_with_affiliate( $recipe_id ) {
         $equipment = get_post_meta( absint( $recipe_id ), self::META_KEY, true );
@@ -57,25 +56,87 @@ class Delice_Recipe_Equipment {
         $settings = Delice_Affiliate_Manager::get_settings();
         if ( empty( $settings['enabled'] ) ) return $equipment;
 
+        // Get auto-link Amazon platform for this recipe's language (fallback support)
+        $auto_amazon = null;
+        if ( ! empty( $settings['auto_link'] ) ) {
+            $auto_amazon = self::get_auto_amazon_platform( $recipe_id );
+        }
+
         foreach ( $equipment as &$item ) {
             if ( ! empty( $item['product_url'] ) ) {
-                // User pinned a specific product — link directly to it with the
-                // correct affiliate tag for this recipe's language.
-                $result = Delice_Affiliate_Manager::build_amazon_url( $item['product_url'], $recipe_id );
-                $item['affiliate_url']   = $result['url'];
-                $item['affiliate_store'] = $result['store'];
+                // User pinned a specific product URL
+                // Try to add affiliate tracking if it's an Amazon URL
+                if ( strpos( $item['product_url'], 'amazon' ) !== false ) {
+                    $result = Delice_Affiliate_Manager::build_amazon_url( $item['product_url'], $recipe_id );
+                    $item['affiliate_url']   = $result['url'];
+                    $item['affiliate_store'] = $result['store'];
+                    $item['affiliate_links'] = array( array(
+                        'url'   => $result['url'],
+                        'store' => $result['store'],
+                        'type'  => 'amazon',
+                    ) );
+                } else {
+                    // Non-Amazon URL - use as-is (custom affiliate URL)
+                    $item['affiliate_url']   = $item['product_url'];
+                    $item['affiliate_store'] = __( 'Store', 'delice-recipe-manager' );
+                    $item['affiliate_links'] = array( array(
+                        'url'   => $item['product_url'],
+                        'store' => __( 'Store', 'delice-recipe-manager' ),
+                        'type'  => 'custom',
+                    ) );
+                }
             } else {
-                // Fall back to keyword-rule matching (same engine as ingredients).
-                $match = Delice_Affiliate_Manager::match_ingredient( $item['name'] ?? '' );
-                if ( $match ) {
-                    $item['affiliate_url']   = $match['url'];
-                    $item['affiliate_store'] = $match['store'];
+                // Fall back to keyword-rule matching with multi-platform support
+                $all_links = Delice_Affiliate_Manager::match_ingredient_all_platforms( $item['name'] ?? '', $auto_amazon );
+                
+                if ( ! empty( $all_links ) ) {
+                    $item['affiliate_links'] = $all_links;
+                    $item['affiliate_url']   = $all_links[0]['url'];
+                    $item['affiliate_store'] = $all_links[0]['store'];
                 }
             }
         }
         unset( $item );
 
         return $equipment;
+    }
+
+    /**
+     * Get the best Amazon platform for auto-linking based on recipe language.
+     *
+     * @param  int $recipe_id
+     * @return array|null
+     */
+    private static function get_auto_amazon_platform( $recipe_id ) {
+        $current_lang = '';
+        $recipe_locale = get_post_meta( absint( $recipe_id ), '_delice_recipe_language', true );
+        if ( $recipe_locale ) {
+            $current_lang = strtolower( substr( $recipe_locale, 0, 2 ) );
+        }
+        
+        if ( ! $current_lang ) {
+            $current_lang = strtolower( substr( get_locale(), 0, 2 ) );
+        }
+
+        $fallback = null;
+        foreach ( Delice_Affiliate_Manager::get_platforms() as $platform ) {
+            if ( empty( $platform['active'] )
+                 || ( $platform['type'] ?? '' ) !== 'amazon'
+                 || empty( $platform['tracking_id'] ) ) {
+                continue;
+            }
+            
+            $plat_lang = $platform['language'] ?? '';
+            if ( $plat_lang && strtolower( $plat_lang ) === $current_lang ) {
+                return $platform;
+            }
+            
+            if ( ! $fallback ) {
+                $fallback = $platform;
+            }
+        }
+
+        return $fallback;
     }
 
     // ── AI extraction ─────────────────────────────────────────────────────────

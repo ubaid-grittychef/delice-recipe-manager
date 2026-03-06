@@ -3,6 +3,10 @@
  * Handles recipe migration from custom post type to standard posts
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 if (!class_exists('Delice_Recipe_Migration')) {
 class Delice_Recipe_Migration {
     

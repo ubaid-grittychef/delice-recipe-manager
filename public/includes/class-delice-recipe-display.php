@@ -3,6 +3,11 @@
 /**
  * Handles recipe display in posts and pages - Updated with template selection
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 class Delice_Recipe_Display {
     
     /**
