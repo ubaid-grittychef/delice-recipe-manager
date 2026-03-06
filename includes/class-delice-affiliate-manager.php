@@ -335,44 +335,54 @@ class Delice_Affiliate_Manager {
     public static function render_ingredient_buttons( array $links, $item_name, array $settings ) {
         if ( empty( $links ) ) return '';
 
-        $open          = ! empty( $settings['open_new_tab'] ) ? ' target="_blank"' : '';
-        $btn_base_text = esc_html( $settings['button_text'] ?? 'Buy' );
-        $show_store    = ! empty( $settings['show_store_name'] );
-        $rel           = esc_attr( self::LINK_REL );
-        $svg           = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'
-                       . '<path d="M2 10L10 2M5 2h5v5"/></svg>';
+        $open       = ! empty( $settings['open_new_tab'] ) ? ' target="_blank"' : '';
+        $btn_text   = esc_html( $settings['button_text'] ?? 'Buy' );
+        $show_store = ! empty( $settings['show_store_name'] );
+        $rel        = esc_attr( self::LINK_REL );
+
+        // Shopping-cart chip icon (14×14).
+        $svg = '<svg class="delice-buy-chip-icon" viewBox="0 0 14 14" fill="none"'
+             . ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round"'
+             . ' stroke-linejoin="round" aria-hidden="true">'
+             . '<path d="M1 1.5h2l1.6 6.5h6.3l1.6-5H4.3"/>'
+             . '<circle cx="6.8" cy="12.2" r=".9" fill="currentColor" stroke="none"/>'
+             . '<circle cx="11" cy="12.2" r=".9" fill="currentColor" stroke="none"/>'
+             . '</svg>';
 
         $inner = '';
         foreach ( $links as $link ) {
             $store = $link['store'] ?? '';
             $type  = sanitize_html_class( $link['type'] ?? 'custom' );
 
-            // Build visible label — store name in a slightly lighter span.
-            $label = $btn_base_text;
+            // Label: prefer store name when available (cleaner for chip style),
+            // fall back to the configured button text.
             if ( $show_store && $store !== '' ) {
-                $label .= ' <span class="delice-aff-sep" aria-hidden="true">·</span>'
-                        . ' <span class="delice-aff-store">' . esc_html( $store ) . '</span>';
+                $label     = '<span class="delice-buy-chip-label">' . esc_html( $store ) . '</span>';
+                $aria_text = $store;
+            } else {
+                $label     = '<span class="delice-buy-chip-label">' . $btn_text . '</span>';
+                $aria_text = wp_strip_all_tags( $btn_text );
             }
 
-            $aria   = wp_strip_all_tags( $label ) . ' — ' . esc_attr( $item_name );
+            $aria = $aria_text . ' — ' . esc_attr( $item_name );
 
             $inner .= '<a href="' . esc_url( $link['url'] ) . '"'
-                    . ' class="delice-aff-btn delice-aff-btn--' . $type . '"'
+                    . ' class="delice-buy-chip delice-buy-chip--' . $type . '"'
                     . ' rel="' . $rel . '"'
                     . $open
                     . ' aria-label="' . esc_attr( $aria ) . '">'
-                    . $label
                     . $svg
+                    . $label
                     . '</a>';
         }
 
-        // Single button: return it without the wrapper (keeps existing layout intact).
+        // Single chip: return without wrapper.
         if ( count( $links ) === 1 ) {
             return $inner;
         }
 
-        // Multiple buttons: wrap in a flex row.
-        return '<div class="delice-aff-btns">' . $inner . '</div>';
+        // Multiple chips: wrap in a flex row.
+        return '<div class="delice-buy-chips">' . $inner . '</div>';
     }
 
     // ── Override ingredients (for old / manually-created recipes) ────────────

@@ -3,7 +3,7 @@
  * Plugin Name:       WP Delicious Recipe
  * Plugin URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * Description:       A powerful recipe manager plugin for WordPress with AI generation, schema markup, and GitHub auto-updates.
- * Version:           3.9.23
+ * Version:           3.9.24
  * Author:            Delice Team
  * Author URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * License:           GPL-2.0+
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'DELICE_RECIPE_VERSION',    '3.9.23' );
+define( 'DELICE_RECIPE_VERSION',    '3.9.24' );
 define( 'DELICE_RECIPE_DB_VERSION', '2.1.0' ); // bump when schema changes require an upgrade routine
 define( 'DELICE_RECIPE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -49,7 +49,9 @@ add_filter( 'auto_update_plugin', function( $update, $item ) {
 }, 10, 2 );
 
 /**
- * Load plugin textdomain for translations
+ * Load plugin textdomain for translations.
+ * Hooked to 'init' (not 'plugins_loaded') per WordPress 6.7+ guidance to
+ * avoid triggering the _load_textdomain_just_in_time deprecation notice.
  */
 function delice_recipe_load_textdomain() {
     load_plugin_textdomain(
@@ -58,7 +60,7 @@ function delice_recipe_load_textdomain() {
         dirname( plugin_basename( __FILE__ ) ) . '/languages'
     );
 }
-add_action( 'plugins_loaded', 'delice_recipe_load_textdomain' );
+add_action( 'init', 'delice_recipe_load_textdomain', 1 );
 
 /**
  * Register all recipe meta fields for both post types, including arrays with full REST schema
