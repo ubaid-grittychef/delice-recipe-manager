@@ -41,6 +41,9 @@ class Delice_Recipe_Admin {
         // AJAX: save per-recipe affiliate ingredient tags from the Coverage tab
         add_action( 'wp_ajax_delice_save_aff_tags', array( $this, 'ajax_save_aff_tags' ) );
 
+        // AJAX: live coverage scan — returns fresh stats + per-recipe status rows
+        add_action( 'wp_ajax_delice_coverage_scan', array( $this, 'ajax_coverage_scan' ) );
+
         // AJAX: AI-extract equipment from instructions
         add_action( 'wp_ajax_delice_extract_equipment', array( $this, 'ajax_extract_equipment' ) );
 
@@ -1448,6 +1451,33 @@ class Delice_Recipe_Admin {
         }
 
         wp_send_json_success( array( 'equipment' => $equipment ) );
+    }
+
+    /**
+     * AJAX: return fresh recipe-coverage data so JS can update stats + pill colours
+     * without a full page reload.  Called by the "Scan Recipes" button on the Coverage tab.
+     */
+    public function ajax_coverage_scan() {
+        check_ajax_referer( 'delice_aff_tags_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Permission denied.' );
+        }
+        if ( ! class_exists( 'Delice_Affiliate_Manager' ) ) {
+            wp_send_json_error( 'Affiliate Manager not loaded.' );
+        }
+
+        $coverage = Delice_Affiliate_Manager::get_recipe_coverage();
+
+        // Return only the fields JS needs (keep payload lean).
+        $rows = array_map( function ( $r ) {
+            return array(
+                'id'          => $r['id'],
+                'status'      => $r['status'],
+                'match_count' => $r['match_count'],
+            );
+        }, $coverage );
+
+        wp_send_json_success( array( 'rows' => $rows ) );
     }
 
     /**
