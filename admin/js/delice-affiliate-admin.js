@@ -1,5 +1,5 @@
 /**
- * Affiliate Links admin JS — v3.9.22
+ * Affiliate Links admin JS — v3.9.23
  *
  * Handles:
  *  - Add / remove keyword rule rows (with platform-aware dropdown)
@@ -392,7 +392,10 @@
             /* Build the match cell */
             var matchCell;
             if ( r.matched ) {
-                matchCell = '<span style="color:#008a20;font-weight:600;">' + escAttr( r.delice_title ) + '</span>';
+                var deliceLink = r.delice_edit_url
+                    ? '<a href="' + escAttr( r.delice_edit_url ) + '" target="_blank" style="color:#008a20;font-weight:600;">' + escAttr( r.delice_title ) + '</a>'
+                    : '<span style="color:#008a20;font-weight:600;">' + escAttr( r.delice_title ) + '</span>';
+                matchCell = deliceLink;
             } else {
                 var opts = '<option value="0">\u2014 Select recipe \u2014</option>';
                 $.each( deliceList, function ( j, d ) {
@@ -416,6 +419,10 @@
                 ingPreview = '<em style="font-size:11px;color:#8c8f94;">none</em>';
             }
 
+            var wprmTitleHtml = r.wprm_edit_url
+                ? '<a href="' + escAttr( r.wprm_edit_url ) + '" target="_blank" style="font-weight:600;">' + escAttr( r.wprm_title ) + '</a>'
+                : '<span style="font-weight:600;">' + escAttr( r.wprm_title ) + '</span>';
+
             $tbl.append(
                 '<tr>' +
                 '<td style="text-align:center;">' +
@@ -425,7 +432,7 @@
                     ' data-tags="' + escAttr( r.tags || '' ) + '"' +
                     ( r.matched && r.ing_count > 0 ? ' checked' : '' ) + '>' +
                 '</td>' +
-                '<td style="font-weight:600;">' + escAttr( r.wprm_title ) + '</td>' +
+                '<td>' + wprmTitleHtml + '</td>' +
                 '<td style="text-align:center;">' + r.ing_count + '</td>' +
                 '<td>' + matchCell + '</td>' +
                 '<td>' + ingPreview + '</td>' +

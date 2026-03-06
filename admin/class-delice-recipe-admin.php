@@ -1501,6 +1501,73 @@ class Delice_Recipe_Admin {
     }
 
     /**
+     * Extract ingredient names from a WPRM recipe using three progressive strategies:
+     *
+     *  1. WPRM's own API class (WPRM_Recipe_Manager) — preferred; resolves term IDs automatically.
+     *  2. wprm_ingredient taxonomy terms — fast WP-native fallback; works without WPRM classes.
+     *  3. Raw wprm_ingredients post meta with inline term-ID resolution — last resort.
+     *
+     * Modern WPRM (v6+) stores ingredient names as terms in the `wprm_ingredient` taxonomy.
+     * The raw meta holds term IDs, not plain-text names, so reading `$ing['name']` directly
+     * returns empty strings — hence why the old one-step approach produced 0 ingredients.
+     *
+     * @param  int   $wprm_post_id  Post ID of the wprm_recipe post.
+     * @return string[]             Sanitised ingredient name strings (de-duplicated).
+     */
+    private static function wprm_extract_ingredient_names( $wprm_post_id ) {
+        $names = array();
+
+        // ── Strategy 1: WPRM's own Recipe Manager ────────────────────────────
+        if ( class_exists( 'WPRM_Recipe_Manager' ) ) {
+            $recipe = WPRM_Recipe_Manager::get_recipe( $wprm_post_id );
+            if ( $recipe && method_exists( $recipe, 'ingredients' ) ) {
+                foreach ( $recipe->ingredients() as $group ) {
+                    if ( empty( $group['ingredients'] ) || ! is_array( $group['ingredients'] ) ) continue;
+                    foreach ( $group['ingredients'] as $ing ) {
+                        $name = sanitize_text_field( $ing['name'] ?? '' );
+                        if ( $name !== '' ) $names[] = $name;
+                    }
+                }
+                if ( ! empty( $names ) ) return array_values( array_unique( $names ) );
+            }
+        }
+
+        // ── Strategy 2: wprm_ingredient taxonomy (fast, version-agnostic) ────
+        if ( taxonomy_exists( 'wprm_ingredient' ) ) {
+            $terms = wp_get_post_terms( $wprm_post_id, 'wprm_ingredient', array( 'fields' => 'names' ) );
+            if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
+                foreach ( $terms as $t ) {
+                    $name = sanitize_text_field( $t );
+                    if ( $name !== '' ) $names[] = $name;
+                }
+                return array_values( array_unique( $names ) );
+            }
+        }
+
+        // ── Strategy 3: raw meta with term-ID resolution ──────────────────────
+        $ing_meta = get_post_meta( $wprm_post_id, 'wprm_ingredients', true );
+        if ( is_array( $ing_meta ) ) {
+            foreach ( $ing_meta as $group ) {
+                if ( empty( $group['ingredients'] ) || ! is_array( $group['ingredients'] ) ) continue;
+                foreach ( $group['ingredients'] as $ing ) {
+                    // Try plain-text name first (older WPRM).
+                    $name = sanitize_text_field( $ing['name'] ?? '' );
+                    // If empty, the name is a taxonomy term — resolve via term ID.
+                    if ( $name === '' && ! empty( $ing['id'] ) && taxonomy_exists( 'wprm_ingredient' ) ) {
+                        $term = get_term( intval( $ing['id'] ), 'wprm_ingredient' );
+                        if ( $term && ! is_wp_error( $term ) ) {
+                            $name = sanitize_text_field( $term->name );
+                        }
+                    }
+                    if ( $name !== '' ) $names[] = $name;
+                }
+            }
+        }
+
+        return array_values( array_unique( $names ) );
+    }
+
+    /**
      * AJAX: scan all wprm_recipe posts and return ingredient data + title matches.
      */
     public function ajax_wprm_scan() {
@@ -1535,31 +1602,22 @@ class Delice_Recipe_Admin {
         $results = array();
         foreach ( $wprm_ids as $wid ) {
             $wprm_title = get_the_title( $wid );
-            $ing_meta   = get_post_meta( $wid, 'wprm_ingredients', true );
 
-            $names = array();
-            if ( is_array( $ing_meta ) ) {
-                foreach ( $ing_meta as $group ) {
-                    if ( ! empty( $group['ingredients'] ) && is_array( $group['ingredients'] ) ) {
-                        foreach ( $group['ingredients'] as $ing ) {
-                            $name = sanitize_text_field( $ing['name'] ?? '' );
-                            if ( ! empty( $name ) ) $names[] = $name;
-                        }
-                    }
-                }
-            }
+            $names = self::wprm_extract_ingredient_names( $wid );
 
             $key            = strtolower( trim( $wprm_title ) );
             $matched_delice = $delice_by_title[ $key ] ?? null;
 
             $results[] = array(
-                'wprm_id'     => $wid,
-                'wprm_title'  => $wprm_title,
-                'tags'        => implode( "\n", $names ),
-                'ing_count'   => count( $names ),
-                'delice_id'   => $matched_delice ? $matched_delice->ID : 0,
-                'delice_title'=> $matched_delice ? $matched_delice->post_title : '',
-                'matched'     => (bool) $matched_delice,
+                'wprm_id'      => $wid,
+                'wprm_title'   => $wprm_title,
+                'wprm_edit_url'=> get_edit_post_link( $wid, 'raw' ),
+                'tags'         => implode( "\n", $names ),
+                'ing_count'    => count( $names ),
+                'delice_id'    => $matched_delice ? $matched_delice->ID : 0,
+                'delice_title' => $matched_delice ? $matched_delice->post_title : '',
+                'delice_edit_url' => $matched_delice ? get_edit_post_link( $matched_delice->ID, 'raw' ) : '',
+                'matched'      => (bool) $matched_delice,
             );
         }
 
