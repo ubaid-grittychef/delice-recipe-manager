@@ -1,5 +1,5 @@
 /**
- * Affiliate Links admin JS — v3.9.16
+ * Affiliate Links admin JS — v3.9.22
  *
  * Handles:
  *  - Add / remove keyword rule rows (with platform-aware dropdown)
@@ -226,14 +226,28 @@
         } );
     } );
 
+    /* ── Shared data helper (wp_localize_script object > inline-script globals) */
+    function drmCfg() {
+        var cfg = window.drmAffAdmin || {};
+        return {
+            nonce:   cfg.nonce   || window.drmAffTagsNonce  || '',
+            ajaxUrl: cfg.ajaxUrl || window.drmAjaxUrl || window.ajaxurl || '',
+            recipes: ( cfg.deliceRecipes && Array.isArray( cfg.deliceRecipes ) )
+                        ? cfg.deliceRecipes
+                        : ( window.drmDeliceRecipes && Array.isArray( window.drmDeliceRecipes ) )
+                            ? window.drmDeliceRecipes : [],
+        };
+    }
+
     /* AJAX save per-recipe ingredient tags */
     $( document ).on( 'click', '.drm-cov-save', function () {
         var $btn    = $( this );
         var $wrap   = $btn.closest( '.drm-cov-tag-wrap' );
         var pid     = parseInt( $btn.data( 'post-id' ), 10 );
         var tags    = $wrap.find( '.drm-cov-tags' ).val();
-        var nonce   = window.drmAffTagsNonce || '';
-        var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
+        var cfg     = drmCfg();
+        var nonce   = cfg.nonce;
+        var ajaxUrl = cfg.ajaxUrl;
 
         if ( ! pid || ! nonce || ! ajaxUrl ) return;
 
@@ -261,11 +275,12 @@
     } );
 
     /* Live coverage scan — updates stats and table without a full page reload */
-    $( '#drm-cov-scan' ).on( 'click', function () {
+    $( document ).on( 'click', '#drm-cov-scan', function () {
         var $btn    = $( this );
         var $status = $( '#drm-cov-scan-status' );
-        var nonce   = window.drmAffTagsNonce || '';
-        var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
+        var cfg     = drmCfg();
+        var nonce   = cfg.nonce;
+        var ajaxUrl = cfg.ajaxUrl;
 
         if ( ! nonce || ! ajaxUrl ) {
             $status.text( 'Configuration error \u2014 missing nonce or AJAX URL.' );
@@ -370,9 +385,8 @@
             return;
         }
 
-        /* Null-safe Delice recipe list */
-        var deliceList = ( window.drmDeliceRecipes && Array.isArray( window.drmDeliceRecipes ) )
-            ? window.drmDeliceRecipes : [];
+        /* Null-safe Delice recipe list (prefer wp_localize_script data) */
+        var deliceList = drmCfg().recipes;
 
         $.each( recipes, function ( i, r ) {
             /* Build the match cell */
@@ -424,12 +438,13 @@
     }
 
     /* Scan button */
-    $( '#drm-wprm-scan' ).on( 'click', function () {
+    $( document ).on( 'click', '#drm-wprm-scan', function () {
         var $btn    = $( this );
         var $status = $( '#drm-wprm-status' );
         var $res    = $( '#drm-wprm-results' );
-        var nonce   = window.drmAffTagsNonce || '';
-        var ajaxUrl = window.drmAjaxUrl || window.ajaxurl || '';
+        var cfg     = drmCfg();
+        var nonce   = cfg.nonce;
+        var ajaxUrl = cfg.ajaxUrl;
 
         if ( ! nonce || ! ajaxUrl ) {
             $status.text( 'Configuration error \u2014 missing nonce or AJAX URL.' );
@@ -469,12 +484,12 @@
     } );
 
     /* Select-all */
-    $( '#drm-wprm-select-all' ).on( 'change', function () {
+    $( document ).on( 'change', '#drm-wprm-select-all', function () {
         $( '.drm-wprm-chk' ).prop( 'checked', this.checked );
     } );
 
     /* Import selected */
-    $( '#drm-wprm-import' ).on( 'click', function () {
+    $( document ).on( 'click', '#drm-wprm-import', function () {
         var $btn  = $( this );
         var items = [];
 
@@ -492,11 +507,12 @@
 
         $btn.prop( 'disabled', true ).text( 'Importing\u2026' );
 
+        var cfg = drmCfg();
         $.post(
-            window.drmAjaxUrl || window.ajaxurl || '',
+            cfg.ajaxUrl,
             {
                 action: 'delice_wprm_import',
-                nonce:  window.drmAffTagsNonce || '',
+                nonce:  cfg.nonce,
                 items:  JSON.stringify( items ),
             },
             function ( res ) {

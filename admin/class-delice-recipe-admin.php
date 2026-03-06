@@ -189,6 +189,26 @@ class Delice_Recipe_Admin {
             // Affiliate Links page JS
             if ( strpos( $screen->id, 'delice-recipe-affiliate' ) !== false ) {
                 wp_enqueue_script( 'delice-affiliate-admin', DELICE_RECIPE_PLUGIN_URL . 'admin/js/delice-affiliate-admin.js', array( 'jquery' ), DELICE_RECIPE_VERSION, true );
+
+                // Pass nonce + AJAX URL + recipe list via wp_localize_script so the
+                // data is guaranteed to be available when the footer script runs,
+                // regardless of which tab panel is visible at page load.
+                $drm_all  = get_posts( array(
+                    'post_type'      => 'delice_recipe',
+                    'posts_per_page' => -1,
+                    'post_status'    => array( 'publish', 'draft', 'private' ),
+                    'fields'         => 'ids',
+                    'no_found_rows'  => true,
+                ) );
+                $drm_list = array();
+                foreach ( $drm_all as $drm_pid ) {
+                    $drm_list[] = array( 'id' => $drm_pid, 'title' => get_the_title( $drm_pid ) );
+                }
+                wp_localize_script( 'delice-affiliate-admin', 'drmAffAdmin', array(
+                    'nonce'         => wp_create_nonce( 'delice_aff_tags_nonce' ),
+                    'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+                    'deliceRecipes' => $drm_list,
+                ) );
             }
         }
     }
