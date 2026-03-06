@@ -438,6 +438,11 @@ class Delice_GitHub_Updater {
             return $source;
         }
 
+        // Guard against WP_Error or non-string $source (can happen with 3rd-party updater hooks).
+        if ( ! is_string( $source ) || '' === $source ) {
+            return $source;
+        }
+
         $plugin_dir  = dirname( $this->slug ); // e.g. "delice-recipe-manager"
         $source_base = basename( rtrim( $source, '/' ) );
 
