@@ -130,9 +130,10 @@ $dre_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 #<?php echo $dre_id; ?> .delice-elegant-section-title::before,
 #<?php echo $dre_id; ?> .delice-elegant-section-title::after { content: '' !important; flex: 1 !important; border-top: 1px solid #d6d0c4 !important; }
 
-/* ── Body sections ── */
-#<?php echo $dre_id; ?> .delice-elegant-body           { display: block !important; background: #faf7f2 !important; }
-#<?php echo $dre_id; ?> .delice-elegant-body > .delice-elegant-section { padding: 36px 48px !important; margin: 0 !important; display: block !important; }
+/* ── Body sections — standalone ── */
+#<?php echo $dre_id; ?> section.delice-elegant-ingredients { display: block !important; padding: 36px 48px !important; margin: 0 !important; border: none !important; background: #faf7f2 !important; }
+#<?php echo $dre_id; ?> section.delice-elegant-instructions { display: block !important; padding: 36px 48px !important; margin: 0 !important; border: none !important; background: #faf7f2 !important; }
+#<?php echo $dre_id; ?> .delice-elegant-equipment      { display: block !important; padding: 36px 48px !important; margin: 0 !important; background: #faf7f2 !important; }
 
 /* ── Semantic section elements outside body (notes/nutrition/faqs) ── */
 #<?php echo $dre_id; ?> section.delice-elegant-notes   { display: block !important; padding: 28px 48px !important; margin: 0 !important; border: none !important; }
@@ -206,7 +207,9 @@ $dre_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
     #<?php echo $dre_id; ?> header.delice-elegant-header { padding: 28px 24px 0 !important; }
     #<?php echo $dre_id; ?> .delice-elegant-hero-image { margin: 0 -24px !important; }
     #<?php echo $dre_id; ?> .delice-elegant-ingredients-list { grid-template-columns: 1fr !important; }
-    #<?php echo $dre_id; ?> .delice-elegant-body > .delice-elegant-section { padding: 24px !important; }
+    #<?php echo $dre_id; ?> section.delice-elegant-ingredients,
+    #<?php echo $dre_id; ?> section.delice-elegant-instructions,
+    #<?php echo $dre_id; ?> .delice-elegant-equipment { padding: 24px !important; }
     #<?php echo $dre_id; ?> .delice-elegant-actions    { padding: 14px 24px !important; }
     #<?php echo $dre_id; ?> section.delice-elegant-notes,
     #<?php echo $dre_id; ?> section.delice-elegant-nutrition,
@@ -511,9 +514,6 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
     <!-- ═══ BODY ══════════════════════════════════════════════════════════════ -->
     <?php
-    /* Capture ingredients and instructions HTML separately so we can decide
-       whether to wrap them side-by-side or stack them. */
-
     // v3.8.4 — Affiliate link injection
     $dre_aff          = class_exists( 'Delice_Affiliate_Manager' )
         ? Delice_Affiliate_Manager::inject_links( is_array( $ingredients ) ? $ingredients : array(), absint( $recipe_id ) )
@@ -527,7 +527,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         echo Delice_Affiliate_Manager::get_disclosure_html();
     }
 
-    ob_start();
+    $dre_body_first = true;
 
     // Equipment — v3.9.17
     if ( class_exists( 'Delice_Recipe_Equipment' ) &&
@@ -610,92 +610,87 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php endforeach; ?>
         </div>
     </div>
-        <?php endif;
+        <?php
+            $dre_body_first = false;
+        endif;
     endif;
 
-    if ( ! empty( $ingredients ) ) : ?>
-        <section class="delice-elegant-section delice-elegant-ingredients">
-            <h3 class="delice-elegant-section-title">
-                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-                <?php echo esc_html( $lang_texts['ingredients'] ); ?>
-                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-            </h3>
-            <?php if ( $servings ) : ?>
-            <div style="display:flex;justify-content:center;margin-bottom:16px;">
-              <div class="delice-servings-control" role="group" aria-label="<?php echo esc_attr( $lang_texts['servings'] ); ?>">
-                <button class="delice-servings-btn delice-servings-minus" type="button" aria-label="Decrease servings" disabled>−</button>
-                <span class="delice-servings-value" data-base="<?php echo esc_attr( intval( $servings ) ); ?>"><?php echo esc_html( intval( $servings ) ); ?></span>
-                <button class="delice-servings-btn delice-servings-plus" type="button" aria-label="Increase servings">+</button>
-                <span class="delice-servings-label"><?php echo esc_html( $lang_texts['servings'] ); ?></span>
-                <span class="delice-servings-live" aria-live="polite" aria-atomic="true"><?php echo esc_html( intval( $servings ) ); ?></span>
-              </div>
-            </div>
-            <?php endif; ?>
-            <ul class="delice-elegant-ingredients-list">
-                <?php foreach ( $ingredients as $ing ) :
-                    $ing_id        = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
-                    $dre_aff_links = $ing['affiliate_links'] ?? array();
-                    $dre_has_aff   = ! empty( $dre_aff_links );
-                ?>
-                    <li class="delice-elegant-ingredient delice-recipe-ingredient<?php echo $dre_has_aff ? ' delice-recipe-ingredient--linked' : ''; ?>">
-                        <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
-                            <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
-                            <span class="delice-elegant-check-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                    <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                            </span>
-                            <span class="delice-elegant-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
-                        </label>
-                        <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
-                            <span class="delice-elegant-ingredient-qty"
-                                  data-base-amount="<?php echo esc_attr( $ing['amount'] ?? '' ); ?>"
-                                  data-base-unit="<?php echo esc_attr( $ing['unit'] ?? '' ); ?>">
-                                <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
-                            </span>
-                        <?php endif; ?>
-                        <?php if ( $dre_has_aff ) :
-                            echo Delice_Affiliate_Manager::render_ingredient_buttons( $dre_aff_links, $ing['name'] ?? '', $dre_aff_settings );
-                        endif; ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </section>
-    <?php endif;
-    $ingredients_html = ob_get_clean();
-
-    ob_start();
-    if ( ! empty( $instructions ) ) : ?>
-        <section class="delice-elegant-section delice-elegant-instructions">
-            <h3 class="delice-elegant-section-title">
-                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-                <?php echo esc_html( $lang_texts['instructions'] ); ?>
-                <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
-            </h3>
-            <ol class="delice-elegant-steps">
-                <?php foreach ( $instructions as $idx => $step ) :
-                    $text = preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' );
-                    $text = trim( $text );
-                ?>
-                    <li class="delice-elegant-step">
-                        <span class="delice-elegant-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></span>
-                        <p class="delice-elegant-step-text"><?php echo esc_html( $text ); ?></p>
-                    </li>
-                <?php endforeach; ?>
-            </ol>
-        </section>
-    <?php endif;
-    $instructions_html = ob_get_clean();
+    if ( ! empty( $ingredients ) ) :
+        if ( ! $dre_body_first ) echo '<hr class="delice-elegant-divider">';
+        $dre_body_first = false;
     ?>
-
-    <div class="delice-elegant-body">
-        <!-- Ingredients first, ornamental divider, instructions below -->
-        <?php echo $ingredients_html; ?>
-        <?php if ( $ingredients_html && $instructions_html ) : ?>
-            <hr class="delice-elegant-divider delice-elegant-divider--ornamental">
+    <section class="delice-elegant-section delice-elegant-ingredients">
+        <h3 class="delice-elegant-section-title">
+            <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            <?php echo esc_html( $lang_texts['ingredients'] ); ?>
+            <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+        </h3>
+        <?php if ( $servings ) : ?>
+        <div style="display:flex;justify-content:center;margin-bottom:16px;">
+          <div class="delice-servings-control" role="group" aria-label="<?php echo esc_attr( $lang_texts['servings'] ); ?>">
+            <button class="delice-servings-btn delice-servings-minus" type="button" aria-label="Decrease servings" disabled>−</button>
+            <span class="delice-servings-value" data-base="<?php echo esc_attr( intval( $servings ) ); ?>"><?php echo esc_html( intval( $servings ) ); ?></span>
+            <button class="delice-servings-btn delice-servings-plus" type="button" aria-label="Increase servings">+</button>
+            <span class="delice-servings-label"><?php echo esc_html( $lang_texts['servings'] ); ?></span>
+            <span class="delice-servings-live" aria-live="polite" aria-atomic="true"><?php echo esc_html( intval( $servings ) ); ?></span>
+          </div>
+        </div>
         <?php endif; ?>
-        <?php echo $instructions_html; ?>
-    </div><!-- /.delice-elegant-body -->
+        <ul class="delice-elegant-ingredients-list">
+            <?php foreach ( $ingredients as $ing ) :
+                $ing_id        = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );
+                $dre_aff_links = $ing['affiliate_links'] ?? array();
+                $dre_has_aff   = ! empty( $dre_aff_links );
+            ?>
+                <li class="delice-elegant-ingredient delice-recipe-ingredient<?php echo $dre_has_aff ? ' delice-recipe-ingredient--linked' : ''; ?>">
+                    <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
+                        <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
+                        <span class="delice-elegant-check-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </span>
+                        <span class="delice-elegant-ingredient-name delice-recipe-ingredient-name"><?php echo esc_html( $ing['name'] ?? '' ); ?></span>
+                    </label>
+                    <?php if ( ! empty( $ing['amount'] ) || ! empty( $ing['unit'] ) ) : ?>
+                        <span class="delice-elegant-ingredient-qty"
+                              data-base-amount="<?php echo esc_attr( $ing['amount'] ?? '' ); ?>"
+                              data-base-unit="<?php echo esc_attr( $ing['unit'] ?? '' ); ?>">
+                            <?php echo esc_html( trim( ( $ing['amount'] ?? '' ) . ' ' . ( $ing['unit'] ?? '' ) ) ); ?>
+                        </span>
+                    <?php endif; ?>
+                    <?php if ( $dre_has_aff ) :
+                        echo Delice_Affiliate_Manager::render_ingredient_buttons( $dre_aff_links, $ing['name'] ?? '', $dre_aff_settings );
+                    endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </section>
+    <?php endif;
+
+    if ( ! empty( $instructions ) ) :
+        if ( ! $dre_body_first ) echo '<hr class="delice-elegant-divider">';
+        $dre_body_first = false;
+    ?>
+    <section class="delice-elegant-section delice-elegant-instructions">
+        <h3 class="delice-elegant-section-title">
+            <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+            <?php echo esc_html( $lang_texts['instructions'] ); ?>
+            <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
+        </h3>
+        <ol class="delice-elegant-steps">
+            <?php foreach ( $instructions as $idx => $step ) :
+                $text = preg_replace( '/^(\d+[\.\)\:]\s*)+/i', '', $step['text'] ?? '' );
+                $text = trim( $text );
+            ?>
+                <li class="delice-elegant-step">
+                    <span class="delice-elegant-step-num" aria-hidden="true"><?php echo absint( $idx + 1 ); ?></span>
+                    <p class="delice-elegant-step-text"><?php echo esc_html( $text ); ?></p>
+                </li>
+            <?php endforeach; ?>
+        </ol>
+    </section>
+    <?php endif; ?>
 
     <!-- ═══ NOTES ════════════════════════════════════════════════════════════ -->
     <?php if ( ! empty( $notes ) ) : ?>
