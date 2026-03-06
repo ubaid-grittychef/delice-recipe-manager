@@ -622,7 +622,6 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         $has_ing  = ! empty( $ingredients );
         $has_inst = ! empty( $instructions );
         $two_col  = $has_ing && $has_inst;
-        if ( $two_col ) echo '<div class="delice-modern-cols">';
         ?>
 
         <!-- ── Equipment — v3.9.17 ──────────────────────────────────────────── -->
@@ -713,6 +712,8 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
             </div>
         </div>
         <?php endif; endif; ?>
+
+        <?php if ( $two_col ) echo '<div class="delice-modern-cols">'; ?>
 
         <!-- ── Ingredients ───────────────────────────────────────────────────── -->
         <?php if ( $has_ing ) : ?>
