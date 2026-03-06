@@ -902,19 +902,19 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
     <!-- Stats row -->
     <div class="drm-cov-stats">
         <div class="drm-cov-stat drm-cov-stat--ready">
-            <span class="drm-cov-stat-num"><?php echo intval( $cov_ready ); ?></span>
+            <span class="drm-cov-stat-num" id="drm-stat-ready"><?php echo intval( $cov_ready ); ?></span>
             <span class="drm-cov-stat-lbl"><?php esc_html_e( 'Ready', 'delice-recipe-manager' ); ?></span>
         </div>
         <div class="drm-cov-stat drm-cov-stat--nomatch">
-            <span class="drm-cov-stat-num"><?php echo intval( $cov_no_match ); ?></span>
+            <span class="drm-cov-stat-num" id="drm-stat-nomatch"><?php echo intval( $cov_no_match ); ?></span>
             <span class="drm-cov-stat-lbl"><?php esc_html_e( 'No keyword match', 'delice-recipe-manager' ); ?></span>
         </div>
         <div class="drm-cov-stat drm-cov-stat--needs">
-            <span class="drm-cov-stat-num"><?php echo intval( $cov_needs_tags ); ?></span>
+            <span class="drm-cov-stat-num" id="drm-stat-needs"><?php echo intval( $cov_needs_tags ); ?></span>
             <span class="drm-cov-stat-lbl"><?php esc_html_e( 'Needs ingredient tags', 'delice-recipe-manager' ); ?></span>
         </div>
         <div class="drm-cov-stat" style="border-color:#c3c4c7;">
-            <span class="drm-cov-stat-num" style="color:#1d2327;"><?php echo intval( $cov_total ); ?></span>
+            <span class="drm-cov-stat-num" id="drm-stat-total" style="color:#1d2327;"><?php echo intval( $cov_total ); ?></span>
             <span class="drm-cov-stat-lbl"><?php esc_html_e( 'Total recipes', 'delice-recipe-manager' ); ?></span>
         </div>
     </div>
@@ -938,6 +938,12 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
             <div class="drm-card-header-left">
                 <h2><?php esc_html_e( 'Recipe Coverage', 'delice-recipe-manager' ); ?></h2>
                 <span class="drm-card-badge"><?php printf( esc_html__( '%d recipes', 'delice-recipe-manager' ), intval( $cov_total ) ); ?></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button type="button" id="drm-cov-scan" class="button button-secondary">
+                    <?php esc_html_e( 'Scan Recipes', 'delice-recipe-manager' ); ?>
+                </button>
+                <span id="drm-cov-scan-status" style="font-size:12px;color:#646970;"></span>
             </div>
         </div>
         <div style="overflow-x:auto;">
@@ -975,7 +981,7 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                 <td>
                     <span class="drm-pill <?php echo esc_attr( $status_pill ); ?>">
                         <span class="drm-pill-dot"></span>
-                        <?php echo esc_html( $status_label ); ?>
+                        <span class="drm-pill-text"><?php echo esc_html( $status_label ); ?></span>
                     </span>
                 </td>
                 <td>
@@ -993,7 +999,7 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                     <?php endif; ?>
                 </td>
                 <td style="text-align:center;font-weight:600;"><?php echo intval( $recipe['ingredient_count'] ); ?></td>
-                <td style="text-align:center;font-weight:600;color:<?php echo $recipe['match_count'] > 0 ? '#008a20' : '#8c8f94'; ?>;">
+                <td class="drm-cov-match-count" style="text-align:center;font-weight:600;color:<?php echo $recipe['match_count'] > 0 ? '#008a20' : '#8c8f94'; ?>;">
                     <?php echo intval( $recipe['match_count'] ); ?>
                 </td>
                 <td>
@@ -1037,7 +1043,7 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
     ?>;
     </script>
 
-    <!-- WP Recipe Maker bulk import card — v3.9.0 -->
+    <!-- WP Recipe Maker bulk import card — v3.9.16 -->
     <?php if ( post_type_exists( 'wprm_recipe' ) ) : ?>
     <div class="drm-card" style="margin-top:24px;border-top:3px solid #2271b1;">
         <div class="drm-card-header">
@@ -1045,32 +1051,37 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                 <h2><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
                 <span class="drm-card-badge" style="background:#e8f0fe;color:#1a56db;"><?php esc_html_e( 'WPRM detected', 'delice-recipe-manager' ); ?></span>
             </div>
-            <div class="drm-card-header-right">
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
                 <button type="button" id="drm-wprm-scan" class="button button-primary">
                     <?php esc_html_e( 'Scan WP Recipe Maker recipes', 'delice-recipe-manager' ); ?>
                 </button>
-                <span id="drm-wprm-status" style="margin-left:10px;font-size:13px;color:#646970;"></span>
+                <span id="drm-wprm-status" style="font-size:13px;color:#646970;"></span>
             </div>
         </div>
-        <p style="margin:0 0 12px;color:#50575e;font-size:13px;">
-            <?php esc_html_e( 'Scan your WP Recipe Maker recipes and bulk-import their ingredient lists as Affiliate Tags Overrides on the matching Delice recipes. Matching is done by post title (case-insensitive). For recipes that do not auto-match, choose the correct Delice recipe from the dropdown.', 'delice-recipe-manager' ); ?>
-        </p>
+        <div class="drm-card-body">
+            <p style="margin:0 0 0;color:#50575e;font-size:13px;">
+                <?php esc_html_e( 'Scan your WP Recipe Maker recipes and bulk-import their ingredient lists as Affiliate Tags Overrides on the matching Delice recipes. Matching is done by post title (case-insensitive). For recipes that do not auto-match, choose the correct Delice recipe from the dropdown.', 'delice-recipe-manager' ); ?>
+            </p>
+        </div>
         <div id="drm-wprm-results" style="display:none;">
             <div style="overflow-x:auto;">
-            <table class="drm-cov-table" style="min-width:680px;">
+            <table class="drm-cov-table" style="min-width:760px;">
                 <thead>
                     <tr>
-                        <th style="width:36px;"><input type="checkbox" id="drm-wprm-select-all" title="<?php esc_attr_e( 'Select all', 'delice-recipe-manager' ); ?>"></th>
+                        <th style="width:36px;text-align:center;">
+                            <input type="checkbox" id="drm-wprm-select-all" title="<?php esc_attr_e( 'Select all', 'delice-recipe-manager' ); ?>">
+                        </th>
                         <th><?php esc_html_e( 'WPRM Recipe', 'delice-recipe-manager' ); ?></th>
-                        <th style="width:100px;text-align:center;"><?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></th>
-                        <th><?php esc_html_e( 'Delice Recipe Match', 'delice-recipe-manager' ); ?></th>
-                        <th><?php esc_html_e( 'Ingredient Tags (preview)', 'delice-recipe-manager' ); ?></th>
+                        <th style="width:80px;text-align:center;"><?php esc_html_e( '# Ings', 'delice-recipe-manager' ); ?></th>
+                        <th style="width:220px;"><?php esc_html_e( 'Delice Recipe Match', 'delice-recipe-manager' ); ?></th>
+                        <th><?php esc_html_e( 'Ingredient Tags Preview', 'delice-recipe-manager' ); ?></th>
                     </tr>
                 </thead>
                 <tbody id="drm-wprm-tbody"></tbody>
             </table>
             </div>
-            <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+            <div class="drm-card-footer">
+                <?php /* disabled attr removed — JS enables this after a successful scan */ ?>
                 <button type="button" id="drm-wprm-import" class="button button-primary" disabled>
                     <?php esc_html_e( 'Import Selected', 'delice-recipe-manager' ); ?>
                 </button>
@@ -1085,15 +1096,17 @@ window.drmPlatforms = <?php echo wp_json_encode( array_values( $platforms ) ); ?
                 <h2 style="color:#646970;"><?php esc_html_e( 'WP Recipe Maker — Bulk Affiliate Import', 'delice-recipe-manager' ); ?></h2>
                 <span class="drm-card-badge" style="background:#f0f0f1;color:#646970;"><?php esc_html_e( 'WPRM not detected', 'delice-recipe-manager' ); ?></span>
             </div>
-            <div class="drm-card-header-right">
+            <div style="flex-shrink:0;">
                 <button type="button" class="button" disabled title="<?php esc_attr_e( 'Install WP Recipe Maker to enable this feature', 'delice-recipe-manager' ); ?>">
                     <?php esc_html_e( 'Scan WP Recipe Maker recipes', 'delice-recipe-manager' ); ?>
                 </button>
             </div>
         </div>
-        <p style="margin:0;color:#646970;font-size:13px;">
-            <?php esc_html_e( 'WP Recipe Maker is not active on this site. Install and activate it to bulk-import ingredient tags from your WPRM recipes into Delice affiliate overrides.', 'delice-recipe-manager' ); ?>
-        </p>
+        <div class="drm-card-body">
+            <p style="margin:0;color:#646970;font-size:13px;">
+                <?php esc_html_e( 'WP Recipe Maker is not active on this site. Install and activate it to bulk-import ingredient tags from your WPRM recipes into Delice affiliate overrides.', 'delice-recipe-manager' ); ?>
+            </p>
+        </div>
     </div>
     <?php endif; ?>
 
