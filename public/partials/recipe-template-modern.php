@@ -60,9 +60,9 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 /* ── Specificity shield: ID-scoped rules beat Pixwell #main/#content overrides ── */
 #<?php echo $drm_id; ?>,
 #<?php echo $drm_id; ?> * { box-sizing: border-box !important; }
-#<?php echo $drm_id; ?> { max-width: 960px !important; margin: 0 auto !important; overflow: hidden !important; display: block !important; }
+#<?php echo $drm_id; ?> { max-width: 960px !important; margin: 0 auto !important; overflow: hidden !important; display: block !important; background: #fafaf9 !important; }
 
-/* ── Global element-level resets (themes add padding/margin/list-style to li/p/ul/svg/img) ── */
+/* ── Global element-level resets ── */
 #<?php echo $drm_id; ?> ul,
 #<?php echo $drm_id; ?> ol            { list-style: none !important; padding: 0 !important; margin: 0 !important; }
 #<?php echo $drm_id; ?> li            { padding: 0 !important; margin: 0 !important; background: none !important; border: none !important; }
@@ -74,73 +74,87 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 #<?php echo $drm_id; ?> button        { font-family: inherit !important; cursor: pointer !important; }
 
 /* ── Hero ── */
-#<?php echo $drm_id; ?> .delice-modern-hero            { display: flex !important; align-items: flex-end !important; position: relative !important; min-height: 280px !important; }
+#<?php echo $drm_id; ?> .delice-modern-hero            { display: flex !important; align-items: flex-end !important; position: relative !important; min-height: 260px !important; background: #2d6a4f !important; }
+#<?php echo $drm_id; ?> .delice-modern-hero--has-image { min-height: 400px !important; }
 #<?php echo $drm_id; ?> .delice-modern-hero-image      { position: absolute !important; inset: 0 !important; overflow: hidden !important; }
 #<?php echo $drm_id; ?> .delice-modern-img             { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
 #<?php echo $drm_id; ?> .delice-modern-hero-content    { position: relative !important; z-index: 1 !important; width: 100% !important; padding: 32px 36px 28px !important; }
-#<?php echo $drm_id; ?> .delice-modern-meta-badges     { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; margin: 0 !important; padding: 0 !important; }
-#<?php echo $drm_id; ?> .delice-modern-badge           { display: flex !important; flex-direction: column !important; align-items: center !important; padding: 10px 16px !important; min-width: 80px !important; border-radius: 10px !important; text-align: center !important; gap: 3px !important; }
+#<?php echo $drm_id; ?> .delice-modern-meta-badges     { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; margin: 0 !important; padding: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-badge           { display: flex !important; flex-direction: column !important; align-items: center !important; padding: 9px 14px !important; min-width: 76px !important; border-radius: 10px !important; text-align: center !important; gap: 3px !important; background: rgba(255,255,255,.15) !important; border: 1px solid rgba(255,255,255,.22) !important; }
 
 /* ── Toolbar ── */
-#<?php echo $drm_id; ?> .delice-modern-toolbar         { display: flex !important; align-items: center !important; justify-content: space-between !important; flex-wrap: wrap !important; padding: 14px 24px !important; margin: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-toolbar         { display: flex !important; align-items: center !important; justify-content: space-between !important; flex-wrap: wrap !important; padding: 14px 24px !important; margin: 0 !important; background: #fff !important; border-bottom: 1px solid #e7e5e4 !important; }
 #<?php echo $drm_id; ?> .delice-modern-author          { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 10px !important; }
-#<?php echo $drm_id; ?> .delice-modern-author-avatar   { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; }
+#<?php echo $drm_id; ?> .delice-modern-author-avatar   { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; background: #2d6a4f !important; }
 #<?php echo $drm_id; ?> .delice-modern-author-info     { display: flex !important; flex-direction: column !important; gap: 1px !important; }
 #<?php echo $drm_id; ?> .delice-modern-actions         { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px !important; }
-#<?php echo $drm_id; ?> .delice-modern-action-btn      { display: inline-flex !important; align-items: center !important; gap: 6px !important; padding: 8px 14px !important; border-radius: 8px !important; white-space: nowrap !important; }
+#<?php echo $drm_id; ?> .delice-modern-action-btn      { display: inline-flex !important; align-items: center !important; gap: 6px !important; padding: 7px 14px !important; border-radius: 8px !important; white-space: nowrap !important; border: 1.5px solid #e7e5e4 !important; background: transparent !important; color: #78716c !important; font-size: .8rem !important; font-weight: 600 !important; }
+#<?php echo $drm_id; ?> .delice-modern-action-btn--rate { background: #2d6a4f !important; border-color: #2d6a4f !important; color: #fff !important; }
 
 /* ── Body & sections ── */
-#<?php echo $drm_id; ?> .delice-modern-body            { padding: 28px 24px !important; background: #f8fafc !important; }
-#<?php echo $drm_id; ?> .delice-modern-section         { display: block !important; overflow: hidden !important; margin-bottom: 20px !important; border-radius: 12px !important; }
-/* ── Two-column layout: ingredients (left) + instructions (right) ── */
+#<?php echo $drm_id; ?> .delice-modern-body            { padding: 28px 24px !important; background: #fafaf9 !important; }
+#<?php echo $drm_id; ?> .delice-modern-section         { display: block !important; overflow: hidden !important; margin-bottom: 20px !important; border-radius: 12px !important; border: 1px solid #e7e5e4 !important; background: #fff !important; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04) !important; }
+/* ── Two-column layout ── */
 #<?php echo $drm_id; ?> .delice-modern-cols            { display: grid !important; grid-template-columns: 5fr 7fr !important; gap: 20px !important; margin-bottom: 20px !important; align-items: start !important; }
 #<?php echo $drm_id; ?> .delice-modern-cols .delice-modern-section { margin-bottom: 0 !important; }
-#<?php echo $drm_id; ?> .delice-modern-section-header  { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 18px 20px 14px !important; margin: 0 !important; }
-#<?php echo $drm_id; ?> .delice-modern-section-title   { display: flex !important; align-items: center !important; gap: 10px !important; padding: 18px 20px 14px !important; margin: 0 !important; }
+
+/* Section-type top border */
+#<?php echo $drm_id; ?> .delice-modern-section--ingredients { border-top: 3px solid #2d6a4f !important; }
+#<?php echo $drm_id; ?> .delice-modern-section--instructions { border-top: 3px solid #2d6a4f !important; }
+#<?php echo $drm_id; ?> .delice-modern-section--notes        { border-top: 3px solid #a3a3a3 !important; }
+#<?php echo $drm_id; ?> .delice-modern-section--nutrition    { border-top: 3px solid #16a34a !important; }
+#<?php echo $drm_id; ?> .delice-modern-section--faqs         { border-top: 3px solid #7c3aed !important; }
+
+#<?php echo $drm_id; ?> .delice-modern-section-header  { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 16px 20px 12px !important; margin: 0 !important; border-bottom: 1px solid #f5f5f4 !important; background: #fff !important; }
+#<?php echo $drm_id; ?> .delice-modern-section-title   { display: flex !important; align-items: center !important; gap: 10px !important; padding: 16px 20px 12px !important; margin: 0 !important; font-size: .95rem !important; font-weight: 700 !important; color: #1c1917 !important; border-bottom: 1px solid #f5f5f4 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section-header .delice-modern-section-title { padding: 0 !important; border-bottom: none !important; }
-#<?php echo $drm_id; ?> .delice-modern-section-icon    { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 32px !important; height: 32px !important; min-width: 32px !important; border-radius: 8px !important; }
-#<?php echo $drm_id; ?> .delice-modern-copy-btn        { display: inline-flex !important; align-items: center !important; gap: 5px !important; padding: 5px 10px !important; border-radius: 6px !important; white-space: nowrap !important; flex-shrink: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-section-icon    { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 30px !important; height: 30px !important; min-width: 30px !important; border-radius: 8px !important; background: #d8f3dc !important; }
+#<?php echo $drm_id; ?> .delice-modern-section-icon svg { stroke: #2d6a4f !important; width: 16px !important; height: 16px !important; }
+#<?php echo $drm_id; ?> .delice-modern-copy-btn        { display: inline-flex !important; align-items: center !important; gap: 5px !important; padding: 5px 10px !important; border-radius: 6px !important; white-space: nowrap !important; flex-shrink: 0 !important; font-size: .74rem !important; font-weight: 600 !important; color: #40916c !important; background: rgba(45,106,79,.07) !important; border: 1.5px solid rgba(45,106,79,.2) !important; }
+#<?php echo $drm_id; ?> .delice-modern-copy-btn:hover  { background: #2d6a4f !important; color: #fff !important; border-color: #2d6a4f !important; }
 
-/* ── Ingredients (re-declare padding after global li reset) ── */
-#<?php echo $drm_id; ?> .delice-modern-ingredients-list { list-style: none !important; padding: 8px 0 12px !important; margin: 0 !important; }
-#<?php echo $drm_id; ?> .delice-modern-ingredient      { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; padding: 9px 20px !important; margin: 0 !important; border: none !important; border-bottom: 1px solid #f8fafc !important; background: none !important; }
+/* ── Ingredients ── */
+#<?php echo $drm_id; ?> .delice-modern-ingredients-list { list-style: none !important; padding: 6px 0 10px !important; margin: 0 !important; }
+#<?php echo $drm_id; ?> .delice-modern-ingredient      { display: flex !important; align-items: flex-start !important; justify-content: space-between !important; gap: 10px !important; padding: 9px 20px !important; margin: 0 !important; border: none !important; border-bottom: 1px solid #f5f5f4 !important; background: none !important; }
 #<?php echo $drm_id; ?> .delice-modern-ingredient:last-child { border-bottom: none !important; }
-#<?php echo $drm_id; ?> .delice-modern-ingredient-label{ display: flex !important; align-items: center !important; gap: 10px !important; flex: 1 !important; min-width: 0 !important; cursor: pointer !important; }
+#<?php echo $drm_id; ?> .delice-modern-ingredient-label { display: flex !important; align-items: flex-start !important; gap: 10px !important; flex: 1 !important; min-width: 0 !important; cursor: pointer !important; }
 #<?php echo $drm_id; ?> .delice-recipe-ingredient-checkbox { position: absolute !important; opacity: 0 !important; width: 0 !important; height: 0 !important; pointer-events: none !important; }
-#<?php echo $drm_id; ?> .delice-modern-checkbox-mark   { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 20px !important; height: 20px !important; min-width: 20px !important; border-radius: 5px !important; }
-#<?php echo $drm_id; ?> .delice-modern-ingredient-name { line-height: 1.4 !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-#<?php echo $drm_id; ?> .delice-modern-ingredient-qty  { white-space: nowrap !important; flex-shrink: 0 !important; border-radius: 5px !important; padding: 3px 8px !important; }
+#<?php echo $drm_id; ?> .delice-modern-checkbox-mark   { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 18px !important; height: 18px !important; min-width: 18px !important; border-radius: 4px !important; border: 2px solid #d6d3d1 !important; background: #fff !important; margin-top: 1px !important; }
+/* ingredient name: wrap, no truncation */
+#<?php echo $drm_id; ?> .delice-modern-ingredient-name { font-size: 14px !important; font-weight: 500 !important; color: #44403c !important; line-height: 1.45 !important; overflow: visible !important; text-overflow: unset !important; white-space: normal !important; word-break: break-word !important; }
+/* ingredient qty: soft green pill */
+#<?php echo $drm_id; ?> .delice-modern-ingredient-qty  { font-size: 12px !important; font-weight: 600 !important; color: #2d6a4f !important; background: #d8f3dc !important; border: 1px solid rgba(45,106,79,.22) !important; white-space: nowrap !important; flex-shrink: 0 !important; border-radius: 20px !important; padding: 3px 9px !important; margin-top: 1px !important; line-height: 1.5 !important; }
 
-/* ── Steps (re-declare padding after global li reset) ── */
-#<?php echo $drm_id; ?> .delice-modern-steps           { list-style: none !important; margin: 0 !important; padding: 12px 20px 20px !important; }
-#<?php echo $drm_id; ?> .delice-modern-step            { display: flex !important; align-items: flex-start !important; gap: 16px !important; padding: 14px 0 !important; margin: 0 !important; border: none !important; border-bottom: 1px dashed #f8fafc !important; background: none !important; }
+/* ── Steps ── */
+#<?php echo $drm_id; ?> .delice-modern-steps           { list-style: none !important; margin: 0 !important; padding: 10px 20px 20px !important; background: #fff !important; }
+#<?php echo $drm_id; ?> .delice-modern-step            { display: flex !important; align-items: flex-start !important; gap: 14px !important; padding: 12px 0 !important; margin: 0 !important; border: none !important; border-bottom: 1px solid #f5f5f4 !important; background: none !important; }
 #<?php echo $drm_id; ?> .delice-modern-step:last-child { border-bottom: none !important; padding-bottom: 4px !important; }
-#<?php echo $drm_id; ?> .delice-modern-step-num        { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 36px !important; height: 36px !important; min-width: 36px !important; border-radius: 50% !important; }
+/* step number: forest green circle */
+#<?php echo $drm_id; ?> .delice-modern-step-num        { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 32px !important; height: 32px !important; min-width: 32px !important; border-radius: 50% !important; background: #2d6a4f !important; color: #fff !important; font-size: 13px !important; font-weight: 800 !important; margin-top: 2px !important; box-shadow: none !important; }
 #<?php echo $drm_id; ?> .delice-modern-step-body       { flex: 1 !important; min-width: 0 !important; }
-#<?php echo $drm_id; ?> .delice-modern-step-text       { margin: 0 !important; line-height: 1.7 !important; }
+#<?php echo $drm_id; ?> .delice-modern-step-text       { margin: 0 !important; line-height: 1.7 !important; font-size: 14px !important; color: #44403c !important; padding-top: 5px !important; }
 
 /* ── Nutrition ── */
-#<?php echo $drm_id; ?> .delice-modern-nutrition-grid  { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important; gap: 1px !important; background: #e9ecef !important; }
+#<?php echo $drm_id; ?> .delice-modern-nutrition-grid  { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important; gap: 1px !important; background: #e7e5e4 !important; }
 #<?php echo $drm_id; ?> .delice-modern-nutrient        { display: flex !important; flex-direction: column !important; align-items: center !important; padding: 14px 10px !important; text-align: center !important; gap: 3px !important; background: #fff !important; }
 #<?php echo $drm_id; ?> .delice-recipe-nutrition-disclaimer { padding: 10px 20px 14px !important; }
 
 /* ── FAQs ── */
-#<?php echo $drm_id; ?> .delice-modern-faq-question    { display: flex !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 12px !important; padding: 14px 20px !important; background: none !important; border: none !important; text-align: left !important; color: #1a1a1a !important; }
-#<?php echo $drm_id; ?> .delice-modern-faq-icon        { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 28px !important; height: 28px !important; min-width: 28px !important; border-radius: 50% !important; background: #f0f0f0 !important; transition: background 0.2s, transform 0.25s !important; }
-#<?php echo $drm_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-modern-faq-icon { background: #FF6B35 !important; transform: rotate(180deg) !important; }
-#<?php echo $drm_id; ?> .delice-modern-faq-icon svg    { width: 14px !important; height: 14px !important; stroke: #555 !important; }
+#<?php echo $drm_id; ?> .delice-modern-faq-question    { display: flex !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; gap: 12px !important; padding: 14px 20px !important; background: none !important; border: none !important; text-align: left !important; color: #1c1917 !important; font-size: .9rem !important; font-weight: 600 !important; }
+#<?php echo $drm_id; ?> .delice-modern-faq-icon        { display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 26px !important; height: 26px !important; min-width: 26px !important; border-radius: 50% !important; background: #f5f5f4 !important; transition: background 0.2s, transform 0.25s !important; }
+#<?php echo $drm_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-modern-faq-icon { background: #2d6a4f !important; transform: rotate(180deg) !important; }
+#<?php echo $drm_id; ?> .delice-modern-faq-icon svg    { width: 13px !important; height: 13px !important; stroke: #78716c !important; }
 #<?php echo $drm_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-modern-faq-icon svg { stroke: #fff !important; }
-/* FAQ accordion — display controlled by JS (style.setProperty) — CSS here is a fallback */
 #<?php echo $drm_id; ?> .delice-recipe-modern-faq-answer { display: none !important; overflow: hidden !important; }
 #<?php echo $drm_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; overflow: visible !important; }
 #<?php echo $drm_id; ?> .delice-modern-faq-answer      { padding: 0 20px 16px !important; }
 
-/* ── Semantic elements (theme styles footer/section/article directly) ── */
-#<?php echo $drm_id; ?> footer.delice-modern-footer    { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; padding: 16px 24px !important; margin: 0 !important; border-top: none !important; }
-#<?php echo $drm_id; ?> .delice-modern-footer-tag      { display: inline-flex !important; align-items: center !important; gap: 6px !important; border-radius: 20px !important; padding: 5px 12px !important; white-space: nowrap !important; }
-#<?php echo $drm_id; ?> section.delice-modern-reviews  { margin: 24px 0 0 !important; padding: 0 !important; border: none !important; display: block !important; overflow: hidden !important; border-radius: 12px !important; }
+/* ── Footer & reviews ── */
+#<?php echo $drm_id; ?> footer.delice-modern-footer    { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; padding: 14px 24px !important; margin: 0 !important; background: #f0fdf4 !important; border-top: 1px solid rgba(45,106,79,.15) !important; }
+#<?php echo $drm_id; ?> .delice-modern-footer-tag      { display: inline-flex !important; align-items: center !important; gap: 6px !important; border-radius: 20px !important; padding: 4px 10px !important; white-space: nowrap !important; font-size: .72rem !important; font-weight: 600 !important; color: #2d6a4f !important; background: rgba(45,106,79,.08) !important; border: 1px solid rgba(45,106,79,.18) !important; }
+#<?php echo $drm_id; ?> section.delice-modern-reviews  { margin: 24px 0 0 !important; padding: 0 !important; border: 1px solid #e7e5e4 !important; display: block !important; overflow: hidden !important; border-radius: 12px !important; background: #fff !important; }
 #<?php echo $drm_id; ?> .delice-modern-review-form     { display: flex !important; flex-direction: column !important; gap: 16px !important; padding: 16px 28px 24px !important; }
-#<?php echo $drm_id; ?> .delice-modern-submit-btn      { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; border-radius: 8px !important; padding: 13px 28px !important; }
+#<?php echo $drm_id; ?> .delice-modern-submit-btn      { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; border-radius: 8px !important; padding: 12px 28px !important; background: #2d6a4f !important; color: #fff !important; border: none !important; font-weight: 700 !important; box-shadow: 0 4px 12px rgba(45,106,79,.28) !important; }
 
 /* ── Responsive ── */
 @media (max-width: 680px) {
@@ -149,182 +163,6 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
     #<?php echo $drm_id; ?> .delice-modern-actions  { width: 100% !important; justify-content: flex-start !important; }
     #<?php echo $drm_id; ?> .delice-modern-body     { padding: 16px !important; }
     #<?php echo $drm_id; ?> .delice-modern-cols     { grid-template-columns: 1fr !important; gap: 16px !important; }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   EDITORIAL BOLD DESIGN — Modern Template
-   Dark headers · high-contrast · magazine editorial aesthetic
-   ══════════════════════════════════════════════════════════════ */
-
-/* ── Section cards: sharp edge with left accent ── */
-#<?php echo $drm_id; ?> .delice-modern-section {
-    border-radius: 10px !important;
-    border: none !important;
-    box-shadow: 0 3px 16px rgba(0,0,0,.10) !important;
-    overflow: hidden !important;
-}
-
-/* ── Ingredients section: dark charcoal header ── */
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-header {
-    background: #1e293b !important;
-    padding: 16px 20px 14px !important;
-    border-bottom: 3px solid #f97316 !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-title {
-    color: #fff !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    letter-spacing: .04em !important;
-    text-transform: uppercase !important;
-    padding: 0 !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-icon {
-    background: rgba(249,115,22,.25) !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-section-icon svg {
-    stroke: #f97316 !important;
-}
-
-/* ── Instructions section: dark navy header ── */
-#<?php echo $drm_id; ?> .delice-modern-section--instructions .delice-modern-section-title {
-    background: #0f172a !important;
-    padding: 16px 20px !important;
-    color: #fff !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    letter-spacing: .04em !important;
-    text-transform: uppercase !important;
-    border-bottom: 3px solid #0ea5e9 !important;
-    margin: 0 !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--instructions .delice-modern-section-icon {
-    background: rgba(14,165,233,.25) !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--instructions .delice-modern-section-icon svg {
-    stroke: #7dd3fc !important;
-}
-
-/* ── Servings control on dark bg: white text ── */
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-control {
-    border-color: rgba(255,255,255,.3) !important;
-    background: rgba(255,255,255,.1) !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-btn {
-    color: #fdba74 !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-btn:hover:not(:disabled) {
-    background: #f97316 !important;
-    color: #fff !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-value {
-    color: #fff !important;
-    font-weight: 700 !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-servings-label {
-    color: rgba(255,255,255,.7) !important;
-}
-
-/* ── Copy button on dark bg ── */
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-copy-btn {
-    background: rgba(249,115,22,.2) !important;
-    color: #fdba74 !important;
-    border: 1px solid rgba(249,115,22,.4) !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-section--ingredients .delice-modern-copy-btn:hover {
-    background: #f97316 !important;
-    color: #fff !important;
-    border-color: #f97316 !important;
-}
-
-/* ── Ingredient list: clean white bg, alternating rows ── */
-#<?php echo $drm_id; ?> .delice-modern-ingredients-list {
-    padding: 4px 0 8px !important;
-    background: #fff !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-ingredient {
-    padding: 10px 18px !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-    gap: 10px !important;
-    align-items: center !important;
-    background: #fff !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-ingredient:nth-child(even) {
-    background: #f8fafc !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-ingredient:last-child {
-    border-bottom: none !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-ingredient-label {
-    gap: 9px !important;
-}
-
-/* ── Ingredient quantity: bold orange badge ── */
-#<?php echo $drm_id; ?> .delice-modern-ingredient-qty {
-    background: #f97316 !important;
-    color: #fff !important;
-    font-size: 11.5px !important;
-    font-weight: 700 !important;
-    padding: 4px 10px !important;
-    border-radius: 20px !important;
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
-    line-height: 1.5 !important;
-}
-
-/* ── Ingredient name: medium weight dark ── */
-#<?php echo $drm_id; ?> .delice-modern-ingredient-name {
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #1e293b !important;
-    line-height: 1.4 !important;
-}
-
-/* ── Checkbox mark: orange square indicator ── */
-#<?php echo $drm_id; ?> .delice-modern-checkbox-mark {
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    border: 2px solid #cbd5e1 !important;
-    border-radius: 4px !important;
-    background: #fff !important;
-    flex-shrink: 0 !important;
-    transition: background .15s, border-color .15s !important;
-}
-
-/* ── Instruction steps: white bg, bold numbered cards ── */
-#<?php echo $drm_id; ?> .delice-modern-steps {
-    background: #fff !important;
-    padding: 8px 20px 20px !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-step {
-    padding: 14px 0 !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-    gap: 16px !important;
-    background: none !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-step:last-child {
-    border-bottom: none !important;
-    padding-bottom: 6px !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-step-num {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    background: #0f172a !important;
-    color: #7dd3fc !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 900 !important;
-    font-style: italic !important;
-    letter-spacing: -.02em !important;
-    box-shadow: none !important;
-}
-#<?php echo $drm_id; ?> .delice-modern-step-text {
-    font-size: 14px !important;
-    line-height: 1.7 !important;
-    color: #334155 !important;
 }
 </style>
 <?php
