@@ -94,10 +94,6 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 /* ── Body & sections ── */
 #<?php echo $drm_id; ?> .delice-modern-body            { padding: 28px 24px !important; background: #fafaf9 !important; }
 #<?php echo $drm_id; ?> .delice-modern-section         { display: block !important; overflow: hidden !important; margin-bottom: 20px !important; border-radius: 12px !important; border: 1px solid #e7e5e4 !important; background: #fff !important; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04) !important; }
-/* ── Two-column layout ── */
-#<?php echo $drm_id; ?> .delice-modern-cols            { display: grid !important; grid-template-columns: 5fr 7fr !important; gap: 20px !important; margin-bottom: 20px !important; align-items: start !important; }
-#<?php echo $drm_id; ?> .delice-modern-cols .delice-modern-section { margin-bottom: 0 !important; }
-
 /* Section-type top border */
 #<?php echo $drm_id; ?> .delice-modern-section--ingredients { border-top: 3px solid #2d6a4f !important; }
 #<?php echo $drm_id; ?> .delice-modern-section--instructions { border-top: 3px solid #2d6a4f !important; }
@@ -162,7 +158,6 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
     #<?php echo $drm_id; ?> .delice-modern-toolbar  { flex-direction: column !important; align-items: flex-start !important; padding: 12px 16px !important; }
     #<?php echo $drm_id; ?> .delice-modern-actions  { width: 100% !important; justify-content: flex-start !important; }
     #<?php echo $drm_id; ?> .delice-modern-body     { padding: 16px !important; }
-    #<?php echo $drm_id; ?> .delice-modern-cols     { grid-template-columns: 1fr !important; gap: 16px !important; }
 }
 </style>
 <?php
@@ -459,7 +454,6 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
         $has_ing  = ! empty( $ingredients );
         $has_inst = ! empty( $instructions );
-        $two_col  = $has_ing && $has_inst;
         ?>
 
         <!-- ── Equipment — v3.9.17 ──────────────────────────────────────────── -->
@@ -551,8 +545,6 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         </div>
         <?php endif; endif; ?>
 
-        <?php if ( $two_col ) echo '<div class="delice-modern-cols">'; ?>
-
         <!-- ── Ingredients ───────────────────────────────────────────────────── -->
         <?php if ( $has_ing ) : ?>
             <div class="delice-modern-section delice-modern-section--ingredients">
@@ -642,8 +634,6 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 </ol>
             </div>
         <?php endif; ?>
-
-        <?php if ( $two_col ) echo '</div><!-- /.delice-modern-cols -->'; ?>
 
         <!-- ── Nutrition ──────────────────────────────────────────────────────── -->
         <?php if ( ! empty( $nutrition ) && ( ! isset( $display_options['show_nutrition'] ) || $display_options['show_nutrition'] ) ) : ?>
