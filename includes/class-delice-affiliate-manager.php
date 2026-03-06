@@ -340,8 +340,10 @@ class Delice_Affiliate_Manager {
         $show_store = ! empty( $settings['show_store_name'] );
         $rel        = esc_attr( self::LINK_REL );
 
-        // Shopping-cart chip icon (14×14).
-        $svg = '<svg class="delice-buy-chip-icon" viewBox="0 0 14 14" fill="none"'
+        // Shopping-cart chip icon (14×14). Explicit width/height attributes are
+        // required so the icon renders at 13 px even when theme ID-scoped SVG
+        // rules override the external CSS (.delice-buy-chip-icon { width:13px }).
+        $svg = '<svg class="delice-buy-chip-icon" width="13" height="13" viewBox="0 0 14 14" fill="none"'
              . ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round"'
              . ' stroke-linejoin="round" aria-hidden="true">'
              . '<path d="M1 1.5h2l1.6 6.5h6.3l1.6-5H4.3"/>'

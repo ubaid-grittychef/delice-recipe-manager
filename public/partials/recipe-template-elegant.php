@@ -150,6 +150,23 @@ $dre_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 #<?php echo $dre_id; ?> .delice-elegant-ingredient-name { line-height: 1.4 !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 #<?php echo $dre_id; ?> .delice-elegant-ingredient-qty { white-space: nowrap !important; flex-shrink: 0 !important; border-radius: 4px !important; padding: 2px 8px !important; }
 
+/* ── Affiliate buy-chip: lock icon to 13 px regardless of theme SVG rules ── */
+#<?php echo $dre_id; ?> .delice-buy-chip-icon          { width: 13px !important; height: 13px !important; min-width: 13px !important; max-width: 13px !important; flex-shrink: 0 !important; }
+#<?php echo $dre_id; ?> .delice-buy-chip               { display: inline-flex !important; align-items: center !important; gap: 4px !important; padding: 3px 9px 3px 7px !important; border-radius: 20px !important; border: 1.5px solid currentColor !important; font-size: 11px !important; font-weight: 600 !important; line-height: 1.4 !important; white-space: nowrap !important; text-decoration: none !important; flex-shrink: 0 !important; }
+#<?php echo $dre_id; ?> .delice-buy-chips              { display: inline-flex !important; flex-wrap: wrap !important; gap: 5px !important; align-items: center !important; flex-shrink: 0 !important; }
+
+/* ── Linked ingredient row: name on row 1, qty+chip on row 2 ─────────────────
+ * In the 2-column grid each cell is ~50 % wide. A long qty badge ("1 medium,
+ * finely chopped") plus the chip together overflow that width and get clipped
+ * by overflow:hidden on the list container.  Wrapping the inner label to 100 %
+ * and then letting qty + chip sit on a second line fixes the overflow cleanly.
+ * ── */
+#<?php echo $dre_id; ?> .delice-recipe-ingredient--linked                            { flex-wrap: wrap !important; row-gap: 4px !important; }
+#<?php echo $dre_id; ?> .delice-recipe-ingredient--linked .delice-elegant-ingredient-inner { flex: 1 1 100% !important; min-width: 0 !important; }
+#<?php echo $dre_id; ?> .delice-recipe-ingredient--linked .delice-elegant-ingredient-qty   { flex: 1 0 auto !important; }
+#<?php echo $dre_id; ?> .delice-recipe-ingredient--linked .delice-buy-chip,
+#<?php echo $dre_id; ?> .delice-recipe-ingredient--linked .delice-buy-chips                { flex-shrink: 0 !important; margin-left: auto !important; }
+
 /* ── Steps (re-declare after global li reset) ── */
 #<?php echo $dre_id; ?> .delice-elegant-steps          { list-style: none !important; display: flex !important; flex-direction: column !important; gap: 20px !important; margin: 0 !important; padding: 0 !important; }
 #<?php echo $dre_id; ?> .delice-elegant-step           { display: flex !important; align-items: flex-start !important; gap: 18px !important; padding: 0 !important; margin: 0 !important; border: none !important; background: none !important; }
