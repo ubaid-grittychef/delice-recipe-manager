@@ -424,6 +424,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   <!-- Action Buttons - Properly positioned after image -->
   <div class="delice-recipe-action-buttons">
     <!-- Print Button -->
+    <?php if ( ! isset( $display_options['show_print'] ) || $display_options['show_print'] ) : ?>
     <button class="delice-recipe-print-btn delice-recipe-action-button">
       <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
         <polyline points="6,9 6,2 18,2 18,9"></polyline>
@@ -432,8 +433,10 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       </svg>
       <span class="delice-recipe-action-button-text"><?php echo esc_html( $lang_texts['print'] ); ?></span>
     </button>
+    <?php endif; ?>
 
     <!-- Share Button with dropdown -->
+    <?php if ( ! isset( $display_options['show_share'] ) || $display_options['show_share'] ) : ?>
     <div class="delice-recipe-share-dropdown">
       <button class="delice-recipe-share-btn delice-recipe-action-button">
         <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
@@ -481,6 +484,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         </a>
       </div>
     </div>
+    <?php endif; ?>
 
     <!-- Rate Button -->
     <?php if ($reviews_enabled) : ?>
@@ -535,31 +539,31 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       );
       ?>
       
-      <?php if ( $servings ) : ?>
+      <?php if ( $servings && ( ! isset( $display_options['show_servings'] ) || $display_options['show_servings'] ) ) : ?>
         <div class="delice-recipe-meta-item servings">
           <span class="delice-recipe-meta-label"><?php echo esc_html( $lang_texts['servings'] ); ?>:</span>
           <span class="delice-recipe-meta-value"><?php echo esc_html( $servings ); ?></span>
         </div>
       <?php endif; ?>
-      <?php if ( $prep_time ) : ?>
+      <?php if ( $prep_time && ( ! isset( $display_options['show_prep_time'] ) || $display_options['show_prep_time'] ) ) : ?>
         <div class="delice-recipe-meta-item prep-time">
           <span class="delice-recipe-meta-label"><?php echo esc_html( $lang_texts['prep_time'] ); ?>:</span>
           <span class="delice-recipe-meta-value"><?php echo esc_html( $prep_time ); ?> <?php echo esc_html( $lang_texts['min'] ); ?></span>
         </div>
       <?php endif; ?>
-      <?php if ( $cook_time ) : ?>
+      <?php if ( $cook_time && ( ! isset( $display_options['show_cook_time'] ) || $display_options['show_cook_time'] ) ) : ?>
         <div class="delice-recipe-meta-item cook-time">
           <span class="delice-recipe-meta-label"><?php echo esc_html( $lang_texts['cook_time'] ); ?>:</span>
           <span class="delice-recipe-meta-value"><?php echo esc_html( $cook_time ); ?> <?php echo esc_html( $lang_texts['min'] ); ?></span>
         </div>
       <?php endif; ?>
-      <?php if ( $total_time ) : ?>
+      <?php if ( $total_time && ( ! isset( $display_options['show_total_time'] ) || $display_options['show_total_time'] ) ) : ?>
         <div class="delice-recipe-meta-item total-time">
           <span class="delice-recipe-meta-label"><?php echo esc_html( $lang_texts['total_time'] ); ?>:</span>
           <span class="delice-recipe-meta-value"><?php echo esc_html( $total_time ); ?> <?php echo esc_html( $lang_texts['min'] ); ?></span>
         </div>
       <?php endif; ?>
-      <?php if ( $calories ) : ?>
+      <?php if ( $calories && ( ! isset( $display_options['show_calories'] ) || $display_options['show_calories'] ) ) : ?>
         <div class="delice-recipe-meta-item calories">
           <span class="delice-recipe-meta-label"><?php echo esc_html( $lang_texts['calories'] ); ?>:</span>
           <span class="delice-recipe-meta-value"><?php echo esc_html( $calories ); ?> kcal</span>
@@ -567,12 +571,11 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       <?php endif; ?>
 
       <!-- Difficulty with colored border -->
-      <?php if ( $difficulty ) :
+      <?php if ( $difficulty && ( ! isset( $display_options['show_difficulty'] ) || $display_options['show_difficulty'] ) ) :
         $color = esc_attr( $difficulty_colors[ $difficulty ] ?? '#000' );
         $label = esc_html( $difficulty_labels[ $difficulty ] ?? ucfirst( $difficulty ) );
       ?>
-        <div class="delice-recipe-meta-item"
-            >
+        <div class="delice-recipe-meta-item">
           <span class="delice-recipe-meta-label"><?php echo esc_html( $lang_texts['difficulty'] ); ?></span>
           <span class="delice-recipe-meta-value"><?php echo $label; ?></span>
         </div>
@@ -696,7 +699,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   <div id="delice-ingredients-<?php echo $drd_id; ?>" class="delice-recipe-ingredients">
     <div class="delice-recipe-panel-header">
       <h3><?php echo esc_html( $lang_texts['ingredients'] ); ?></h3>
-      <?php if ( $servings ) : ?>
+      <?php if ( $servings && ( ! isset( $display_options['show_servings'] ) || $display_options['show_servings'] ) ) : ?>
       <div class="delice-servings-control" role="group" aria-label="<?php echo esc_attr( $lang_texts['servings'] ); ?>">
         <button class="delice-servings-btn delice-servings-minus" type="button" aria-label="Decrease servings" disabled>−</button>
         <span class="delice-servings-value" data-base="<?php echo esc_attr( intval( $servings ) ); ?>"><?php echo esc_html( intval( $servings ) ); ?></span>
@@ -767,7 +770,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   </div>
 
   <!-- Notes -->
-  <?php if ( ! empty( $notes ) ) : ?>
+  <?php if ( ! empty( $notes ) && ( ! isset( $display_options['show_notes'] ) || $display_options['show_notes'] ) ) : ?>
     <div class="delice-recipe-notes">
       <h4><?php echo esc_html( $lang_texts['notes'] ); ?></h4>
       <p><?php echo esc_html( $notes ); ?></p>
@@ -790,14 +793,12 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
           </div>
         <?php endforeach; ?>
       </div>
-      <?php if ( ! isset( $display_options['show_nutrition_disclaimer'] ) || $display_options['show_nutrition_disclaimer'] ) : ?>
         <p class="delice-recipe-nutrition-disclaimer"><?php echo esc_html( $lang_texts['nutrition_disclaimer'] ); ?></p>
-      <?php endif; ?>
     </section>
   <?php endif; ?>
 
   <!-- FAQs Section with fixed structure for JavaScript -->
-  <?php if ( ! empty( $faqs ) && is_array( $faqs ) ) : ?>
+  <?php if ( ! empty( $faqs ) && is_array( $faqs ) && ( ! isset( $display_options['show_faqs'] ) || $display_options['show_faqs'] ) ) : ?>
     <section class="delice-recipe-faqs">
       <h2 class="delice-recipe-faqs-title">
         <?php printf( esc_html__( 'FAQ for %s', 'delice-recipe-manager' ), get_the_title( $recipe_id ) ); ?>
