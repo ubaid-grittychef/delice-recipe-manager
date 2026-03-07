@@ -44,8 +44,6 @@ $display_defaults = array(
     'show_difficulty'          => true,
     'show_rating'              => true,
     'show_nutrition'           => true,
-    'show_ingredients'         => true,
-    'show_instructions'        => true,
     'show_notes'               => true,
     'show_faqs'                => true,
     'show_equipment'           => true,
@@ -56,7 +54,6 @@ $display_defaults = array(
     'show_dietary_badges'      => true,
     'show_breadcrumb'          => true,
     'show_related_recipes'     => true,
-    'show_nutrition_disclaimer' => true,
     'show_last_updated'        => true,
     'show_og_meta'             => true,
 );
@@ -472,10 +469,7 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                     <hr class="drm-section-divider" style="margin:14px 0;">
                     <p style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#8c8f94;margin:0 0 6px;"><?php esc_html_e( 'Content Sections', 'delice-recipe-manager' ); ?></p>
                     <div class="drm-toggle-grid">
-                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_ingredients]"  value="1" <?php checked( ! empty( $display_options['show_ingredients'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Ingredients', 'delice-recipe-manager' ); ?></label>
-                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_instructions]" value="1" <?php checked( ! empty( $display_options['show_instructions'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Instructions', 'delice-recipe-manager' ); ?></label>
                         <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_nutrition]"    value="1" <?php checked( ! empty( $display_options['show_nutrition'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Nutrition panel', 'delice-recipe-manager' ); ?></label>
-                        <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_nutrition_disclaimer]" value="1" <?php checked( ! empty( $display_options['show_nutrition_disclaimer'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Nutrition disclaimer text', 'delice-recipe-manager' ); ?></label>
                         <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_notes]"        value="1" <?php checked( ! empty( $display_options['show_notes'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Chef notes', 'delice-recipe-manager' ); ?></label>
                         <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_faqs]"         value="1" <?php checked( ! empty( $display_options['show_faqs'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'FAQ section', 'delice-recipe-manager' ); ?></label>
                         <label class="drm-toggle-item"><span class="drm-sw"><input type="checkbox" name="delice_recipe_display_options[show_equipment]"    value="1" <?php checked( ! empty( $display_options['show_equipment'] ) ); ?>><span class="drm-sw-slider"></span></span><?php esc_html_e( 'Equipment section', 'delice-recipe-manager' ); ?></label>

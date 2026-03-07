@@ -221,17 +221,13 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php endif; ?>
 
         <div class="delice-modern-hero-content">
-            <a href="#delice-ingredients-<?php echo $drm_id; ?>" class="delice-recipe-jump-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                <?php esc_html_e( 'Jump to Recipe', 'delice-recipe-manager' ); ?>
-            </a>
             <?php if ( ! $hide_title ) : ?>
                 <h2 class="delice-modern-title"><?php echo esc_html( $recipe_title ); ?></h2>
             <?php endif; ?>
 
             <!-- Quick meta badges -->
             <div class="delice-modern-meta-badges">
-                <?php if ( $prep_time ) : ?>
+                <?php if ( $prep_time && ( ! isset( $display_options['show_prep_time'] ) || $display_options['show_prep_time'] ) ) : ?>
                     <div class="delice-modern-badge">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"/>
@@ -242,7 +238,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                     </div>
                 <?php endif; ?>
 
-                <?php if ( $cook_time ) : ?>
+                <?php if ( $cook_time && ( ! isset( $display_options['show_cook_time'] ) || $display_options['show_cook_time'] ) ) : ?>
                     <div class="delice-modern-badge">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path d="M3 11l19-9-9 19-2-8-8-2z"/>
@@ -252,7 +248,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                     </div>
                 <?php endif; ?>
 
-                <?php if ( $total_time ) : ?>
+                <?php if ( $total_time && ( ! isset( $display_options['show_total_time'] ) || $display_options['show_total_time'] ) ) : ?>
                     <div class="delice-modern-badge delice-modern-badge--total">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"/>
@@ -263,7 +259,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                     </div>
                 <?php endif; ?>
 
-                <?php if ( $servings ) : ?>
+                <?php if ( $servings && ( ! isset( $display_options['show_servings'] ) || $display_options['show_servings'] ) ) : ?>
                     <div class="delice-modern-badge">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -275,7 +271,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                     </div>
                 <?php endif; ?>
 
-                <?php if ( $calories ) : ?>
+                <?php if ( $calories && ( ! isset( $display_options['show_calories'] ) || $display_options['show_calories'] ) ) : ?>
                     <div class="delice-modern-badge">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -285,7 +281,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                     </div>
                 <?php endif; ?>
 
-                <?php if ( $difficulty ) : ?>
+                <?php if ( $difficulty && ( ! isset( $display_options['show_difficulty'] ) || $display_options['show_difficulty'] ) ) : ?>
                     <div class="delice-modern-badge delice-modern-badge--difficulty" data-difficulty="<?php echo esc_attr( $difficulty ); ?>">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -363,6 +359,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
         <!-- Action buttons -->
         <div class="delice-modern-actions">
+            <?php if ( ! isset( $display_options['show_print'] ) || $display_options['show_print'] ) : ?>
             <button class="delice-recipe-print-btn delice-modern-action-btn" type="button" aria-label="<?php esc_attr_e( 'Print recipe', 'delice-recipe-manager' ); ?>">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <polyline points="6,9 6,2 18,2 18,9"/>
@@ -371,7 +368,9 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 </svg>
                 <span><?php echo esc_html( $lang_texts['print'] ); ?></span>
             </button>
+            <?php endif; ?>
 
+            <?php if ( ! isset( $display_options['show_share'] ) || $display_options['show_share'] ) : ?>
             <div class="delice-recipe-share-dropdown delice-modern-share-wrap">
                 <button class="delice-recipe-share-btn delice-modern-action-btn" type="button" aria-label="<?php esc_attr_e( 'Share recipe', 'delice-recipe-manager' ); ?>">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -406,6 +405,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                     </a>
                 </div>
             </div><!-- /.delice-recipe-share-dropdown -->
+            <?php endif; ?>
 
             <?php if ( $reviews_enabled ) : ?>
                 <button class="delice-recipe-rate-btn delice-modern-action-btn delice-modern-action-btn--rate" type="button" data-action="open-rating-modal" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>" aria-label="<?php esc_attr_e( 'Rate this recipe', 'delice-recipe-manager' ); ?>">
@@ -566,7 +566,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                         <?php echo esc_html( $lang_texts['ingredients'] ); ?>
                     </h3>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <?php if ( $servings ) : ?>
+                    <?php if ( $servings && ( ! isset( $display_options['show_servings'] ) || $display_options['show_servings'] ) ) : ?>
                     <div class="delice-servings-control" role="group" aria-label="<?php echo esc_attr( $lang_texts['servings'] ); ?>">
                         <button class="delice-servings-btn delice-servings-minus" type="button" aria-label="Decrease servings" disabled>−</button>
                         <span class="delice-servings-value" data-base="<?php echo esc_attr( intval( $servings ) ); ?>"><?php echo esc_html( intval( $servings ) ); ?></span>
@@ -677,14 +677,12 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <?php if ( ! isset( $display_options['show_nutrition_disclaimer'] ) || $display_options['show_nutrition_disclaimer'] ) : ?>
-                    <p class="delice-recipe-nutrition-disclaimer"><?php echo esc_html( $lang_texts['nutrition_disclaimer'] ); ?></p>
-                <?php endif; ?>
+                <p class="delice-recipe-nutrition-disclaimer"><?php echo esc_html( $lang_texts['nutrition_disclaimer'] ); ?></p>
             </div>
         <?php endif; ?>
 
         <!-- ── Notes ─────────────────────────────────────────────────────────── -->
-        <?php if ( ! empty( $notes ) ) : ?>
+        <?php if ( ! empty( $notes ) && ( ! isset( $display_options['show_notes'] ) || $display_options['show_notes'] ) ) : ?>
             <div class="delice-modern-section delice-modern-section--notes delice-modern-notes">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
@@ -703,7 +701,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php endif; ?>
 
         <!-- ── FAQs ──────────────────────────────────────────────────────── -->
-        <?php if ( ! empty( $faqs ) ) : ?>
+        <?php if ( ! empty( $faqs ) && ( ! isset( $display_options['show_faqs'] ) || $display_options['show_faqs'] ) ) : ?>
             <div class="delice-modern-section delice-modern-section--faqs delice-modern-faqs">
                 <h3 class="delice-modern-section-title">
                     <span class="delice-modern-section-icon" aria-hidden="true">
