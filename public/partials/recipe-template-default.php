@@ -310,10 +310,6 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 <div id="<?php echo $drd_id; ?>" class="delice-recipe-container" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
   <!-- Header -->
   <header class="delice-recipe-header">
-    <a href="#delice-ingredients-<?php echo $drd_id; ?>" class="delice-recipe-jump-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        <?php esc_html_e( 'Jump to Recipe', 'delice-recipe-manager' ); ?>
-    </a>
     <?php if (!$hide_title) : ?>
       <h2 class="delice-recipe-title"><?php echo esc_html( get_the_title( $recipe_id ) ); ?></h2>
     <?php endif; ?>
