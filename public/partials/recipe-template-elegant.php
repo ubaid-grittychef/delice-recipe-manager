@@ -199,6 +199,10 @@ $dre_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 #<?php echo $dre_id; ?> .delice-elegant-review-form    { display: flex !important; flex-direction: column !important; gap: 18px !important; padding: 24px !important; border-radius: 14px !important; }
 #<?php echo $dre_id; ?> .delice-elegant-submit-btn     { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; border-radius: 24px !important; padding: 13px 32px !important; align-self: center !important; }
 
+/* ── Jump to Recipe ── */
+#<?php echo $dre_id; ?> .delice-recipe-jump-btn { display: inline-flex !important; align-items: center !important; gap: 6px !important; background: #166534 !important; color: #fff !important; border: none !important; border-radius: 20px !important; padding: 8px 18px !important; font-size: 12px !important; font-weight: 700 !important; text-decoration: none !important; margin-bottom: 16px !important; }
+#<?php echo $dre_id; ?> .delice-recipe-jump-btn:hover { background: #14532d !important; color: #fff !important; }
+
 /* ── Share dropdown ── */
 #<?php echo $dre_id; ?> .delice-elegant-share-wrap     { position: relative !important; }
 
@@ -238,6 +242,11 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
     <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
     <header class="delice-elegant-header">
+
+        <a href="#delice-ingredients-<?php echo $dre_id; ?>" class="delice-recipe-jump-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <?php esc_html_e( 'Jump to Recipe', 'delice-recipe-manager' ); ?>
+        </a>
 
         <?php if ( $recipe_excerpt ) : ?>
             <p class="delice-elegant-tagline"><?php echo esc_html( $recipe_excerpt ); ?></p>
@@ -619,7 +628,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         if ( ! $dre_body_first ) echo '<hr class="delice-elegant-divider">';
         $dre_body_first = false;
     ?>
-    <section class="delice-elegant-section delice-elegant-ingredients">
+    <section id="delice-ingredients-<?php echo $dre_id; ?>" class="delice-elegant-section delice-elegant-ingredients">
         <h3 class="delice-elegant-section-title">
             <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
             <?php echo esc_html( $lang_texts['ingredients'] ); ?>

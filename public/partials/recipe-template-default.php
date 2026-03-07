@@ -87,11 +87,6 @@ $is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_rating
 #<?php echo $drd_id; ?> .delice-recipe-modern-faq-answer { display: none !important; }
 #<?php echo $drd_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; }
 
-/* ── Two-column grid: ingredients (left) + instructions (right) ── */
-#<?php echo $drd_id; ?> .delice-recipe-grid { display: grid !important; grid-template-columns: 2fr 3fr !important; gap: 28px !important; margin-bottom: 40px !important; align-items: start !important; }
-#<?php echo $drd_id; ?> .delice-recipe-grid section.delice-recipe-ingredients,
-#<?php echo $drd_id; ?> .delice-recipe-grid section.delice-recipe-instructions { margin: 0 !important; }
-
 /* ── Semantic elements (theme styles header/section/footer directly) ── */
 #<?php echo $drd_id; ?> header.delice-recipe-header { display: block !important; padding: 0 !important; margin: 0 !important; border: none !important; }
 #<?php echo $drd_id; ?> section.delice-recipe-nutrition,
@@ -99,10 +94,9 @@ $is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_rating
 #<?php echo $drd_id; ?> section.delice-recipe-review-section { display: block !important; margin: 0 !important; border: none !important; }
 #<?php echo $drd_id; ?> footer.delice-recipe-footer { display: block !important; margin: 0 !important; border-top: none !important; padding: 12px 0 !important; }
 
-/* ── Responsive grid ── */
-@media (max-width: 768px) {
-    #<?php echo $drd_id; ?> .delice-recipe-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
-}
+/* ── Jump to Recipe button ── */
+#<?php echo $drd_id; ?> .delice-recipe-jump-btn { display: inline-flex !important; align-items: center !important; gap: 6px !important; background: #f97316 !important; color: #fff !important; border: none !important; border-radius: 6px !important; padding: 8px 18px !important; font-size: 13px !important; font-weight: 700 !important; text-decoration: none !important; margin-bottom: 14px !important; }
+#<?php echo $drd_id; ?> .delice-recipe-jump-btn:hover { background: #ea6c0a !important; color: #fff !important; }
 
 /* ══════════════════════════════════════════════════════════════
    CLASSIC COOKBOOK DESIGN — Default Template
@@ -110,6 +104,7 @@ $is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_rating
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Panels: warm cream card ── */
+#<?php echo $drd_id; ?> .delice-recipe-ingredients { margin-bottom: 24px !important; }
 #<?php echo $drd_id; ?> .delice-recipe-ingredients,
 #<?php echo $drd_id; ?> .delice-recipe-instructions {
     background: #fffdf9 !important;
@@ -315,6 +310,10 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 <div id="<?php echo $drd_id; ?>" class="delice-recipe-container" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
   <!-- Header -->
   <header class="delice-recipe-header">
+    <a href="#delice-ingredients-<?php echo $drd_id; ?>" class="delice-recipe-jump-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <?php esc_html_e( 'Jump to Recipe', 'delice-recipe-manager' ); ?>
+    </a>
     <?php if (!$hide_title) : ?>
       <h2 class="delice-recipe-title"><?php echo esc_html( get_the_title( $recipe_id ) ); ?></h2>
     <?php endif; ?>
@@ -697,11 +696,8 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   </div>
   <?php endif; endif; ?>
 
-  <!-- Ingredients + Instructions (two-column grid) -->
-  <div class="delice-recipe-grid">
-
   <!-- Ingredients -->
-  <div class="delice-recipe-ingredients">
+  <div id="delice-ingredients-<?php echo $drd_id; ?>" class="delice-recipe-ingredients">
     <div class="delice-recipe-panel-header">
       <h3><?php echo esc_html( $lang_texts['ingredients'] ); ?></h3>
       <?php if ( $servings ) : ?>
@@ -773,8 +769,6 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       <?php endif; ?>
     </div>
   </div>
-
-  </div><!-- /.delice-recipe-grid -->
 
   <!-- Notes -->
   <?php if ( ! empty( $notes ) ) : ?>
