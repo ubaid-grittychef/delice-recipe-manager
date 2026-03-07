@@ -145,6 +145,10 @@ $drm_is_seed      = (bool) get_post_meta( $recipe_id, '_delice_recipe_is_seed_ra
 #<?php echo $drm_id; ?> .delice-recipe-modern-faq-item.faq-open .delice-recipe-modern-faq-answer { display: block !important; overflow: visible !important; }
 #<?php echo $drm_id; ?> .delice-modern-faq-answer      { padding: 0 20px 16px !important; }
 
+/* ── Jump to Recipe ── */
+#<?php echo $drm_id; ?> .delice-recipe-jump-btn { display: inline-flex !important; align-items: center !important; gap: 6px !important; background: rgba(255,255,255,.2) !important; color: #fff !important; border: 1.5px solid rgba(255,255,255,.5) !important; border-radius: 6px !important; padding: 7px 16px !important; font-size: 12px !important; font-weight: 700 !important; text-decoration: none !important; margin-bottom: 12px !important; }
+#<?php echo $drm_id; ?> .delice-recipe-jump-btn:hover { background: rgba(255,255,255,.35) !important; color: #fff !important; }
+
 /* ── Footer & reviews ── */
 #<?php echo $drm_id; ?> footer.delice-modern-footer    { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; padding: 14px 24px !important; margin: 0 !important; background: #f0fdf4 !important; border-top: 1px solid rgba(45,106,79,.15) !important; }
 #<?php echo $drm_id; ?> .delice-modern-footer-tag      { display: inline-flex !important; align-items: center !important; gap: 6px !important; border-radius: 20px !important; padding: 4px 10px !important; white-space: nowrap !important; font-size: .72rem !important; font-weight: 600 !important; color: #2d6a4f !important; background: rgba(45,106,79,.08) !important; border: 1px solid rgba(45,106,79,.18) !important; }
@@ -217,6 +221,10 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php endif; ?>
 
         <div class="delice-modern-hero-content">
+            <a href="#delice-ingredients-<?php echo $drm_id; ?>" class="delice-recipe-jump-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <?php esc_html_e( 'Jump to Recipe', 'delice-recipe-manager' ); ?>
+            </a>
             <?php if ( ! $hide_title ) : ?>
                 <h2 class="delice-modern-title"><?php echo esc_html( $recipe_title ); ?></h2>
             <?php endif; ?>
@@ -547,7 +555,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
         <!-- ── Ingredients ───────────────────────────────────────────────────── -->
         <?php if ( $has_ing ) : ?>
-            <div class="delice-modern-section delice-modern-section--ingredients">
+            <div id="delice-ingredients-<?php echo $drm_id; ?>" class="delice-modern-section delice-modern-section--ingredients">
                 <div class="delice-modern-section-header">
                     <h3 class="delice-modern-section-title">
                         <span class="delice-modern-section-icon" aria-hidden="true">
