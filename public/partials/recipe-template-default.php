@@ -309,7 +309,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 <div class="delice-recipe-card">
 <div id="<?php echo $drd_id; ?>" class="delice-recipe-container" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
   <!-- Header -->
-  <header class="delice-recipe-header">
+  <div class="delice-recipe-header">
     <?php if (!$hide_title) : ?>
       <h2 class="delice-recipe-title"><?php echo esc_html( get_the_title( $recipe_id ) ); ?></h2>
     <?php endif; ?>
@@ -373,8 +373,8 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
-  </header>
-    
+  </div><!-- /.delice-recipe-header -->
+
   <!-- Attribution - Modern Card Design -->
   <?php if ( $attribution_settings['show_submitted_by'] || $attribution_settings['show_tested_by'] ) : ?>
     <div class="delice-recipe-attribution-section">
@@ -783,7 +783,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     $nutrition     = $nutrition_raw ? json_decode( wp_unslash( $nutrition_raw ), true ) : [];
   ?>
   <?php if ( ! empty( $nutrition ) && ( ! isset( $display_options['show_nutrition'] ) || $display_options['show_nutrition'] ) ) : ?>
-    <section class="delice-recipe-nutrition">
+    <div class="delice-recipe-nutrition">
       <h4><?php echo esc_html( $lang_texts['nutrition'] ?? 'Nutrition Information' ); ?></h4>
       <div class="delice-recipe-nutrition-grid">
         <?php foreach ( $nutrition as $label => $val ) : ?>
@@ -794,12 +794,12 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         <?php endforeach; ?>
       </div>
         <p class="delice-recipe-nutrition-disclaimer"><?php echo esc_html( $lang_texts['nutrition_disclaimer'] ); ?></p>
-    </section>
+    </div><!-- /.delice-recipe-nutrition -->
   <?php endif; ?>
 
   <!-- FAQs Section with fixed structure for JavaScript -->
   <?php if ( ! empty( $faqs ) && is_array( $faqs ) && ( ! isset( $display_options['show_faqs'] ) || $display_options['show_faqs'] ) ) : ?>
-    <section class="delice-recipe-faqs">
+    <div class="delice-recipe-faqs">
       <h2 class="delice-recipe-faqs-title">
         <?php printf( esc_html__( 'FAQ for %s', 'delice-recipe-manager' ), get_the_title( $recipe_id ) ); ?>
       </h2>
@@ -822,12 +822,12 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
           </div>
         <?php endforeach; ?>
       </div>
-    </section>
+    </div><!-- /.delice-recipe-faqs -->
   <?php endif; ?>
 
   <!-- Reviews Section -->
   <?php if ($reviews_enabled) : ?>
-    <section id="reviewSection-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-review-section">
+    <div id="reviewSection-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-review-section">
       <div class="delice-recipe-review-header">
         <div class="delice-review-header-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
@@ -909,12 +909,12 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         </svg>
         <p><?php esc_html_e( 'Thank you for your review! It has been submitted successfully.', 'delice-recipe-manager' ); ?></p>
       </div>
-    </section>
+    </div><!-- /#reviewSection -->
 
     <!-- Reviews Display -->
-    <section id="reviewsDisplay-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-reviews-display">
+    <div id="reviewsDisplay-<?php echo esc_attr($recipe_id); ?>" class="delice-recipe-reviews-display">
       <!-- Existing reviews will be loaded here via AJAX -->
-    </section>
+    </div>
   <?php endif; ?>
 
   <!-- Related Recipes (v3.6.0) — feature toggle v3.8.0 -->
@@ -929,7 +929,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   } ?>
 
   <!-- Footer -->
-  <footer class="delice-recipe-footer">
+  <div class="delice-recipe-footer">
     <div class="delice-recipe-footer-meta">
       <?php
         $terms = get_the_terms( $recipe_id, 'delice_cuisine' );
@@ -939,6 +939,6 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         }
       ?>
     </div>
-  </footer>
+  </div><!-- /.delice-recipe-footer -->
 </div>
 </div>
