@@ -148,6 +148,25 @@ class Delice_Recipe_Scripts {
             $ver,
             true
         );
+
+        // ── Skimlinks JS mode ────────────────────────────────────────────────
+        // Enqueue the Skimlinks script only when the platform is active and
+        // configured in JS mode. URL mode does not require a frontend script.
+        if ( class_exists( 'Delice_Affiliate_Manager' ) ) {
+            $aff_settings = Delice_Affiliate_Manager::get_settings();
+            if ( ! empty( $aff_settings['enabled'] ) ) {
+                $skim = Delice_Affiliate_Manager::get_skimlinks_platform();
+                if ( $skim && ( $skim['skimlinks_mode'] ?? 'js' ) === 'js' && ! empty( $skim['tracking_id'] ) ) {
+                    wp_enqueue_script(
+                        'delice-skimlinks',
+                        'https://s.skimresources.com/js/' . rawurlencode( $skim['tracking_id'] ) . '.skimlinks.js',
+                        array(),
+                        null,
+                        true
+                    );
+                }
+            }
+        }
     }
     
     /**

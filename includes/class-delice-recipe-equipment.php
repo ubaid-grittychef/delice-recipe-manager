@@ -76,14 +76,30 @@ class Delice_Recipe_Equipment {
                         'type'  => 'amazon',
                     ) );
                 } else {
-                    // Non-Amazon URL - use as-is (custom affiliate URL)
-                    $item['affiliate_url']   = $item['product_url'];
-                    $item['affiliate_store'] = __( 'Store', 'delice-recipe-manager' );
-                    $item['affiliate_links'] = array( array(
-                        'url'   => $item['product_url'],
-                        'store' => __( 'Store', 'delice-recipe-manager' ),
-                        'type'  => 'custom',
-                    ) );
+                    // Non-Amazon URL: wrap with Skimlinks URL mode if active, else use as-is.
+                    $skim = Delice_Affiliate_Manager::get_skimlinks_platform();
+                    if ( $skim
+                         && ( $skim['skimlinks_mode'] ?? 'js' ) === 'url'
+                         && ! empty( $skim['tracking_id'] ) ) {
+                        $skim_url = Delice_Affiliate_Manager::build_skimlinks_url(
+                            $item['product_url'], $skim['tracking_id']
+                        );
+                        $item['affiliate_url']   = $skim_url;
+                        $item['affiliate_store'] = 'Skimlinks';
+                        $item['affiliate_links'] = array( array(
+                            'url'   => $skim_url,
+                            'store' => 'Skimlinks',
+                            'type'  => 'skimlinks',
+                        ) );
+                    } else {
+                        $item['affiliate_url']   = $item['product_url'];
+                        $item['affiliate_store'] = __( 'Store', 'delice-recipe-manager' );
+                        $item['affiliate_links'] = array( array(
+                            'url'   => $item['product_url'],
+                            'store' => __( 'Store', 'delice-recipe-manager' ),
+                            'type'  => 'custom',
+                        ) );
+                    }
                 }
             } else {
                 // Fall back to keyword-rule matching with multi-platform support

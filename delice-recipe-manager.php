@@ -3,7 +3,7 @@
  * Plugin Name:       WP Delicious Recipe
  * Plugin URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * Description:       A powerful recipe manager plugin for WordPress with AI generation, schema markup, and GitHub auto-updates.
- * Version:           3.9.34
+ * Version:           3.9.35
  * Author:            Delice Team
  * Author URI:        https://github.com/ubaid-grittychef/delice-recipe-manager
  * License:           GPL-2.0+
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'DELICE_RECIPE_VERSION',    '3.9.34' );
+define( 'DELICE_RECIPE_VERSION',    '3.9.35' );
 define( 'DELICE_RECIPE_DB_VERSION', '2.1.0' ); // bump when schema changes require an upgrade routine
 define( 'DELICE_RECIPE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DELICE_RECIPE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -181,9 +181,10 @@ function delice_recipe_register_meta() {
                     'items' => array(
                         'type'       => 'object',
                         'properties' => array(
-                            'name'   => array( 'type' => 'string' ),
-                            'amount' => array( 'type' => 'string' ),
-                            'unit'   => array( 'type' => 'string' ),
+                            'name'          => array( 'type' => 'string' ),
+                            'amount'        => array( 'type' => 'string' ),
+                            'unit'          => array( 'type' => 'string' ),
+                            'affiliate_url' => array( 'type' => 'string' ),
                         ),
                     ),
                 ),

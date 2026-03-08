@@ -65,7 +65,7 @@ class Delice_Affiliate_Manager {
     public static function sanitize_platforms( $raw ) {
         if ( ! is_array( $raw ) ) return array();
         $clean = array();
-        $allowed_types = array( 'amazon', 'shareasale', 'cj', 'impact', 'custom' );
+        $allowed_types = array( 'amazon', 'shareasale', 'cj', 'impact', 'custom', 'skimlinks' );
         foreach ( $raw as $p ) {
             if ( ! is_array( $p ) ) continue;
             $type = in_array( $p['type'] ?? '', $allowed_types, true ) ? $p['type'] : 'custom';
@@ -83,6 +83,10 @@ class Delice_Affiliate_Manager {
             }
             if ( in_array( $type, array( 'shareasale', 'cj', 'impact', 'custom' ), true ) ) {
                 $entry['search_url'] = esc_url_raw( $p['search_url'] ?? '' );
+            }
+            if ( $type === 'skimlinks' ) {
+                $entry['skimlinks_mode'] = in_array( $p['skimlinks_mode'] ?? '', array( 'js', 'url' ), true )
+                                           ? $p['skimlinks_mode'] : 'js';
             }
             if ( ! empty( $entry['name'] ) ) $clean[] = $entry;
         }
@@ -139,6 +143,33 @@ class Delice_Affiliate_Manager {
         }
 
         return '';
+    }
+
+    /**
+     * Wrap a product URL with the Skimlinks redirect (URL mode).
+     *
+     * @param  string $product_url  The original product/affiliate URL.
+     * @param  string $publisher_id Skimlinks publisher ID (stored as tracking_id).
+     * @return string               Skimlinks-wrapped URL, or $product_url on failure.
+     */
+    public static function build_skimlinks_url( $product_url, $publisher_id ) {
+        if ( empty( $publisher_id ) || empty( $product_url ) ) return $product_url;
+        return 'https://go.skimlinks.com/?id=' . rawurlencode( $publisher_id )
+             . '&url=' . rawurlencode( $product_url );
+    }
+
+    /**
+     * Return the first active Skimlinks platform, or null if none configured.
+     *
+     * @return array|null
+     */
+    public static function get_skimlinks_platform() {
+        foreach ( self::get_platforms() as $p ) {
+            if ( ( $p['type'] ?? '' ) === 'skimlinks' && ! empty( $p['active'] ) ) {
+                return $p;
+            }
+        }
+        return null;
     }
 
     // ── Settings ──────────────────────────────────────────────────────────────
@@ -556,10 +587,35 @@ class Delice_Affiliate_Manager {
             }
         }
 
+        // Resolve Skimlinks platform once before the loop.
+        $skim_plat = self::get_skimlinks_platform();
+
         foreach ( $ingredients as &$ing ) {
             if ( $linked >= $cap ) break;
 
-            // Resolve links for all matching platforms simultaneously.
+            // Priority 1: manually-pinned affiliate_url on the ingredient row.
+            $manual_url = $ing['affiliate_url'] ?? '';
+            if ( ! empty( $manual_url ) ) {
+                // In Skimlinks URL mode, wrap the pinned URL through the redirect.
+                if ( $skim_plat
+                     && ( $skim_plat['skimlinks_mode'] ?? 'js' ) === 'url'
+                     && ! empty( $skim_plat['tracking_id'] ) ) {
+                    $final_url = self::build_skimlinks_url( $manual_url, $skim_plat['tracking_id'] );
+                    $store     = 'Skimlinks';
+                    $type      = 'skimlinks';
+                } else {
+                    $final_url = esc_url( $manual_url );
+                    $store     = '';
+                    $type      = 'custom';
+                }
+                $ing['affiliate_links'] = array( array( 'url' => $final_url, 'store' => $store, 'type' => $type ) );
+                $ing['affiliate_url']   = $final_url;
+                $ing['affiliate_store'] = $store;
+                $linked++;
+                continue;
+            }
+
+            // Priority 2: keyword rule match across all platforms.
             $all_links = self::match_ingredient_all_platforms( $ing['name'] ?? '', $auto_amazon );
 
             if ( ! empty( $all_links ) ) {
