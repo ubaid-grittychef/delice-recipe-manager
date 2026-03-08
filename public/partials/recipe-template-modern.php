@@ -749,7 +749,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
     <!-- ═══ REVIEWS ═══════════════════════════════════════════════════════════ -->
     <?php if ( $reviews_enabled ) : ?>
-        <section id="reviewSection-<?php echo esc_attr( $recipe_id ); ?>" class="delice-modern-reviews delice-recipe-review-section">
+        <div id="reviewSection-<?php echo esc_attr( $recipe_id ); ?>" class="delice-modern-reviews delice-recipe-review-section">
 
             <div class="delice-recipe-review-header">
                 <div class="delice-review-header-icon" aria-hidden="true">
@@ -834,9 +834,9 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 <p><?php esc_html_e( 'Thank you for your review!', 'delice-recipe-manager' ); ?></p>
             </div>
 
-        </section>
+        </div><!-- /#reviewSection -->
 
-        <section id="reviewsDisplay-<?php echo esc_attr( $recipe_id ); ?>" class="delice-recipe-reviews-display delice-modern-reviews-display"></section>
+        <div id="reviewsDisplay-<?php echo esc_attr( $recipe_id ); ?>" class="delice-recipe-reviews-display delice-modern-reviews-display"></div>
     <?php endif; ?>
 
     <!-- Affiliate disclosure (bottom position) — v3.8.4 -->
@@ -846,7 +846,7 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     } ?>
 
     <!-- ═══ FOOTER ═══════════════════════════════════════════════════════════ -->
-    <footer class="delice-modern-footer">
+    <div class="delice-modern-footer">
         <?php if ( ! is_wp_error( $cuisine_terms ) && ! empty( $cuisine_terms ) ) : ?>
             <span class="delice-modern-footer-tag">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -869,6 +869,6 @@ if ( $drm_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 <?php echo esc_html( $course_terms[0]->name ); ?>
             </span>
         <?php endif; ?>
-    </footer>
+    </div><!-- /.delice-modern-footer -->
 
 </div><!-- /.delice-modern -->

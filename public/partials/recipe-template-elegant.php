@@ -238,10 +238,10 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   </ol>
 </nav>
 <?php endif; ?>
-<article id="<?php echo $dre_id; ?>" class="delice-recipe-container delice-elegant" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
+<div id="<?php echo $dre_id; ?>" class="delice-recipe-container delice-elegant" data-recipe-id="<?php echo esc_attr( $recipe_id ); ?>">
 
     <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
-    <header class="delice-elegant-header">
+    <div class="delice-elegant-header">
 
         <?php if ( $recipe_excerpt ) : ?>
             <p class="delice-elegant-tagline"><?php echo esc_html( $recipe_excerpt ); ?></p>
@@ -346,7 +346,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         </div>
         <?php endif; ?>
 
-    </header><!-- /.delice-elegant-header -->
+    </div><!-- /.delice-elegant-header -->
 
     <!-- ═══ META BAR ═════════════════════════════════════════════════════════ -->
     <?php
@@ -635,7 +635,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         if ( ! $dre_body_first ) echo '<hr class="delice-elegant-divider">';
         $dre_body_first = false;
     ?>
-    <section id="delice-ingredients-<?php echo $dre_id; ?>" class="delice-elegant-section delice-elegant-ingredients">
+    <div id="delice-ingredients-<?php echo $dre_id; ?>" class="delice-elegant-section delice-elegant-ingredients">
         <h3 class="delice-elegant-section-title">
             <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
             <?php echo esc_html( $lang_texts['ingredients'] ); ?>
@@ -681,14 +681,14 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 </li>
             <?php endforeach; ?>
         </ul>
-    </section>
+    </div><!-- /.delice-elegant-ingredients -->
     <?php endif;
 
     if ( ! empty( $instructions ) ) :
         if ( ! $dre_body_first ) echo '<hr class="delice-elegant-divider">';
         $dre_body_first = false;
     ?>
-    <section class="delice-elegant-section delice-elegant-instructions">
+    <div class="delice-elegant-section delice-elegant-instructions">
         <h3 class="delice-elegant-section-title">
             <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
             <?php echo esc_html( $lang_texts['instructions'] ); ?>
@@ -705,26 +705,26 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 </li>
             <?php endforeach; ?>
         </ol>
-    </section>
+    </div><!-- /.delice-elegant-instructions -->
     <?php endif; ?>
 
     <!-- ═══ NOTES ════════════════════════════════════════════════════════════ -->
     <?php if ( ! empty( $notes ) && ( ! isset( $display_options['show_notes'] ) || $display_options['show_notes'] ) ) : ?>
         <hr class="delice-elegant-divider">
-        <section class="delice-elegant-section delice-elegant-notes">
+        <div class="delice-elegant-section delice-elegant-notes">
             <h3 class="delice-elegant-section-title">
                 <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
                 <?php echo esc_html( $lang_texts['notes'] ); ?>
                 <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
             </h3>
             <div class="delice-elegant-notes-text"><?php echo esc_html( $notes ); ?></div>
-        </section>
+        </div><!-- /.delice-elegant-notes -->
     <?php endif; ?>
 
     <!-- ═══ NUTRITION ═════════════════════════════════════════════════════════ -->
     <?php if ( ! empty( $nutrition ) && ( ! isset( $display_options['show_nutrition'] ) || $display_options['show_nutrition'] ) ) : ?>
         <hr class="delice-elegant-divider">
-        <section class="delice-elegant-section delice-elegant-nutrition">
+        <div class="delice-elegant-section delice-elegant-nutrition">
             <h3 class="delice-elegant-section-title">
                 <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
                 <?php echo esc_html( $lang_texts['nutrition'] ?? __( 'Nutrition', 'delice-recipe-manager' ) ); ?>
@@ -739,13 +739,13 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 <?php endforeach; ?>
             </div>
             <p class="delice-recipe-nutrition-disclaimer"><?php echo esc_html( $lang_texts['nutrition_disclaimer'] ); ?></p>
-        </section>
+        </div><!-- /.delice-elegant-nutrition -->
     <?php endif; ?>
 
     <!-- ═══ FAQs ══════════════════════════════════════════════════════════════ -->
     <?php if ( ! empty( $faqs ) && ( ! isset( $display_options['show_faqs'] ) || $display_options['show_faqs'] ) ) : ?>
         <hr class="delice-elegant-divider">
-        <section class="delice-elegant-section delice-elegant-faqs">
+        <div class="delice-elegant-section delice-elegant-faqs">
             <h3 class="delice-elegant-section-title">
                 <span class="delice-elegant-section-ornament" aria-hidden="true">✦</span>
                 <?php printf( esc_html__( 'FAQ for %s', 'delice-recipe-manager' ), esc_html( get_the_title( $recipe_id ) ) ); ?>
@@ -773,14 +773,14 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                     </div>
                 <?php endforeach; ?>
             </div>
-        </section>
+        </div><!-- /.delice-elegant-faqs -->
     <?php endif; ?>
 
     <hr class="delice-elegant-divider">
 
     <!-- ═══ REVIEWS ═══════════════════════════════════════════════════════════ -->
     <?php if ( $reviews_enabled ) : ?>
-        <section id="reviewSection-<?php echo esc_attr( $recipe_id ); ?>" class="delice-elegant-reviews delice-recipe-review-section">
+        <div id="reviewSection-<?php echo esc_attr( $recipe_id ); ?>" class="delice-elegant-reviews delice-recipe-review-section">
 
             <div class="delice-recipe-review-header">
                 <div class="delice-review-header-icon" aria-hidden="true">
@@ -865,9 +865,9 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 <p><?php esc_html_e( 'Your review has been submitted. Thank you!', 'delice-recipe-manager' ); ?></p>
             </div>
 
-        </section>
+        </div><!-- /#reviewSection -->
 
-        <section id="reviewsDisplay-<?php echo esc_attr( $recipe_id ); ?>" class="delice-recipe-reviews-display delice-elegant-reviews-display"></section>
+        <div id="reviewsDisplay-<?php echo esc_attr( $recipe_id ); ?>" class="delice-recipe-reviews-display delice-elegant-reviews-display"></div>
     <?php endif; ?>
 
     <!-- ═══ RELATED RECIPES (v3.6.0) — feature toggle v3.8.0 ═══════════════ -->
@@ -884,7 +884,7 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     } ?>
 
     <!-- ═══ FOOTER ═══════════════════════════════════════════════════════════ -->
-    <footer class="delice-elegant-footer">
+    <div class="delice-elegant-footer">
         <?php if ( ! is_wp_error( $cuisine_terms ) && ! empty( $cuisine_terms ) ) : ?>
             <span class="delice-elegant-tag"><?php echo esc_html( $cuisine_terms[0]->name ); ?></span>
         <?php endif; ?>
@@ -896,6 +896,6 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 <span class="delice-elegant-tag delice-elegant-tag--dietary"><?php echo esc_html( $dietary_term->name ); ?></span>
             <?php endforeach;
         endif; ?>
-    </footer>
+    </div><!-- /.delice-elegant-footer -->
 
-</article><!-- /.delice-elegant -->
+</div><!-- /.delice-elegant -->
