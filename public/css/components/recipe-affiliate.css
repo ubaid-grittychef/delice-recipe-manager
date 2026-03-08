@@ -89,6 +89,10 @@
 .delice-buy-chip--custom            { color: #475569 !important; }
 .delice-buy-chip--custom:hover      { background: #f1f5f9; color: #334155 !important; }
 
+/* Skimlinks — teal */
+.delice-buy-chip--skimlinks         { color: #007480 !important; }
+.delice-buy-chip--skimlinks:hover   { background: #f0fafa; color: #005d66 !important; }
+
 /* ── Multi-chip container ─────────────────────────────────────────────────── */
 /*
  * Wraps multiple chips when an ingredient matches more than one platform.

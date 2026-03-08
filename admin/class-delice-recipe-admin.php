@@ -801,6 +801,10 @@ class Delice_Recipe_Admin {
                            placeholder="<?php esc_attr_e('Unité', 'delice-recipe-manager'); ?>"
                            value="<?php echo esc_attr( isset( $ingredient['unit'] ) ? $ingredient['unit'] : '' ); ?>">
 
+                    <input type="url" class="ingredient-affiliate-url" name="delice_recipe_ingredients[<?php echo absint( $index ); ?>][affiliate_url]"
+                           placeholder="<?php esc_attr_e('Product URL (optional)', 'delice-recipe-manager'); ?>"
+                           value="<?php echo esc_attr( isset( $ingredient['affiliate_url'] ) ? $ingredient['affiliate_url'] : '' ); ?>">
+
                     <button type="button" class="button remove-ingredient"><?php esc_html_e('Supprimer', 'delice-recipe-manager'); ?></button>
                 </div>
                 <?php endforeach; ?>
@@ -1020,9 +1024,10 @@ class Delice_Recipe_Admin {
             foreach ($_POST['delice_recipe_ingredients'] as $ingredient) {
                 if (!empty($ingredient['name'])) {
                     $ingredients[] = array(
-                        'name' => sanitize_text_field($ingredient['name']),
-                        'amount' => sanitize_text_field($ingredient['amount']),
-                        'unit' => sanitize_text_field($ingredient['unit']),
+                        'name'          => sanitize_text_field($ingredient['name']),
+                        'amount'        => sanitize_text_field($ingredient['amount']),
+                        'unit'          => sanitize_text_field($ingredient['unit']),
+                        'affiliate_url' => esc_url_raw($ingredient['affiliate_url'] ?? ''),
                     );
                 }
             }

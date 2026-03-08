@@ -38,15 +38,18 @@
             const index = container.children().length;
             const newRow = `
                 <div class="delice-recipe-ingredient-row">
-                    <input type="text" class="ingredient-name" name="delice_recipe_ingredients[${index}][name]" 
+                    <input type="text" class="ingredient-name" name="delice_recipe_ingredients[${index}][name]"
                            placeholder="${deliceRecipe.ingredientPlaceholder || 'Ingrédient'}">
-                    
-                    <input type="text" class="ingredient-amount" name="delice_recipe_ingredients[${index}][amount]" 
+
+                    <input type="text" class="ingredient-amount" name="delice_recipe_ingredients[${index}][amount]"
                            placeholder="${deliceRecipe.amountPlaceholder || 'Quantité'}">
-                    
-                    <input type="text" class="ingredient-unit" name="delice_recipe_ingredients[${index}][unit]" 
+
+                    <input type="text" class="ingredient-unit" name="delice_recipe_ingredients[${index}][unit]"
                            placeholder="${deliceRecipe.unitPlaceholder || 'Unité'}">
-                    
+
+                    <input type="url" class="ingredient-affiliate-url" name="delice_recipe_ingredients[${index}][affiliate_url]"
+                           placeholder="Product URL (optional)">
+
                     <button type="button" class="button remove-ingredient">${deliceRecipe.removeText || 'Supprimer'}</button>
                 </div>
             `;

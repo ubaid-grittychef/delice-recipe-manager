@@ -707,6 +707,76 @@ $form_index = 1; // 0 = Amazon above
     </div>
 </div>
 
+<?php
+// Skimlinks platform entry (fixed form index 45)
+$skim_platform   = null;
+foreach ( $platforms as $p ) { if ( ( $p['type'] ?? '' ) === 'skimlinks' ) { $skim_platform = $p; break; } }
+$skim_pub_id     = $skim_platform['tracking_id']    ?? '';
+$skim_mode       = $skim_platform['skimlinks_mode'] ?? 'js';
+$skim_active     = ! empty( $skim_platform['active'] );
+$skim_plat_id    = $skim_platform['id']             ?? 'plat_skimlinks';
+?>
+<!-- Skimlinks -->
+<div class="drm-card">
+    <div class="drm-card-header">
+        <div class="drm-card-header-left">
+            <h2><?php esc_html_e( 'Skimlinks', 'delice-recipe-manager' ); ?></h2>
+            <?php if ( $skim_active && ! empty( $skim_pub_id ) ) : ?>
+                <span class="drm-pill drm-pill-green"><span class="drm-pill-dot"></span><?php esc_html_e( 'Connected', 'delice-recipe-manager' ); ?></span>
+            <?php else : ?>
+                <span class="drm-pill drm-pill-grey"><?php esc_html_e( 'Not connected', 'delice-recipe-manager' ); ?></span>
+            <?php endif; ?>
+        </div>
+        <span style="font-size:12px;color:#8c8f94;"><?php esc_html_e( 'Auto-monetise all outbound links or use per-link redirect', 'delice-recipe-manager' ); ?></span>
+    </div>
+    <div class="drm-card-body">
+        <input type="hidden" name="delice_affiliate_platforms[45][id]"   value="<?php echo esc_attr( $skim_plat_id ); ?>">
+        <input type="hidden" name="delice_affiliate_platforms[45][type]" value="skimlinks">
+        <input type="hidden" name="delice_affiliate_platforms[45][name]" value="Skimlinks">
+
+        <div class="drm-2col">
+            <div class="drm-aff-field">
+                <label class="drm-aff-field-label" for="skim-pub-id"><?php esc_html_e( 'Publisher ID', 'delice-recipe-manager' ); ?></label>
+                <input type="text" id="skim-pub-id"
+                       name="delice_affiliate_platforms[45][tracking_id]"
+                       value="<?php echo esc_attr( $skim_pub_id ); ?>"
+                       placeholder="123456"
+                       class="regular-text">
+                <p class="description"><?php esc_html_e( 'Found in your Skimlinks account under Account → Settings → Publisher ID.', 'delice-recipe-manager' ); ?></p>
+            </div>
+            <div class="drm-aff-field">
+                <label class="drm-aff-field-label"><?php esc_html_e( 'Mode', 'delice-recipe-manager' ); ?></label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="delice_affiliate_platforms[45][skimlinks_mode]" value="js" <?php checked( $skim_mode, 'js' ); ?>>
+                    <span>
+                        <strong><?php esc_html_e( 'JS (auto-convert)', 'delice-recipe-manager' ); ?></strong>
+                        <span style="display:block;font-size:11px;color:#8c8f94;"><?php esc_html_e( 'Skimlinks script runs on every recipe page and automatically converts all eligible links — no per-link configuration needed.', 'delice-recipe-manager' ); ?></span>
+                    </span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="radio" name="delice_affiliate_platforms[45][skimlinks_mode]" value="url" <?php checked( $skim_mode, 'url' ); ?>>
+                    <span>
+                        <strong><?php esc_html_e( 'URL (per-link redirect)', 'delice-recipe-manager' ); ?></strong>
+                        <span style="display:block;font-size:11px;color:#8c8f94;"><?php esc_html_e( 'Each ingredient / equipment product URL is wrapped with go.skimlinks.com. Only links that have a product URL in the meta box are tracked.', 'delice-recipe-manager' ); ?></span>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="drm-card-footer">
+        <label class="drm-toggle-row">
+            <span class="drm-sw">
+                <input type="checkbox" name="delice_affiliate_platforms[45][active]" value="1" <?php checked( $skim_active ); ?>>
+                <span class="drm-sw-slider"></span>
+            </span>
+            <?php esc_html_e( 'Enable Skimlinks', 'delice-recipe-manager' ); ?>
+        </label>
+        <a href="https://skimlinks.com/join" target="_blank" rel="noopener noreferrer" class="button button-small">
+            <?php esc_html_e( 'Sign up →', 'delice-recipe-manager' ); ?>
+        </a>
+    </div>
+</div>
+
 <!-- Custom Platforms -->
 <div class="drm-card">
     <div class="drm-card-header">
