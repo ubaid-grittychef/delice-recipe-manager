@@ -524,6 +524,28 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
             <span class="delice-cook-mode-tip"><?php esc_html_e( 'Keeps your screen on while you cook', 'delice-recipe-manager' ); ?></span>
         </div>
         <?php endif; ?>
+
+        <!-- Favorite Button (v4.0.0) -->
+        <button class="delice-favorite-btn delice-elegant-btn"
+                data-recipe-id="<?php echo absint( $recipe_id ); ?>"
+                aria-label="<?php esc_attr_e( 'Save recipe', 'delice-recipe-manager' ); ?>">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true" width="15" height="15">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span><?php esc_html_e( 'Save', 'delice-recipe-manager' ); ?></span>
+        </button>
+
+        <!-- Add to Shopping List Button (v4.0.0) -->
+        <button class="delice-add-to-list-btn delice-elegant-btn"
+                data-recipe-id="<?php echo absint( $recipe_id ); ?>"
+                data-recipe-title="<?php echo esc_attr( get_the_title( $recipe_id ) ); ?>"
+                aria-label="<?php esc_attr_e( 'Add to shopping list', 'delice-recipe-manager' ); ?>">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true" width="15" height="15">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <span><?php esc_html_e( 'Shopping List', 'delice-recipe-manager' ); ?></span>
+        </button>
     </div><!-- /.delice-elegant-actions -->
 
     <hr class="delice-elegant-divider">
@@ -658,7 +680,10 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
                 $dre_aff_links = $ing['affiliate_links'] ?? array();
                 $dre_has_aff   = ! empty( $dre_aff_links );
             ?>
-                <li class="delice-elegant-ingredient delice-recipe-ingredient<?php echo $dre_has_aff ? ' delice-recipe-ingredient--linked' : ''; ?>">
+                <li class="delice-elegant-ingredient delice-recipe-ingredient<?php echo $dre_has_aff ? ' delice-recipe-ingredient--linked' : ''; ?>"
+                    data-name="<?php echo esc_attr( $ing['name'] ?? '' ); ?>"
+                    data-amount="<?php echo esc_attr( $ing['amount'] ?? '' ); ?>"
+                    data-unit="<?php echo esc_attr( $ing['unit'] ?? '' ); ?>">
                     <label class="delice-elegant-ingredient-inner" for="<?php echo esc_attr( $ing_id ); ?>">
                         <input type="checkbox" class="delice-recipe-ingredient-checkbox delice-elegant-checkbox" id="<?php echo esc_attr( $ing_id ); ?>">
                         <span class="delice-elegant-check-icon" aria-hidden="true">

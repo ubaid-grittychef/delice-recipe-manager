@@ -152,6 +152,41 @@ class Delice_Recipe_Scripts {
         // ── Skimlinks JS mode ────────────────────────────────────────────────
         // Enqueue the Skimlinks script only when the platform is active and
         // configured in JS mode. URL mode does not require a frontend script.
+        // v4.0.0 — Favorites
+        wp_enqueue_style(
+            'delice-recipe-favorites',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-favorites.css',
+            array(),
+            $ver
+        );
+        wp_enqueue_script(
+            'delice-recipe-favorites',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-recipe-favorites.js',
+            array( 'jquery' ),
+            $ver,
+            true
+        );
+        wp_localize_script( 'delice-recipe-favorites', 'deliceFavoritesData', array(
+            'ajaxurl'       => admin_url( 'admin-ajax.php' ),
+            'nonce'         => wp_create_nonce( 'delice_favorites_nonce' ),
+            'currentUserId' => get_current_user_id(),
+        ) );
+
+        // v4.0.0 — Shopping List
+        wp_enqueue_style(
+            'delice-shopping-list',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-shopping-list.css',
+            array(),
+            $ver
+        );
+        wp_enqueue_script(
+            'delice-shopping-list',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-shopping-list.js',
+            array(),
+            $ver,
+            true
+        );
+
         if ( class_exists( 'Delice_Affiliate_Manager' ) ) {
             $aff_settings = Delice_Affiliate_Manager::get_settings();
             if ( ! empty( $aff_settings['enabled'] ) ) {

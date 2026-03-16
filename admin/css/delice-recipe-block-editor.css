@@ -1,0 +1,24 @@
+/**
+ * Delice Recipe Manager — Block Editor Styles (v4.0.0)
+ */
+
+.delice-block-preview-wrap {
+    position: relative;
+}
+
+.delice-block-preview-wrap .wp-block-delice-recipe-manager-recipe-card {
+    pointer-events: none;
+}
+
+/* Placeholder shown before a recipe is selected */
+.wp-block-delice-recipe-manager-recipe-card .components-placeholder {
+    border: 2px dashed #2d6a4f;
+    border-radius: 8px;
+    padding: 24px;
+    background: #f0fdf4;
+}
+
+.wp-block-delice-recipe-manager-recipe-card .components-placeholder__label {
+    color: #2d6a4f;
+    font-weight: 600;
+}

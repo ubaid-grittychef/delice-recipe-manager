@@ -127,6 +127,12 @@ class Delice_Recipe_Nutrition {
             </tr>
         </table>
         <p class="description"><?php _e('Enter nutritional information per serving.', 'delice-recipe-manager'); ?></p>
+        <p style="margin-top:12px;">
+            <button type="button" id="delice-auto-calc-btn" class="button button-secondary">
+                <?php esc_html_e( 'Auto-Calculate from Ingredients', 'delice-recipe-manager' ); ?>
+            </button>
+            <span id="delice-auto-calc-status" style="margin-left:10px;font-style:italic;"></span>
+        </p>
         <?php
     }
 
@@ -248,6 +254,115 @@ class Delice_Recipe_Nutrition {
         return $html;
     }
     
+    // ── v4.0.0 Auto Nutrition Calculation ────────────────────────────────────
+
+    /**
+     * AJAX handler: calculate nutrition via Edamam API.
+     * Called by delice_ajax_auto_calculate_nutrition() in ajax-handlers.php.
+     */
+    public function ajax_auto_calculate_nutrition() {
+        $servings = max( 1, absint( $_POST['servings'] ?? 1 ) );
+
+        // Sanitize ingredients array
+        $raw_ingredients = isset( $_POST['ingredients'] ) ? (array) $_POST['ingredients'] : array();
+        $ingredients     = array_values( array_filter( array_map( 'sanitize_text_field', $raw_ingredients ) ) );
+
+        if ( empty( $ingredients ) ) {
+            wp_send_json_error( array( 'message' => __( 'No ingredients provided.', 'delice-recipe-manager' ) ) );
+            return;
+        }
+
+        $result = $this->call_edamam_api( $ingredients );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+            return;
+        }
+
+        // Map Edamam totalNutrients keys → plugin field names, divide by servings
+        $map = array(
+            'calories'      => 'ENERC_KCAL',
+            'carbs'         => 'CHOCDF',
+            'protein'       => 'PROCNT',
+            'fat'           => 'FAT',
+            'saturated_fat' => 'FASAT',
+            'sugar'         => 'SUGAR',
+            'fiber'         => 'FIBTG',
+            'sodium'        => 'NA',
+        );
+
+        $output = array();
+        foreach ( $map as $field => $key ) {
+            $qty = $result[ $key ]['quantity'] ?? 0;
+            $output[ $field ] = round( $qty / $servings, $field === 'calories' ? 0 : 1 );
+        }
+
+        wp_send_json_success( $output );
+    }
+
+    /**
+     * Call the Edamam Nutrition Analysis API.
+     *
+     * @param string[] $ingredient_strings  e.g. ["2 cups flour", "3 eggs"]
+     * @return array|WP_Error  totalNutrients array on success, WP_Error on failure.
+     */
+    private function call_edamam_api( array $ingredient_strings ) {
+        $app_id  = get_option( 'delice_recipe_edamam_app_id', '' );
+        $api_key = get_option( 'delice_recipe_edamam_api_key', '' );
+
+        if ( ! $app_id || ! $api_key ) {
+            return new WP_Error(
+                'no_keys',
+                __( 'Edamam API credentials are not configured. Go to Settings → Nutrition API.', 'delice-recipe-manager' )
+            );
+        }
+
+        $url = add_query_arg( array(
+            'app_id'  => rawurlencode( $app_id ),
+            'app_key' => rawurlencode( $api_key ),
+        ), 'https://api.edamam.com/api/nutrition-details' );
+
+        $response = wp_remote_post( $url, array(
+            'headers' => array( 'Content-Type' => 'application/json' ),
+            'body'    => wp_json_encode( array( 'ingr' => $ingredient_strings ) ),
+            'timeout' => 20,
+        ) );
+
+        if ( is_wp_error( $response ) ) {
+            return new WP_Error(
+                'request_failed',
+                sprintf(
+                    __( 'API request failed: %s', 'delice-recipe-manager' ),
+                    $response->get_error_message()
+                )
+            );
+        }
+
+        $code = wp_remote_retrieve_response_code( $response );
+        if ( $code !== 200 ) {
+            return new WP_Error(
+                'api_error',
+                sprintf(
+                    /* translators: %d: HTTP status code */
+                    __( 'Edamam API returned HTTP %d. Check your credentials.', 'delice-recipe-manager' ),
+                    $code
+                )
+            );
+        }
+
+        $body = json_decode( wp_remote_retrieve_body( $response ), true );
+        if ( ! isset( $body['totalNutrients'] ) ) {
+            return new WP_Error(
+                'parse_error',
+                __( 'Unexpected API response. Could not read nutrition data.', 'delice-recipe-manager' )
+            );
+        }
+
+        return $body['totalNutrients'];
+    }
+
+    // ── End v4.0.0 Auto Nutrition Calculation ─────────────────────────────────
+
     /**
      * Create nutrition item
      */

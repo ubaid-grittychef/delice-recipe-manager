@@ -52,10 +52,33 @@ function delice_register_ajax_handlers() {
     add_action( 'wp_ajax_delice_import_recipes',  'delice_ajax_import_recipes' );
     add_action( 'wp_ajax_delice_import_settings', 'delice_ajax_import_settings' );
 
+    // Favorites AJAX handlers (v4.0.0) — registered in Delice_Recipe_Favorites constructor.
+    // Shopping list is client-side only — no AJAX handlers needed.
+
+    // Auto nutrition calculation (v4.0.0).
+    add_action( 'wp_ajax_delice_auto_calculate_nutrition', 'delice_ajax_auto_calculate_nutrition' );
+
     // NOTE: Delice_Recipe_Reviews instantiation is deferred; it registers its
     // own admin_init hook and does a DB check via maybe_create_reviews_table on
     // 'init'.  We do NOT instantiate it here to avoid running a DB query on
     // every non-AJAX request.
+}
+
+// ── v4.0.0: Auto Nutrition Calculation ───────────────────────────────────────
+
+function delice_ajax_auto_calculate_nutrition() {
+    if ( ! check_ajax_referer( 'delice_nutrition_auto_calc_nonce', 'nonce', false ) ) {
+        wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'delice-recipe-manager' ) ) );
+        return;
+    }
+
+    if ( ! current_user_can( 'edit_posts' ) ) {
+        wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'delice-recipe-manager' ) ) );
+        return;
+    }
+
+    $nutrition = new Delice_Recipe_Nutrition();
+    $nutrition->ajax_auto_calculate_nutrition();
 }
 
 /**

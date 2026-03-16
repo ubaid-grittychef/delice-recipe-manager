@@ -186,6 +186,27 @@ class Delice_Recipe_Admin {
                 'adminUrl' => admin_url(),
             ));
 
+            // v4.0.0 — Auto Nutrition Calculation script on recipe edit screens
+            if ( $screen && in_array( $screen->id, array( 'delice_recipe', 'post' ), true ) ) {
+                wp_enqueue_script(
+                    'delice-nutrition-auto-calc',
+                    DELICE_RECIPE_PLUGIN_URL . 'admin/js/delice-nutrition-auto-calc.js',
+                    array( 'jquery' ),
+                    DELICE_RECIPE_VERSION,
+                    true
+                );
+                wp_localize_script( 'delice-nutrition-auto-calc', 'deliceNutritionData', array(
+                    'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                    'nonce'   => wp_create_nonce( 'delice_nutrition_auto_calc_nonce' ),
+                    'strings' => array(
+                        'calculating'    => __( 'Calculating…', 'delice-recipe-manager' ),
+                        'success'        => __( 'Nutrition filled in!', 'delice-recipe-manager' ),
+                        'error'          => __( 'Calculation failed. Check your Edamam API keys in Settings.', 'delice-recipe-manager' ),
+                        'no_ingredients' => __( 'No ingredients found. Add ingredients first.', 'delice-recipe-manager' ),
+                    ),
+                ) );
+            }
+
             // Affiliate Links page JS
             if ( strpos( $screen->id, 'delice-recipe-affiliate' ) !== false ) {
                 wp_enqueue_script( 'delice-affiliate-admin', DELICE_RECIPE_PLUGIN_URL . 'admin/js/delice-affiliate-admin.js', array( 'jquery' ), DELICE_RECIPE_VERSION, true );
@@ -218,12 +239,12 @@ class Delice_Recipe_Admin {
      */
     public function enqueue_block_editor_assets() {
         global $post;
-        
+
         // Only load on our custom post type or migrated recipes
         if (!$post || (!$this->is_recipe_post($post))) {
             return;
         }
-        
+
         // Add editor styles
         wp_enqueue_style(
             'delice-recipe-editor-styles',
@@ -231,7 +252,7 @@ class Delice_Recipe_Admin {
             array('wp-edit-blocks'),
             DELICE_RECIPE_VERSION
         );
-        
+
         // Add compatibility script for metaboxes if needed
         wp_enqueue_script(
             'delice-recipe-editor-compat',
@@ -240,7 +261,7 @@ class Delice_Recipe_Admin {
             DELICE_RECIPE_VERSION,
             true
         );
-        
+
         // Add our recipe data for the editor
         $recipe_data = array(
             'postId' => $post->ID,
@@ -252,12 +273,52 @@ class Delice_Recipe_Admin {
             'difficulty' => get_post_meta($post->ID, '_delice_recipe_difficulty', true),
             'notes' => get_post_meta($post->ID, '_delice_recipe_notes', true),
         );
-        
+
         wp_localize_script(
             'delice-recipe-editor-compat',
             'deliceRecipeData',
             $recipe_data
         );
+
+        // v4.0.0 — Gutenberg Recipe Card block (available on all post types)
+        wp_enqueue_script(
+            'delice-recipe-block',
+            DELICE_RECIPE_PLUGIN_URL . 'admin/js/delice-recipe-block.js',
+            array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-server-side-render', 'wp-api-fetch' ),
+            DELICE_RECIPE_VERSION,
+            true
+        );
+        wp_enqueue_style(
+            'delice-recipe-block-editor',
+            DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-recipe-block-editor.css',
+            array( 'wp-edit-blocks' ),
+            DELICE_RECIPE_VERSION
+        );
+        wp_localize_script( 'delice-recipe-block', 'deliceBlockData', array(
+            'recipes' => $this->get_recipe_list_for_block(),
+        ) );
+    }
+
+    /**
+     * Build an array of {value, label} objects for all published recipes.
+     * Used by the Gutenberg block's recipe selector.
+     *
+     * @return array
+     */
+    private function get_recipe_list_for_block() {
+        $posts = get_posts( array(
+            'post_type'      => 'delice_recipe',
+            'post_status'    => 'publish',
+            'numberposts'    => -1,
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+            'fields'         => 'ids',
+        ) );
+        $options = array( array( 'value' => 0, 'label' => __( '— Select a recipe —', 'delice-recipe-manager' ) ) );
+        foreach ( $posts as $id ) {
+            $options[] = array( 'value' => $id, 'label' => get_the_title( $id ) );
+        }
+        return $options;
     }
 
     /**
@@ -424,6 +485,26 @@ class Delice_Recipe_Admin {
             )
         );
         
+        // v4.0.0 — Edamam Nutrition API credentials
+        register_setting(
+            'delice_recipe_settings',
+            'delice_recipe_edamam_app_id',
+            array(
+                'type'              => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default'           => '',
+            )
+        );
+        register_setting(
+            'delice_recipe_settings',
+            'delice_recipe_edamam_api_key',
+            array(
+                'type'              => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default'           => '',
+            )
+        );
+
         // AI API Key
         register_setting(
             'delice_recipe_settings',
