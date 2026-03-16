@@ -27,7 +27,7 @@ if ( isset( $_POST['_delice_lang_save'] ) ) {
 
 // ── Active tab (default: general) ────────────────────────────────────────────
 $active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
-$valid_tabs = array( 'general', 'attribution', 'seo', 'ai', 'reviews', 'languages', 'updates' );
+$valid_tabs = array( 'general', 'attribution', 'seo', 'ai', 'reviews', 'languages', 'updates', 'nutrition-api' );
 if ( ! in_array( $active_tab, $valid_tabs, true ) ) {
     $active_tab = 'general';
 }
@@ -286,6 +286,7 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
             <?php esc_html_e( 'Updates', 'delice-recipe-manager' ); ?>
             <?php if ( $has_update ) : ?><span style="display:inline-block;width:8px;height:8px;background:#d63638;border-radius:50%;margin-left:4px;vertical-align:middle;"></span><?php endif; ?>
         </a>
+        <a href="<?php echo esc_url( $tab_url . 'nutrition-api' ); ?>" class="nav-tab<?php echo $active_tab === 'nutrition-api' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Nutrition API', 'delice-recipe-manager' ); ?></a>
     </nav>
 
     <div style="padding-top: 16px;">
@@ -997,6 +998,48 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
             </div>
 
         </div><!-- /#tab-updates -->
+
+        <!-- ════ Nutrition API ════════════════════════════════════════════════════
+        ═══════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-nutrition-api" class="drm-tab-panel<?php echo $active_tab === 'nutrition-api' ? ' is-active' : ''; ?>">
+            <div class="drm-settings-section">
+                <h2><?php esc_html_e( 'Nutrition API (Edamam)', 'delice-recipe-manager' ); ?></h2>
+                <p class="description" style="margin-bottom:16px;">
+                    <?php esc_html_e( 'Connect an Edamam Nutrition Analysis account to enable the "Auto-Calculate from Ingredients" button on recipe edit screens.', 'delice-recipe-manager' ); ?>
+                    <a href="https://developer.edamam.com/edamam-nutrition-api" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Get free API keys →', 'delice-recipe-manager' ); ?></a>
+                </p>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="delice_edamam_app_id"><?php esc_html_e( 'App ID', 'delice-recipe-manager' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="password"
+                                   id="delice_edamam_app_id"
+                                   name="delice_recipe_edamam_app_id"
+                                   value="<?php echo esc_attr( get_option( 'delice_recipe_edamam_app_id', '' ) ); ?>"
+                                   class="regular-text"
+                                   autocomplete="off" />
+                            <p class="description"><?php esc_html_e( 'Your Edamam Application ID.', 'delice-recipe-manager' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="delice_edamam_api_key"><?php esc_html_e( 'API Key', 'delice-recipe-manager' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="password"
+                                   id="delice_edamam_api_key"
+                                   name="delice_recipe_edamam_api_key"
+                                   value="<?php echo esc_attr( get_option( 'delice_recipe_edamam_api_key', '' ) ); ?>"
+                                   class="regular-text"
+                                   autocomplete="off" />
+                            <p class="description"><?php esc_html_e( 'Your Edamam Application Key.', 'delice-recipe-manager' ); ?></p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div><!-- /#tab-nutrition-api -->
 
         </div><!-- /tab panels wrapper -->
 

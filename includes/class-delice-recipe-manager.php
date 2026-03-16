@@ -34,6 +34,8 @@ class Delice_Recipe_Manager {
         $this->register_taxonomy_manager();
         $this->register_migration();
         $this->register_review_admin_hooks(); // ADDED
+        $this->register_blocks();
+        $this->register_favorites();
     }
 
     private function load_dependencies() {
@@ -44,6 +46,7 @@ class Delice_Recipe_Manager {
         require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-taxonomy-manager.php';
         require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-migration.php';
         require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-reviews.php';
+        require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-favorites.php';
         require_once DELICE_RECIPE_PLUGIN_DIR . 'admin/class-delice-recipe-admin.php';
         require_once DELICE_RECIPE_PLUGIN_DIR . 'admin/ajax-handlers.php';
         require_once DELICE_RECIPE_PLUGIN_DIR . 'public/class-delice-recipe-public.php';
@@ -116,6 +119,35 @@ class Delice_Recipe_Manager {
     private function register_review_admin_hooks() {
         // Reviews menu is now registered in class-delice-recipe-admin.php
         // This function kept for potential future review-related hooks
+    }
+
+    private function register_blocks() {
+        add_action( 'init', array( $this, 'do_register_blocks' ) );
+    }
+
+    public function do_register_blocks() {
+        if ( ! function_exists( 'register_block_type' ) ) {
+            return;
+        }
+        register_block_type( 'delice-recipe-manager/recipe-card', array(
+            'render_callback' => array( $this, 'render_recipe_block' ),
+            'attributes'      => array(
+                'recipeId' => array( 'type' => 'integer', 'default' => 0 ),
+            ),
+        ) );
+    }
+
+    public function render_recipe_block( $attributes ) {
+        $recipe_id = absint( $attributes['recipeId'] ?? 0 );
+        if ( ! $recipe_id ) {
+            return '<p>' . esc_html__( 'Select a recipe to display.', 'delice-recipe-manager' ) . '</p>';
+        }
+        $templates = new Delice_Recipe_Templates();
+        return $templates->render_recipe( $recipe_id );
+    }
+
+    private function register_favorites() {
+        new Delice_Recipe_Favorites();
     }
 
     public function run() {

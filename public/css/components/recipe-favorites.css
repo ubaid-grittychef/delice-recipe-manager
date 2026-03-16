@@ -1,0 +1,35 @@
+/**
+ * Delice Recipe Manager — Favorites Button (v4.0.0)
+ */
+
+/* ── Button base (inherits .delice-recipe-action-button sizing) ── */
+.delice-favorite-btn {
+    cursor: pointer !important;
+    transition: color 0.2s, background 0.2s, border-color 0.2s !important;
+}
+
+.delice-favorite-btn svg {
+    transition: fill 0.25s ease, stroke 0.25s ease !important;
+    fill: none !important;
+    stroke: currentColor !important;
+}
+
+/* Favorited state — filled heart in red */
+.delice-favorite-btn.is-favorited svg {
+    fill: #ef4444 !important;
+    stroke: #ef4444 !important;
+}
+
+/* Subtle hover pulse */
+.delice-favorite-btn:hover svg {
+    fill: rgba(239, 68, 68, 0.15) !important;
+    stroke: #ef4444 !important;
+}
+
+/* Modern & elegant template variants */
+.delice-modern-action-btn.delice-favorite-btn.is-favorited,
+.delice-elegant-btn.delice-favorite-btn.is-favorited {
+    color: #ef4444 !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+    background: rgba(239, 68, 68, 0.06) !important;
+}

@@ -1,0 +1,297 @@
+/**
+ * Delice Recipe Manager — Shopping List Panel (v4.0.0)
+ */
+
+/* ── Floating trigger button ─────────────────────────────────────────────── */
+.delice-shopping-trigger {
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    z-index: 9990 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 50% !important;
+    background: #2d6a4f !important;
+    color: #fff !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 16px rgba(45, 106, 79, 0.4) !important;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s !important;
+}
+
+.delice-shopping-trigger:hover {
+    background: #1b4332 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(45, 106, 79, 0.45) !important;
+}
+
+/* ── Badge ───────────────────────────────────────────────────────────────── */
+.delice-sl-badge {
+    position: absolute !important;
+    top: -4px !important;
+    right: -4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    padding: 0 4px !important;
+    border-radius: 10px !important;
+    background: #ef4444 !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+.delice-shopping-panel {
+    position: fixed !important;
+    top: 50% !important;
+    right: -360px !important;
+    z-index: 9991 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 340px !important;
+    max-height: 70vh !important;
+    border-radius: 12px 0 0 12px !important;
+    background: #fff !important;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.14) !important;
+    transform: translateY(-50%) !important;
+    transition: right 0.3s ease !important;
+    overflow: hidden !important;
+    font-family: inherit !important;
+}
+
+.delice-shopping-panel.delice-sl-open {
+    right: 0 !important;
+}
+
+/* ── Panel header ────────────────────────────────────────────────────────── */
+.delice-sl-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 16px 20px !important;
+    background: #2d6a4f !important;
+    color: #fff !important;
+    flex-shrink: 0 !important;
+}
+
+.delice-sl-header-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+.delice-sl-close-btn {
+    background: transparent !important;
+    border: none !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.delice-sl-close-btn:hover {
+    color: #fff !important;
+}
+
+/* ── Panel body ──────────────────────────────────────────────────────────── */
+.delice-sl-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 12px 0 !important;
+}
+
+.delice-sl-empty {
+    padding: 24px 20px !important;
+    color: #9ca3af !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+.delice-sl-recipe-group {
+    margin-bottom: 12px !important;
+}
+
+.delice-sl-recipe-title {
+    padding: 8px 20px 6px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    color: #2d6a4f !important;
+    border-top: 1px solid #f3f4f6 !important;
+}
+
+.delice-sl-recipe-group:first-child .delice-sl-recipe-title {
+    border-top: none !important;
+}
+
+.delice-sl-items {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.delice-sl-item {
+    display: flex !important;
+    align-items: flex-start !important;
+    padding: 7px 20px !important;
+    border: none !important;
+    background: none !important;
+    transition: background 0.15s !important;
+}
+
+.delice-sl-item:hover {
+    background: #f9fafb !important;
+}
+
+.delice-sl-item.delice-sl-checked .delice-sl-text {
+    text-decoration: line-through !important;
+    color: #9ca3af !important;
+}
+
+.delice-sl-label {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    cursor: pointer !important;
+    flex: 1 !important;
+}
+
+.delice-sl-checkbox {
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
+    accent-color: #2d6a4f !important;
+    width: 15px !important;
+    height: 15px !important;
+    cursor: pointer !important;
+}
+
+.delice-sl-text {
+    font-size: 13px !important;
+    color: #374151 !important;
+    line-height: 1.45 !important;
+}
+
+.delice-sl-qty {
+    font-weight: 600 !important;
+    color: #2d6a4f !important;
+}
+
+.delice-sl-remove-recipe {
+    margin: 4px 20px 8px !important;
+    background: transparent !important;
+    border: none !important;
+    color: #9ca3af !important;
+    font-size: 11px !important;
+    cursor: pointer !important;
+    text-decoration: underline !important;
+    padding: 0 !important;
+}
+
+.delice-sl-remove-recipe:hover {
+    color: #ef4444 !important;
+}
+
+/* ── Panel footer ────────────────────────────────────────────────────────── */
+.delice-sl-footer {
+    display: flex !important;
+    gap: 8px !important;
+    padding: 12px 16px !important;
+    border-top: 1px solid #f3f4f6 !important;
+    flex-shrink: 0 !important;
+}
+
+.delice-sl-footer-btn {
+    flex: 1 !important;
+    padding: 8px 10px !important;
+    border-radius: 6px !important;
+    border: 1.5px solid #e5e7eb !important;
+    background: #fff !important;
+    color: #374151 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: background 0.15s, border-color 0.15s !important;
+}
+
+.delice-sl-footer-btn:hover {
+    background: #f9fafb !important;
+    border-color: #d1d5db !important;
+}
+
+.delice-sl-footer-btn--danger {
+    color: #ef4444 !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.delice-sl-footer-btn--danger:hover {
+    background: rgba(239, 68, 68, 0.06) !important;
+}
+
+/* ── Toast ───────────────────────────────────────────────────────────────── */
+.delice-sl-toast {
+    position: fixed !important;
+    bottom: 88px !important;
+    right: 24px !important;
+    z-index: 9995 !important;
+    padding: 10px 16px !important;
+    border-radius: 8px !important;
+    background: #1b4332 !important;
+    color: #fff !important;
+    font-size: 13px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    opacity: 0 !important;
+    transform: translateY(8px) !important;
+    transition: opacity 0.25s, transform 0.25s !important;
+    pointer-events: none !important;
+}
+
+.delice-sl-toast.delice-sl-toast-show {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+@media print {
+    body:not(.delice-sl-printing) #delice-shopping-panel,
+    body:not(.delice-sl-printing) #delice-shopping-trigger {
+        display: none !important;
+    }
+    body.delice-sl-printing * {
+        visibility: hidden !important;
+    }
+    body.delice-sl-printing #delice-shopping-panel,
+    body.delice-sl-printing #delice-shopping-panel * {
+        visibility: visible !important;
+    }
+    body.delice-sl-printing #delice-shopping-panel {
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 400px) {
+    .delice-shopping-panel {
+        width: 100vw !important;
+    }
+}
