@@ -398,6 +398,9 @@ $has_update  = $remote_ver && version_compare( $current_ver, $remote_ver, '<' );
                 <?php esc_html_e( 'Updates', 'delice-recipe-manager' ); ?>
                 <?php if ( $has_update ) : ?><span style="display:inline-block;width:8px;height:8px;background:#d63638;border-radius:50%;margin-left:4px;vertical-align:middle;"></span><?php endif; ?>
             </a>
+            <a href="<?php echo esc_url( $tab_url . 'nutrition-api' ); ?>" class="nav-tab<?php echo $active_tab === 'nutrition-api' ? ' nav-tab-active' : ''; ?>">
+                <?php esc_html_e( 'Nutrition API', 'delice-recipe-manager' ); ?>
+            </a>
         </nav>
 
         <div style="padding-top: 8px;">
