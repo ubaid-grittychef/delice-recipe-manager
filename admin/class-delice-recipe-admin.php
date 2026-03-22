@@ -792,6 +792,16 @@ class Delice_Recipe_Admin {
                 'default'
             );
         }
+
+        // Image Gallery meta box (v4.1.0)
+        add_meta_box(
+            'delice_recipe_gallery',
+            __( 'Recipe Gallery', 'delice-recipe-manager' ),
+            array( $this, 'render_gallery_meta_box' ),
+            'delice_recipe',
+            'normal',
+            'default'
+        );
     }
 
     /**
@@ -1018,6 +1028,39 @@ class Delice_Recipe_Admin {
                 </label>
             <?php endforeach; ?>
             </div>
+
+            <?php
+            // v4.1.0 — Allergen tracking
+            $saved_allergens = get_post_meta($post->ID, '_delice_recipe_allergens', true);
+            $saved_allergens = is_array($saved_allergens) ? $saved_allergens : array();
+            $allergen_options = array(
+                'milk'      => __('Milk', 'delice-recipe-manager'),
+                'eggs'      => __('Eggs', 'delice-recipe-manager'),
+                'fish'      => __('Fish', 'delice-recipe-manager'),
+                'shellfish' => __('Shellfish', 'delice-recipe-manager'),
+                'tree-nuts' => __('Tree Nuts', 'delice-recipe-manager'),
+                'peanuts'   => __('Peanuts', 'delice-recipe-manager'),
+                'wheat'     => __('Wheat', 'delice-recipe-manager'),
+                'soy'       => __('Soy', 'delice-recipe-manager'),
+                'sesame'    => __('Sesame', 'delice-recipe-manager'),
+                'gluten'    => __('Gluten', 'delice-recipe-manager'),
+                'mustard'   => __('Mustard', 'delice-recipe-manager'),
+                'celery'    => __('Celery', 'delice-recipe-manager'),
+                'lupin'     => __('Lupin', 'delice-recipe-manager'),
+                'mollusks'  => __('Mollusks', 'delice-recipe-manager'),
+            );
+            ?>
+            <hr style="margin:14px 0;">
+            <strong><?php _e('Allergen Information', 'delice-recipe-manager'); ?></strong>
+            <p class="description" style="margin-bottom:8px;"><?php _e('Select allergens present in this recipe. Displayed as warning badges on the recipe card.', 'delice-recipe-manager'); ?></p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <?php foreach ( $allergen_options as $akey => $alabel ) : ?>
+                <label style="display:inline-flex;align-items:center;gap:4px;background:#fef2f2;padding:4px 10px;border-radius:4px;cursor:pointer;border:1px solid #fecaca;">
+                    <input type="checkbox" name="delice_recipe_allergens[]" value="<?php echo esc_attr($akey); ?>"<?php checked( in_array($akey, $saved_allergens, true) ); ?>>
+                    <?php echo esc_html($alabel); ?>
+                </label>
+            <?php endforeach; ?>
+            </div>
         </div>
         <?php
     }
@@ -1025,6 +1068,69 @@ class Delice_Recipe_Admin {
     /**
      * Save recipe meta data
      */
+    /**
+     * Render the image gallery meta box (v4.1.0)
+     */
+    public function render_gallery_meta_box( $post ) {
+        $gallery_ids = get_post_meta( $post->ID, '_delice_recipe_gallery', true );
+        $gallery_ids = is_array( $gallery_ids ) ? $gallery_ids : array();
+        ?>
+        <div id="delice-gallery-wrap">
+            <div id="delice-gallery-images" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+                <?php foreach ( $gallery_ids as $img_id ) :
+                    $thumb = wp_get_attachment_image_src( $img_id, 'thumbnail' );
+                    if ( ! $thumb ) { continue; }
+                ?>
+                <div class="delice-gallery-thumb" data-id="<?php echo absint( $img_id ); ?>" style="position:relative;width:80px;height:80px;">
+                    <img src="<?php echo esc_url( $thumb[0] ); ?>" style="width:80px;height:80px;object-fit:cover;border-radius:4px;">
+                    <button type="button" class="delice-gallery-remove" style="position:absolute;top:-6px;right:-6px;background:#e11d48;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;" aria-label="<?php esc_attr_e( 'Remove image', 'delice-recipe-manager' ); ?>">&times;</button>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <input type="hidden" id="delice-gallery-ids" name="delice_recipe_gallery" value="<?php echo esc_attr( implode( ',', $gallery_ids ) ); ?>">
+            <button type="button" id="delice-gallery-add" class="button"><?php esc_html_e( 'Add Gallery Images', 'delice-recipe-manager' ); ?></button>
+        </div>
+        <script>
+        (function($){
+            var frame;
+            $('#delice-gallery-add').on('click', function(e){
+                e.preventDefault();
+                if (frame) { frame.open(); return; }
+                frame = wp.media({
+                    title: '<?php echo esc_js( __( 'Select Gallery Images', 'delice-recipe-manager' ) ); ?>',
+                    button: { text: '<?php echo esc_js( __( 'Add to Gallery', 'delice-recipe-manager' ) ); ?>' },
+                    multiple: true,
+                    library: { type: 'image' }
+                });
+                frame.on('select', function(){
+                    var selection = frame.state().get('selection');
+                    selection.each(function(att){
+                        var id = att.id, url = att.attributes.sizes && att.attributes.sizes.thumbnail ? att.attributes.sizes.thumbnail.url : att.attributes.url;
+                        $('#delice-gallery-images').append(
+                            '<div class="delice-gallery-thumb" data-id="'+id+'" style="position:relative;width:80px;height:80px;">'+
+                            '<img src="'+url+'" style="width:80px;height:80px;object-fit:cover;border-radius:4px;">'+
+                            '<button type="button" class="delice-gallery-remove" style="position:absolute;top:-6px;right:-6px;background:#e11d48;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;" aria-label="Remove">&times;</button>'+
+                            '</div>'
+                        );
+                    });
+                    updateIds();
+                });
+                frame.open();
+            });
+            $(document).on('click', '.delice-gallery-remove', function(){
+                $(this).closest('.delice-gallery-thumb').remove();
+                updateIds();
+            });
+            function updateIds(){
+                var ids = [];
+                $('#delice-gallery-images .delice-gallery-thumb').each(function(){ ids.push($(this).data('id')); });
+                $('#delice-gallery-ids').val(ids.join(','));
+            }
+        })(jQuery);
+        </script>
+        <?php
+    }
+
     public function save_recipe_meta($post_id, $post = null) {
         // Only save for recipe posts (custom type or posts with recipe metadata)
         if (!$this->is_recipe_post($post)) {
@@ -1165,7 +1271,16 @@ class Delice_Recipe_Admin {
         } else {
             delete_post_meta( $post_id, '_delice_recipe_dietary' );
         }
-        
+
+        // Save allergen information (v4.1.0)
+        $allowed_allergens = array( 'milk', 'eggs', 'fish', 'shellfish', 'tree-nuts', 'peanuts', 'wheat', 'soy', 'sesame', 'gluten', 'mustard', 'celery', 'lupin', 'mollusks' );
+        if ( isset( $_POST['delice_recipe_allergens'] ) && is_array( $_POST['delice_recipe_allergens'] ) ) {
+            $allergens = array_intersect( array_map( 'sanitize_key', $_POST['delice_recipe_allergens'] ), $allowed_allergens );
+            update_post_meta( $post_id, '_delice_recipe_allergens', array_values( $allergens ) );
+        } else {
+            delete_post_meta( $post_id, '_delice_recipe_allergens' );
+        }
+
         // Mark as having recipe metadata if it's a regular post
         if ($post && $post->post_type === 'post') {
             update_post_meta($post_id, '_delice_recipe_migrated', '1');
@@ -1177,6 +1292,13 @@ class Delice_Recipe_Admin {
              class_exists( 'Delice_Affiliate_Manager' ) ) {
             $aff_tags = sanitize_textarea_field( wp_unslash( $_POST['delice_affiliate_ingredient_tags'] ?? '' ) );
             update_post_meta( $post_id, Delice_Affiliate_Manager::OVERRIDE_META, $aff_tags );
+        }
+
+        // Save gallery image IDs (v4.1.0)
+        if ( isset( $_POST['delice_recipe_gallery'] ) ) {
+            $raw_ids = sanitize_text_field( $_POST['delice_recipe_gallery'] );
+            $gallery = array_filter( array_map( 'absint', explode( ',', $raw_ids ) ) );
+            update_post_meta( $post_id, '_delice_recipe_gallery', $gallery );
         }
 
         // Save equipment (meta box nonce is shared with the main recipe nonce — already verified above)

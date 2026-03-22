@@ -346,7 +346,52 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
         </div>
         <?php endif; ?>
 
+        <?php
+        // Allergen badges (v4.1.0)
+        $dre_allergens = get_post_meta( $recipe_id, '_delice_recipe_allergens', true );
+        $dre_allergen_labels = array(
+            'milk' => __('Milk','delice-recipe-manager'), 'eggs' => __('Eggs','delice-recipe-manager'),
+            'fish' => __('Fish','delice-recipe-manager'), 'shellfish' => __('Shellfish','delice-recipe-manager'),
+            'tree-nuts' => __('Tree Nuts','delice-recipe-manager'), 'peanuts' => __('Peanuts','delice-recipe-manager'),
+            'wheat' => __('Wheat','delice-recipe-manager'), 'soy' => __('Soy','delice-recipe-manager'),
+            'sesame' => __('Sesame','delice-recipe-manager'), 'gluten' => __('Gluten','delice-recipe-manager'),
+            'mustard' => __('Mustard','delice-recipe-manager'), 'celery' => __('Celery','delice-recipe-manager'),
+            'lupin' => __('Lupin','delice-recipe-manager'), 'mollusks' => __('Mollusks','delice-recipe-manager'),
+        );
+        if ( ! empty( $dre_allergens ) && is_array( $dre_allergens ) ) : ?>
+        <div class="delice-allergen-badges" style="justify-content:center;margin-top:10px;">
+            <span class="delice-allergen-label"><?php esc_html_e( 'Contains:', 'delice-recipe-manager' ); ?></span>
+            <?php foreach ( $dre_allergens as $a_key ) : if ( ! isset( $dre_allergen_labels[ $a_key ] ) ) continue; ?>
+                <span class="delice-allergen-badge delice-allergen--<?php echo esc_attr( $a_key ); ?>"><?php echo esc_html( $dre_allergen_labels[ $a_key ] ); ?></span>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
     </div><!-- /.delice-elegant-header -->
+
+    <?php
+    // Image Gallery (v4.1.0)
+    $dre_gallery_ids = get_post_meta( $recipe_id, '_delice_recipe_gallery', true );
+    if ( ! empty( $dre_gallery_ids ) && is_array( $dre_gallery_ids ) ) : ?>
+    <div class="delice-gallery" style="padding:0 48px 16px;">
+        <div class="delice-gallery-grid">
+            <?php foreach ( $dre_gallery_ids as $dre_gimg_id ) :
+                $dre_gimg_thumb = wp_get_attachment_image_src( $dre_gimg_id, 'medium' );
+                $dre_gimg_full  = wp_get_attachment_image_src( $dre_gimg_id, 'large' );
+                if ( ! $dre_gimg_thumb ) { continue; }
+            ?>
+            <div class="delice-gallery-item">
+                <img src="<?php echo esc_url( $dre_gimg_thumb[0] ); ?>"
+                     data-full="<?php echo esc_url( $dre_gimg_full ? $dre_gimg_full[0] : $dre_gimg_thumb[0] ); ?>"
+                     alt="<?php echo esc_attr( get_the_title( $recipe_id ) ); ?>"
+                     loading="lazy"
+                     width="<?php echo intval( $dre_gimg_thumb[1] ); ?>"
+                     height="<?php echo intval( $dre_gimg_thumb[2] ); ?>">
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- ═══ META BAR ═════════════════════════════════════════════════════════ -->
     <?php
@@ -674,6 +719,13 @@ if ( $dre_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
           </div>
         </div>
         <?php endif; ?>
+        <div style="display:flex;justify-content:center;margin-bottom:12px;">
+            <div class="delice-unit-toggle" role="group" aria-label="<?php esc_attr_e( 'Unit system', 'delice-recipe-manager' ); ?>">
+                <button class="delice-unit-toggle-btn delice-unit-active" type="button" data-unit-system="original" aria-pressed="true"><?php esc_html_e( 'Original', 'delice-recipe-manager' ); ?></button>
+                <button class="delice-unit-toggle-btn" type="button" data-unit-system="metric" aria-pressed="false"><?php esc_html_e( 'Metric', 'delice-recipe-manager' ); ?></button>
+                <button class="delice-unit-toggle-btn" type="button" data-unit-system="imperial" aria-pressed="false"><?php esc_html_e( 'Imperial', 'delice-recipe-manager' ); ?></button>
+            </div>
+        </div>
         <ul class="delice-elegant-ingredients-list">
             <?php foreach ( $ingredients as $ing ) :
                 $ing_id        = 'ing-' . esc_attr( $recipe_id . '-' . sanitize_title( $ing['name'] ?? 'item' ) );

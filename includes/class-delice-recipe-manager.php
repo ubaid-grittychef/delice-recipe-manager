@@ -56,8 +56,10 @@ class Delice_Recipe_Manager {
         require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-search.php';
         require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-templates.php';
         require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-schema.php';
+        require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-meal-planner.php';
 
         $this->loader = new Delice_Recipe_Loader();
+        new Delice_Recipe_Meal_Planner();
     }
 
     private function define_admin_hooks() {

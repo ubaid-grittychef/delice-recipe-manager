@@ -41,3 +41,50 @@
 .delice-badge--low-carb    { background: #db2777 !important; }
 .delice-badge--keto        { background: #9333ea !important; }
 .delice-badge--paleo       { background: #b45309 !important; }
+
+/* ── Allergen Badges (v4.1.0) ──────────────────────────────────────────── */
+
+.delice-allergen-badges {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+}
+
+.delice-allergen-label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.4px !important;
+    color: #dc2626 !important;
+}
+
+.delice-allergen-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 3px 10px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.4px !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    line-height: 1.4 !important;
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .delice-allergen-badge {
+        background: rgba(220, 38, 38, 0.15) !important;
+        color: #fca5a5 !important;
+        border-color: rgba(220, 38, 38, 0.3) !important;
+    }
+    .delice-allergen-label {
+        color: #fca5a5 !important;
+    }
+}

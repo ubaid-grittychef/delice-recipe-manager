@@ -205,6 +205,36 @@ class Delice_Recipe_Scripts {
             ),
         ) );
 
+        // v4.1.0 — Image Gallery + Lightbox
+        wp_enqueue_style(
+            'delice-image-gallery',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-gallery.css',
+            array(),
+            $ver
+        );
+        wp_enqueue_script(
+            'delice-image-gallery',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-image-gallery.js',
+            array(),
+            $ver,
+            true
+        );
+
+        // v4.1.0 — Unit Converter (metric/imperial toggle)
+        wp_enqueue_style(
+            'delice-unit-converter',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-unit-converter.css',
+            array(),
+            $ver
+        );
+        wp_enqueue_script(
+            'delice-unit-converter',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-unit-converter.js',
+            array(),
+            $ver,
+            true
+        );
+
         if ( class_exists( 'Delice_Affiliate_Manager' ) ) {
             $aff_settings = Delice_Affiliate_Manager::get_settings();
             if ( ! empty( $aff_settings['enabled'] ) ) {
