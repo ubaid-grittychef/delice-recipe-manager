@@ -1,0 +1,72 @@
+/* ── Unit Converter Toggle ──────────────────────────────────────────────── */
+
+.delice-unit-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+    background: var(--drm-bg-alt, #f8fafc);
+    border: 1px solid var(--drm-border, #e2e8f0);
+    border-radius: 6px;
+    padding: 2px;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.delice-unit-toggle-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--drm-text-muted, #94a3b8);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.delice-unit-toggle-btn:hover {
+    color: var(--drm-text, #0f172a);
+    background: var(--drm-bg-hover, #f1f5f9);
+}
+
+.delice-unit-toggle-btn.delice-unit-active {
+    background: var(--drm-accent, #f97316);
+    color: #fff;
+}
+
+.delice-unit-toggle-btn.delice-unit-active:hover {
+    background: var(--drm-accent-hover, #ea580c);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .delice-unit-toggle {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+
+    .delice-recipe-panel-header {
+        flex-wrap: wrap;
+    }
+}
+
+/* ── Dark mode ──────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+    .delice-unit-toggle {
+        background: var(--drm-bg-alt, #1e293b);
+        border-color: var(--drm-border, #334155);
+    }
+
+    .delice-unit-toggle-btn {
+        color: var(--drm-text-muted, #64748b);
+    }
+
+    .delice-unit-toggle-btn:hover {
+        color: var(--drm-text, #e2e8f0);
+        background: var(--drm-bg-hover, #334155);
+    }
+}

@@ -1,0 +1,128 @@
+/**
+ * Delice Recipe Manager — Admin Dark Mode (v4.0.2)
+ *
+ * Overrides the CSS custom properties from delice-hybrid-modern.css
+ * when the user's OS prefers dark color scheme.
+ */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --delice-primary: #FF8555;
+        --delice-primary-dark: #FF6B35;
+        --delice-bg: #1a1a2e;
+        --delice-bg-alt: #16213e;
+        --delice-bg-hover: #1f2b47;
+        --delice-border: #2a2a4a;
+        --delice-text: #e4e4e7;
+        --delice-text-light: #a1a1aa;
+        --delice-success: #4ade80;
+        --delice-warning: #fbbf24;
+        --delice-error: #f87171;
+        --delice-info: #60a5fa;
+    }
+
+    /* Notification overrides */
+    .delice-notification {
+        background: var(--delice-bg-alt);
+        color: var(--delice-text);
+        border-color: var(--delice-border);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Card / panel backgrounds */
+    .delice-card,
+    .delice-settings-card,
+    .delice-panel,
+    .delice-hub-card,
+    .delice-stat-card {
+        background: var(--delice-bg-alt) !important;
+        border-color: var(--delice-border) !important;
+        color: var(--delice-text) !important;
+    }
+
+    /* Table rows */
+    .delice-table tr:nth-child(even),
+    .delice-table tbody tr:hover {
+        background: var(--delice-bg-hover) !important;
+    }
+
+    .delice-table th {
+        background: var(--delice-bg-alt) !important;
+        color: var(--delice-text-light) !important;
+        border-color: var(--delice-border) !important;
+    }
+
+    .delice-table td {
+        border-color: var(--delice-border) !important;
+        color: var(--delice-text) !important;
+    }
+
+    /* Form inputs */
+    .delice-input,
+    .delice-textarea,
+    .delice-select,
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    input[type="email"],
+    textarea,
+    select {
+        background: var(--delice-bg) !important;
+        border-color: var(--delice-border) !important;
+        color: var(--delice-text) !important;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+        border-color: var(--delice-primary) !important;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2) !important;
+    }
+
+    /* Tab navigation */
+    .delice-tab,
+    .delice-nav-tab {
+        color: var(--delice-text-light) !important;
+    }
+
+    .delice-tab.active,
+    .delice-nav-tab.active,
+    .delice-tab:hover,
+    .delice-nav-tab:hover {
+        color: var(--delice-primary) !important;
+        border-color: var(--delice-primary) !important;
+    }
+
+    /* Headings */
+    .delice-page-title,
+    .delice-section-title,
+    .delice-card h2,
+    .delice-card h3 {
+        color: var(--delice-text) !important;
+    }
+
+    /* Sub text */
+    .delice-description,
+    .delice-help-text,
+    .description {
+        color: var(--delice-text-light) !important;
+    }
+
+    /* Code blocks */
+    code, pre {
+        background: var(--delice-bg) !important;
+        color: #f0abfc !important;
+        border-color: var(--delice-border) !important;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar-track {
+        background: var(--delice-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--delice-border);
+        border-radius: 4px;
+    }
+}

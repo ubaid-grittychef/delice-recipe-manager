@@ -170,6 +170,7 @@ class Delice_Recipe_Templates {
                     wp_localize_script('delice-recipe-rating', 'deliceRecipeData', array(
                         'ajaxurl' => admin_url('admin-ajax.php'),
                         'nonce' => wp_create_nonce('delice_recipe_rating_nonce'),
+                        'debug' => defined('WP_DEBUG') && WP_DEBUG,
                         'strings' => array(
                             'rating_required' => __('Please select a rating first.', 'delice-recipe-manager'),
                             'comment_required' => __('Please enter a comment.', 'delice-recipe-manager'),

@@ -7,8 +7,9 @@
 ( function () {
     'use strict';
 
-    if ( window.deliceBlockRegistered ) { return; }
-    window.deliceBlockRegistered = true;
+    window.Delice = window.Delice || {};
+    if ( window.Delice.blockRegistered ) { return; }
+    window.Delice.blockRegistered = true;
 
     var el            = wp.element.createElement;
     var registerBlock = wp.blocks.registerBlockType;

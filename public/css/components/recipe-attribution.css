@@ -95,7 +95,7 @@
   border-radius: 8px;
   color: white;
   font-weight: 500;
-  z-index: 9999;
+  z-index: 1000;
   display: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -117,7 +117,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 9000;
 }
 
 .delice-recipe-rating-modal.active {

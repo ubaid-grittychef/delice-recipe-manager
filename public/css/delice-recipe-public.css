@@ -319,7 +319,7 @@
   bottom: 20px !important;
   right: 20px !important;
   box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
-  z-index: 9999 !important;
+  z-index: 1000 !important;
   font-weight: 600 !important;
   animation: fadeInOut 3s ease forwards !important;
 }

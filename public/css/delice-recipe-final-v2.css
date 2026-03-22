@@ -564,7 +564,7 @@
     padding: 8px;
     margin-bottom: 8px;
     min-width: 200px;
-    z-index: 9999;
+    z-index: 1000;
     display: none;
 }
 
@@ -622,7 +622,7 @@
     border-radius: 6px;
     font-size: 13px;
     font-weight: 600;
-    z-index: 9999;
+    z-index: 1000;
     box-shadow: 0 4px 16px rgba(67, 182, 73, 0.3);
 }
 
@@ -1049,7 +1049,7 @@
     position: fixed !important;
     bottom: 20px !important;
     right: 20px !important;
-    z-index: 99999 !important;
+    z-index: 5005 !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 8px !important;

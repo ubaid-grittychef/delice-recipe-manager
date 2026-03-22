@@ -7,8 +7,9 @@
 ( function ( $ ) {
     'use strict';
 
-    if ( window.deliceNutritionCalcLoaded ) { return; }
-    window.deliceNutritionCalcLoaded = true;
+    window.Delice = window.Delice || {};
+    if ( window.Delice.nutritionCalcLoaded ) { return; }
+    window.Delice.nutritionCalcLoaded = true;
 
     var DATA    = window.deliceNutritionData || {};
     var ajaxUrl = DATA.ajaxurl || '';

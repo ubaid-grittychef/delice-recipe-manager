@@ -356,8 +356,9 @@
         }
     }
     
-    // Make announce function globally available
-    window.deliceAnnounce = announceToScreenReader;
+    // Make announce function globally available under unified namespace
+    window.Delice = window.Delice || {};
+    window.Delice.announce = announceToScreenReader;
     
     // Initialize on document ready
     $(document).ready(function() {

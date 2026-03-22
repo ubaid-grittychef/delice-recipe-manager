@@ -349,6 +349,30 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       </div>
     <?php endif; ?>
 
+    <?php
+    // Image Gallery (v4.1.0)
+    $drd_gallery_ids = get_post_meta( $recipe_id, '_delice_recipe_gallery', true );
+    if ( ! empty( $drd_gallery_ids ) && is_array( $drd_gallery_ids ) ) : ?>
+    <div class="delice-gallery">
+        <div class="delice-gallery-grid">
+            <?php foreach ( $drd_gallery_ids as $drd_gimg_id ) :
+                $drd_gimg_thumb = wp_get_attachment_image_src( $drd_gimg_id, 'medium' );
+                $drd_gimg_full  = wp_get_attachment_image_src( $drd_gimg_id, 'large' );
+                if ( ! $drd_gimg_thumb ) { continue; }
+            ?>
+            <div class="delice-gallery-item">
+                <img src="<?php echo esc_url( $drd_gimg_thumb[0] ); ?>"
+                     data-full="<?php echo esc_url( $drd_gimg_full ? $drd_gimg_full[0] : $drd_gimg_thumb[0] ); ?>"
+                     alt="<?php echo esc_attr( get_the_title( $recipe_id ) ); ?>"
+                     loading="lazy"
+                     width="<?php echo intval( $drd_gimg_thumb[1] ); ?>"
+                     height="<?php echo intval( $drd_gimg_thumb[2] ); ?>">
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <?php if ( $rating_count > 0 && ( ! isset( $display_options['show_rating'] ) || $display_options['show_rating'] ) ) : ?>
     <div class="delice-recipe-rating-summary" itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
       <div class="delice-recipe-rating-stars-display" aria-hidden="true">
@@ -371,6 +395,27 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       <?php foreach ( $dietary_meta as $diet_key ) : if ( ! isset( $dietary_badge_labels[ $diet_key ] ) ) continue; ?>
         <span class="delice-dietary-badge delice-badge--<?php echo esc_attr( $diet_key ); ?>"><?php echo esc_html( $dietary_badge_labels[ $diet_key ] ); ?></span>
       <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <?php
+    // Allergen badges (v4.1.0)
+    $drd_allergens = get_post_meta( $recipe_id, '_delice_recipe_allergens', true );
+    $drd_allergen_labels = array(
+        'milk' => __('Milk','delice-recipe-manager'), 'eggs' => __('Eggs','delice-recipe-manager'),
+        'fish' => __('Fish','delice-recipe-manager'), 'shellfish' => __('Shellfish','delice-recipe-manager'),
+        'tree-nuts' => __('Tree Nuts','delice-recipe-manager'), 'peanuts' => __('Peanuts','delice-recipe-manager'),
+        'wheat' => __('Wheat','delice-recipe-manager'), 'soy' => __('Soy','delice-recipe-manager'),
+        'sesame' => __('Sesame','delice-recipe-manager'), 'gluten' => __('Gluten','delice-recipe-manager'),
+        'mustard' => __('Mustard','delice-recipe-manager'), 'celery' => __('Celery','delice-recipe-manager'),
+        'lupin' => __('Lupin','delice-recipe-manager'), 'mollusks' => __('Mollusks','delice-recipe-manager'),
+    );
+    if ( ! empty( $drd_allergens ) && is_array( $drd_allergens ) ) : ?>
+    <div class="delice-allergen-badges">
+        <span class="delice-allergen-label"><?php esc_html_e( 'Contains:', 'delice-recipe-manager' ); ?></span>
+        <?php foreach ( $drd_allergens as $a_key ) : if ( ! isset( $drd_allergen_labels[ $a_key ] ) ) continue; ?>
+            <span class="delice-allergen-badge delice-allergen--<?php echo esc_attr( $a_key ); ?>"><?php echo esc_html( $drd_allergen_labels[ $a_key ] ); ?></span>
+        <?php endforeach; ?>
     </div>
     <?php endif; ?>
   </div><!-- /.delice-recipe-header -->
@@ -425,8 +470,8 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
   <div class="delice-recipe-action-buttons">
     <!-- Print Button -->
     <?php if ( ! isset( $display_options['show_print'] ) || $display_options['show_print'] ) : ?>
-    <button class="delice-recipe-print-btn delice-recipe-action-button">
-      <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+    <button class="delice-recipe-print-btn delice-recipe-action-button" aria-label="<?php esc_attr_e( 'Print recipe', 'delice-recipe-manager' ); ?>">
+      <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
         <polyline points="6,9 6,2 18,2 18,9"></polyline>
         <path d="M6,18H4a2,2,0,0,1-2-2V11a2,2,0,0,1,2-2H20a2,2,0,0,1,2,2v5a2,2,0,0,1-2,2H18"></path>
         <polyline points="6,14 18,14 18,22 6,22 6,14"></polyline>
@@ -438,8 +483,8 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     <!-- Share Button with dropdown -->
     <?php if ( ! isset( $display_options['show_share'] ) || $display_options['show_share'] ) : ?>
     <div class="delice-recipe-share-dropdown">
-      <button class="delice-recipe-share-btn delice-recipe-action-button">
-        <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+      <button class="delice-recipe-share-btn delice-recipe-action-button" aria-label="<?php esc_attr_e( 'Share recipe', 'delice-recipe-manager' ); ?>">
+        <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
           <circle cx="18" cy="5" r="3"></circle>
           <circle cx="6" cy="12" r="3"></circle>
           <circle cx="18" cy="19" r="3"></circle>
@@ -488,8 +533,8 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
 
     <!-- Rate Button -->
     <?php if ($reviews_enabled) : ?>
-      <button class="delice-recipe-rate-btn delice-recipe-action-button" data-action="open-rating-modal" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-        <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+      <button class="delice-recipe-rate-btn delice-recipe-action-button" data-action="open-rating-modal" data-recipe-id="<?php echo esc_attr($recipe_id); ?>" aria-label="<?php esc_attr_e( 'Rate this recipe', 'delice-recipe-manager' ); ?>">
+        <svg class="delice-recipe-action-button-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
         </svg>
         <span class="delice-recipe-action-button-text"><?php echo esc_html( $lang_texts['rate'] ); ?></span>
@@ -499,7 +544,7 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
     <!-- Cook Mode Button (v3.6.0) — feature toggle v3.8.0 -->
     <?php if ( ! isset( $display_options['show_cook_mode'] ) || $display_options['show_cook_mode'] ) : ?>
     <div class="delice-cook-mode-wrap">
-        <button class="delice-cook-mode-btn delice-recipe-action-button" type="button" aria-pressed="false">
+        <button class="delice-cook-mode-btn delice-recipe-action-button" type="button" aria-pressed="false" aria-label="<?php esc_attr_e( 'Toggle cook mode', 'delice-recipe-manager' ); ?>">
           <span class="delice-cook-mode-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16">
               <path d="M12 2c0 0-4 4-4 8a4 4 0 0 0 8 0c0-4-4-8-4-8z"/><path d="M12 10c0 0-2 2-2 4a2 2 0 0 0 4 0c0-2-2-4-2-4z"/>
@@ -723,13 +768,18 @@ if ( $drd_show_breadcrumb && ! defined( 'WPSEO_VERSION' ) && ! defined( 'RANK_MA
       <h3><?php echo esc_html( $lang_texts['ingredients'] ); ?></h3>
       <?php if ( $servings && ( ! isset( $display_options['show_servings'] ) || $display_options['show_servings'] ) ) : ?>
       <div class="delice-servings-control" role="group" aria-label="<?php echo esc_attr( $lang_texts['servings'] ); ?>">
-        <button class="delice-servings-btn delice-servings-minus" type="button" aria-label="Decrease servings" disabled>−</button>
+        <button class="delice-servings-btn delice-servings-minus" type="button" aria-label="<?php esc_attr_e( 'Decrease servings', 'delice-recipe-manager' ); ?>" disabled>−</button>
         <span class="delice-servings-value" data-base="<?php echo esc_attr( intval( $servings ) ); ?>"><?php echo esc_html( intval( $servings ) ); ?></span>
-        <button class="delice-servings-btn delice-servings-plus" type="button" aria-label="Increase servings">+</button>
+        <button class="delice-servings-btn delice-servings-plus" type="button" aria-label="<?php esc_attr_e( 'Increase servings', 'delice-recipe-manager' ); ?>">+</button>
         <span class="delice-servings-label"><?php echo esc_html( $lang_texts['servings'] ); ?></span>
         <span class="delice-servings-live" aria-live="polite" aria-atomic="true"><?php echo esc_html( intval( $servings ) ); ?></span>
       </div>
       <?php endif; ?>
+      <div class="delice-unit-toggle" role="group" aria-label="<?php esc_attr_e( 'Unit system', 'delice-recipe-manager' ); ?>">
+        <button class="delice-unit-toggle-btn delice-unit-active" type="button" data-unit-system="original" aria-pressed="true"><?php esc_html_e( 'Original', 'delice-recipe-manager' ); ?></button>
+        <button class="delice-unit-toggle-btn" type="button" data-unit-system="metric" aria-pressed="false"><?php esc_html_e( 'Metric', 'delice-recipe-manager' ); ?></button>
+        <button class="delice-unit-toggle-btn" type="button" data-unit-system="imperial" aria-pressed="false"><?php esc_html_e( 'Imperial', 'delice-recipe-manager' ); ?></button>
+      </div>
     </div>
     <div class="delice-recipe-panel-body">
       <?php if ( ! empty( $ingredients ) && is_array( $ingredients ) ) : ?>

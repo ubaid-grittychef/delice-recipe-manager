@@ -1,4 +1,48 @@
 
+/* ── Z-Index Scale (Delice Recipe Manager) ──────────────────────────────────
+   1       Base content (hero overlays, badges)
+   100     Sticky headers, floating UI, tooltips
+   1000    Dropdowns, share menus, toast notifications
+   5000    Side panels (shopping list)
+   9000    Modals / overlays (rating modal, EEAT modal)
+   10000   Admin overlays (accessibility skip-links, notifications)
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ── Color Tokens ───────────────────────────────────────────────────────── */
+:root {
+  --drm-bg: #ffffff;
+  --drm-bg-alt: #f8fafc;
+  --drm-bg-hover: #f1f5f9;
+  --drm-text: #0f172a;
+  --drm-text-light: #64748b;
+  --drm-text-muted: #94a3b8;
+  --drm-border: #e2e8f0;
+  --drm-card-bg: #ffffff;
+  --drm-card-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  --drm-accent: #f97316;
+  --drm-accent-hover: #ea580c;
+  --drm-skeleton-from: #f0f0f0;
+  --drm-skeleton-via: #e8e8e8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --drm-bg: #0f172a;
+    --drm-bg-alt: #1e293b;
+    --drm-bg-hover: #334155;
+    --drm-text: #e2e8f0;
+    --drm-text-light: #94a3b8;
+    --drm-text-muted: #64748b;
+    --drm-border: #334155;
+    --drm-card-bg: #1e293b;
+    --drm-card-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    --drm-accent: #fb923c;
+    --drm-accent-hover: #f97316;
+    --drm-skeleton-from: #1e293b;
+    --drm-skeleton-via: #334155;
+  }
+}
+
 /* Base container & font styles */
 .delice-recipe-container,
 .delice-recipe-preview-content {
@@ -11,9 +55,10 @@
 
 /* Card wrapper */
 .delice-recipe-card {
-  background: #fff;
+  background: var(--drm-card-bg);
+  color: var(--drm-text);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: var(--drm-card-shadow);
   overflow: hidden;
   width: 100%;
   position: relative;
@@ -21,7 +66,7 @@
 
 /* Loading states */
 .delice-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--drm-skeleton-from) 25%, var(--drm-skeleton-via) 50%, var(--drm-skeleton-from) 75%);
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
   border-radius: 4px;

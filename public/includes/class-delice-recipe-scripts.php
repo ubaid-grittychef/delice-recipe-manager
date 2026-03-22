@@ -186,6 +186,54 @@ class Delice_Recipe_Scripts {
             $ver,
             true
         );
+        wp_localize_script( 'delice-shopping-list', 'deliceShoppingListData', array(
+            'strings' => array(
+                'empty'           => __( 'Your shopping list is empty.', 'delice-recipe-manager' ),
+                'emptyHint'       => __( 'Add ingredients from any recipe card.', 'delice-recipe-manager' ),
+                'copied'          => __( 'Copied to clipboard!', 'delice-recipe-manager' ),
+                'copyFailed'      => __( 'Could not copy.', 'delice-recipe-manager' ),
+                'clipboardNA'     => __( 'Clipboard not available.', 'delice-recipe-manager' ),
+                'confirmClear'    => __( 'Clear the entire shopping list?', 'delice-recipe-manager' ),
+                'panelTitle'      => __( 'Shopping List', 'delice-recipe-manager' ),
+                'copyList'        => __( 'Copy List', 'delice-recipe-manager' ),
+                'print'           => __( 'Print', 'delice-recipe-manager' ),
+                'clearAll'        => __( 'Clear All', 'delice-recipe-manager' ),
+                'noIngredients'   => __( 'No ingredients found in this recipe.', 'delice-recipe-manager' ),
+                'ingredientAdded' => __( '%d ingredient(s) added to Shopping List', 'delice-recipe-manager' ),
+                'removeRecipe'    => __( 'Remove recipe', 'delice-recipe-manager' ),
+                'recipe'          => __( 'Recipe', 'delice-recipe-manager' ),
+            ),
+        ) );
+
+        // v4.1.0 — Image Gallery + Lightbox
+        wp_enqueue_style(
+            'delice-image-gallery',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-gallery.css',
+            array(),
+            $ver
+        );
+        wp_enqueue_script(
+            'delice-image-gallery',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-image-gallery.js',
+            array(),
+            $ver,
+            true
+        );
+
+        // v4.1.0 — Unit Converter (metric/imperial toggle)
+        wp_enqueue_style(
+            'delice-unit-converter',
+            DELICE_RECIPE_PLUGIN_URL . 'public/css/components/recipe-unit-converter.css',
+            array(),
+            $ver
+        );
+        wp_enqueue_script(
+            'delice-unit-converter',
+            DELICE_RECIPE_PLUGIN_URL . 'public/js/delice-unit-converter.js',
+            array(),
+            $ver,
+            true
+        );
 
         if ( class_exists( 'Delice_Affiliate_Manager' ) ) {
             $aff_settings = Delice_Affiliate_Manager::get_settings();
