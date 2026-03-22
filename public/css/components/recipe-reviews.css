@@ -552,3 +552,64 @@
   .delice-review-item { padding: 16px; }
   .delice-recipe-review-submit { padding: 12px 24px; }
 }
+
+/* ── Dark Mode ── */
+@media (prefers-color-scheme: dark) {
+  .delice-recipe-review-header {
+    background: linear-gradient(160deg, #1e293b 0%, #312e1e 50%, #1e293b 100%);
+    border-color: #475569;
+  }
+  .delice-recipe-review-header h3 { color: #e2e8f0; }
+  .delice-recipe-review-subtitle { color: #94a3b8; }
+  .delice-recipe-rating-container {
+    background: #1e293b;
+    border-color: #475569;
+  }
+  .delice-recipe-rating-label { color: #cbd5e1; }
+  .delice-rating-star { color: #475569; }
+  .delice-selected-rating-display {
+    background: #1e293b;
+    border-color: #475569;
+  }
+  .delice-recipe-review-form {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  .delice-recipe-review-comment label,
+  .delice-recipe-review-image label { color: #cbd5e1; }
+  .delice-recipe-review-comment textarea {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+  .delice-recipe-review-comment textarea:focus {
+    background: #1e293b;
+  }
+  .delice-recipe-file-upload-wrapper {
+    background: #0f172a;
+    border-color: #475569;
+  }
+  .delice-review-item {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  .delice-review-author { color: #e2e8f0; }
+  .delice-review-comment { color: #cbd5e1; }
+  .delice-review-date { color: #64748b; }
+  .delice-recipe-reviews-display h3 { color: #e2e8f0; }
+  .delice-recipe-review-success {
+    background: #052e16;
+    border-color: #166534;
+  }
+  .delice-recipe-review-success p { color: #86efac; }
+  .delice-recipe-message.success {
+    background: #052e16;
+    color: #86efac;
+    border-color: #166534;
+  }
+  .delice-recipe-message.error {
+    background: #450a0a;
+    color: #fca5a5;
+    border-color: #991b1b;
+  }
+}

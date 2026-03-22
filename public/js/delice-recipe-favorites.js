@@ -7,8 +7,9 @@
 ( function ( $ ) {
     'use strict';
 
-    if ( window.deliceFavoritesLoaded ) { return; }
-    window.deliceFavoritesLoaded = true;
+    window.Delice = window.Delice || {};
+    if ( window.Delice.favoritesLoaded ) { return; }
+    window.Delice.favoritesLoaded = true;
 
     var DATA   = window.deliceFavoritesData || {};
     var ajaxUrl = DATA.ajaxurl || '';

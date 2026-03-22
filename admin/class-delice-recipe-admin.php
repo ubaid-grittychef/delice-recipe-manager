@@ -104,6 +104,9 @@ class Delice_Recipe_Admin {
             // NEW: Enqueue hybrid modern CSS for new pages
             wp_enqueue_style('delice-hybrid-modern', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-hybrid-modern.css', array('delice-recipe-admin'), DELICE_RECIPE_VERSION, 'all');
 
+            // Dark mode — overrides CSS custom properties when OS prefers dark scheme
+            wp_enqueue_style('delice-admin-dark', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-admin-dark.css', array('delice-hybrid-modern'), DELICE_RECIPE_VERSION, 'all');
+
             // Affiliate Links page CSS
             if ( strpos( $screen->id, 'delice-recipe-affiliate' ) !== false ) {
                 wp_enqueue_style( 'delice-affiliate-admin', DELICE_RECIPE_PLUGIN_URL . 'admin/css/delice-affiliate-admin.css', array( 'delice-recipe-modern' ), DELICE_RECIPE_VERSION, 'all' );

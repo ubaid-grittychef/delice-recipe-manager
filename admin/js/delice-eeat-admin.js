@@ -73,9 +73,10 @@
         }, 3000);
     }
     
-    // Make functions globally available
-    window.deliceEEAT = window.deliceEEAT || {};
-    window.deliceEEAT.refreshStats = refreshStats;
-    window.deliceEEAT.showNotice = showNotice;
+    // Make functions globally available under unified namespace
+    window.Delice = window.Delice || {};
+    window.Delice.eeat = window.Delice.eeat || {};
+    window.Delice.eeat.refreshStats = refreshStats;
+    window.Delice.eeat.showNotice = showNotice;
     
 })(jQuery);

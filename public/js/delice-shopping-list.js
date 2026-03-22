@@ -7,8 +7,9 @@
 ( function () {
     'use strict';
 
-    if ( window.deliceShoppingListLoaded ) { return; }
-    window.deliceShoppingListLoaded = true;
+    window.Delice = window.Delice || {};
+    if ( window.Delice.shoppingListLoaded ) { return; }
+    window.Delice.shoppingListLoaded = true;
 
     var LS_KEY = 'delice_shopping_list';
 
@@ -309,6 +310,28 @@
                 removeRecipeFromList( removeBtn.getAttribute( 'data-recipe-id' ) );
             }
         } );
+
+        // ── Swipe-right-to-dismiss on mobile ──────────────────────────────────
+        ( function () {
+            var startX = 0, startY = 0;
+            panel.addEventListener( 'touchstart', function ( e ) {
+                var touch = e.touches[ 0 ];
+                startX = touch.clientX;
+                startY = touch.clientY;
+            }, { passive: true } );
+
+            panel.addEventListener( 'touchend', function ( e ) {
+                var touch = e.changedTouches[ 0 ];
+                var dx    = touch.clientX - startX;
+                var dy    = touch.clientY - startY;
+                // Swipe right at least 100 px and more horizontal than vertical
+                if ( dx > 100 && Math.abs( dy ) < Math.abs( dx ) ) {
+                    if ( panel.classList.contains( 'delice-sl-open' ) ) {
+                        togglePanel();
+                    }
+                }
+            }, { passive: true } );
+        } )();
 
         updateBadge();
     }

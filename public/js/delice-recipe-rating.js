@@ -6,10 +6,11 @@
     'use strict';
     
     // Prevent multiple initializations
-    if (window.deliceRecipeRatingLoaded) {
+    window.Delice = window.Delice || {};
+    if (window.Delice.ratingLoaded) {
         return;
     }
-    window.deliceRecipeRatingLoaded = true;
+    window.Delice.ratingLoaded = true;
     
     var DELICE_DEBUG = (typeof deliceRecipeData !== 'undefined' && deliceRecipeData.debug);
     var previousFocusElement = null;
@@ -70,7 +71,19 @@
                 }
             }
         });
-        
+
+        // Touch: swipe down to dismiss modal
+        var touchStartY = 0;
+        $(document).on('touchstart', '.delice-recipe-rating-modal-content', function(e) {
+            touchStartY = e.originalEvent.touches[0].clientY;
+        });
+        $(document).on('touchend', '.delice-recipe-rating-modal-content', function(e) {
+            var deltaY = e.originalEvent.changedTouches[0].clientY - touchStartY;
+            if (deltaY > 100) {
+                closeRatingModal();
+            }
+        });
+
         // Modal rating stars click
         $(document).on('click', '.delice-recipe-rating-modal .delice-rating-star', function() {
             const rating = $(this).data('rating');

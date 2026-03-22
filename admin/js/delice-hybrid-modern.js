@@ -551,7 +551,8 @@
         DeliceHybrid.init();
     });
     
-    // Make available globally
-    window.DeliceHybrid = DeliceHybrid;
+    // Make available globally under unified namespace
+    window.Delice = window.Delice || {};
+    window.Delice.Hybrid = DeliceHybrid;
     
 })(jQuery);
