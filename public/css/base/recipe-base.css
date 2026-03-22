@@ -1,4 +1,13 @@
 
+/* ── Z-Index Scale (Delice Recipe Manager) ──────────────────────────────────
+   1       Base content (hero overlays, badges)
+   100     Sticky headers, floating UI, tooltips
+   1000    Dropdowns, share menus, toast notifications
+   5000    Side panels (shopping list)
+   9000    Modals / overlays (rating modal, EEAT modal)
+   10000   Admin overlays (accessibility skip-links, notifications)
+   ────────────────────────────────────────────────────────────────────────── */
+
 /* Base container & font styles */
 .delice-recipe-container,
 .delice-recipe-preview-content {

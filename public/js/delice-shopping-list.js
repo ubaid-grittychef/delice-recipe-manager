@@ -12,6 +12,10 @@
 
     var LS_KEY = 'delice_shopping_list';
 
+    // i18n helper — reads from wp_localize_script data with English fallbacks
+    var _s = (typeof deliceShoppingListData !== 'undefined' && deliceShoppingListData.strings) ? deliceShoppingListData.strings : {};
+    function t( key, fallback ) { return _s[ key ] || fallback; }
+
     // ── localStorage helpers ─────────────────────────────────────────────────
 
     function getList() {
@@ -80,7 +84,7 @@
         if ( ! body ) { return; }
 
         if ( keys.length === 0 ) {
-            body.innerHTML = '<p class="delice-sl-empty">Your shopping list is empty.<br>Add ingredients from any recipe card.</p>';
+            body.innerHTML = '<p class="delice-sl-empty">' + escHtml( t( 'empty', 'Your shopping list is empty.' ) ) + '<br>' + escHtml( t( 'emptyHint', 'Add ingredients from any recipe card.' ) ) + '</p>';
             updateBadge();
             return;
         }
@@ -108,7 +112,7 @@
                 html += '</li>';
             } );
             html += '</ul>';
-            html += '<button class="delice-sl-remove-recipe" data-recipe-id="' + escHtml( recipeId ) + '">Remove recipe</button>';
+            html += '<button class="delice-sl-remove-recipe" data-recipe-id="' + escHtml( recipeId ) + '">' + escHtml( t( 'removeRecipe', 'Remove recipe' ) ) + '</button>';
             html += '</div>';
         } );
 
@@ -173,7 +177,7 @@
         var lines = [];
         keys.forEach( function ( recipeId ) {
             var recipe = list[ recipeId ];
-            lines.push( '== ' + ( recipe.title || 'Recipe' ) + ' ==' );
+            lines.push( '== ' + ( recipe.title || t( 'recipe', 'Recipe' ) ) + ' ==' );
             ( recipe.ingredients || [] ).forEach( function ( ing ) {
                 var line = '';
                 if ( ing.amount ) { line += ing.amount + ' '; }
@@ -186,12 +190,12 @@
         var text = lines.join( '\n' );
         if ( navigator.clipboard && navigator.clipboard.writeText ) {
             navigator.clipboard.writeText( text ).then( function () {
-                showToast( 'Copied to clipboard!' );
+                showToast( t( 'copied', 'Copied to clipboard!' ) );
             } ).catch( function () {
-                showToast( 'Could not copy.' );
+                showToast( t( 'copyFailed', 'Could not copy.' ) );
             } );
         } else {
-            showToast( 'Clipboard not available.' );
+            showToast( t( 'clipboardNA', 'Clipboard not available.' ) );
         }
     }
 
@@ -206,7 +210,7 @@
     // ── Clear all ────────────────────────────────────────────────────────────
 
     function clearAll() {
-        if ( ! window.confirm( 'Clear the entire shopping list?' ) ) { return; }
+        if ( ! window.confirm( t( 'confirmClear', 'Clear the entire shopping list?' ) ) ) { return; }
         saveList( {} );
         renderPanel();
     }
@@ -242,15 +246,15 @@
             '      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>',
             '      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
             '    </svg>',
-            '    Shopping List',
+            '    ' + escHtml( t( 'panelTitle', 'Shopping List' ) ),
             '  </div>',
             '  <button class="delice-sl-close-btn" id="delice-sl-close" aria-label="Close shopping list">&times;</button>',
             '</div>',
             '<div class="delice-sl-body" id="delice-sl-body"></div>',
             '<div class="delice-sl-footer">',
-            '  <button class="delice-sl-footer-btn" id="delice-sl-copy">Copy List</button>',
-            '  <button class="delice-sl-footer-btn" id="delice-sl-print">Print</button>',
-            '  <button class="delice-sl-footer-btn delice-sl-footer-btn--danger" id="delice-sl-clear">Clear All</button>',
+            '  <button class="delice-sl-footer-btn" id="delice-sl-copy">' + escHtml( t( 'copyList', 'Copy List' ) ) + '</button>',
+            '  <button class="delice-sl-footer-btn" id="delice-sl-print">' + escHtml( t( 'print', 'Print' ) ) + '</button>',
+            '  <button class="delice-sl-footer-btn delice-sl-footer-btn--danger" id="delice-sl-clear">' + escHtml( t( 'clearAll', 'Clear All' ) ) + '</button>',
             '</div>',
         ].join( '' );
         document.body.appendChild( panel );
@@ -335,13 +339,13 @@
         }
 
         if ( ingredients.length === 0 ) {
-            showToast( 'No ingredients found in this recipe.' );
+            showToast( t( 'noIngredients', 'No ingredients found in this recipe.' ) );
             return;
         }
 
         addRecipeToList( recipeId, recipeTitle, ingredients );
         updateBadge();
-        showToast( ingredients.length + ' ingredient' + ( ingredients.length !== 1 ? 's' : '' ) + ' added to Shopping List' );
+        showToast( t( 'ingredientAdded', '%d ingredient(s) added to Shopping List' ).replace( '%d', ingredients.length ) );
     } );
 
     // ── Init ─────────────────────────────────────────────────────────────────

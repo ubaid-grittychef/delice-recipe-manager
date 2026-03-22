@@ -2,11 +2,10 @@
 (function($) {
     'use strict';
 
-    console.log('Recipe Card module loaded');
+    var DELICE_DEBUG = (typeof deliceRecipeData !== 'undefined' && deliceRecipeData.debug);
 
     class RecipeCard {
         constructor() {
-            console.log('Initializing Recipe Card');
             this.initializeRecipeCard();
             this.setupPrintButton();
             this.handleResponsiveness();
@@ -19,11 +18,8 @@
             const recipeContainers = $('.delice-recipe-container, .delice-recipe-modern, .delice-recipe-elegant');
             
             if (recipeContainers.length === 0) {
-                console.log('No recipe containers found on page');
                 return;
             }
-
-            console.log('Found ' + recipeContainers.length + ' recipe container(s)');
 
             // Fix recipe sections display
             $('.delice-recipe-ingredients, .delice-recipe-instructions').each(function() {
@@ -38,14 +34,12 @@
         setupCheckboxes() {
             // Make checkboxes interactive
             $('.delice-recipe-ingredient-checkbox').on('click', function() {
-                console.log('Ingredient checkbox clicked');
                 // Allow default browser behavior for checkbox
             });
         }
 
         setupPrintButton() {
             $('.delice-recipe-print-button, .delice-recipe-modern-print, .delice-recipe-print').on('click', function(e) {
-                console.log('Print button clicked');
                 e.preventDefault();
                 window.print();
             });
@@ -53,7 +47,6 @@
 
         setupCopyIngredientsButton() {
             $('.delice-recipe-copy-ingredients').on('click', function(e) {
-                console.log('Copy ingredients button clicked');
                 e.preventDefault();
                 
                 // Build ingredients list
@@ -68,11 +61,10 @@
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(ingredientsText)
                         .then(() => {
-                            console.log('Ingredients copied to clipboard');
                             RecipeCard.showCopyMessage();
                         })
                         .catch(err => {
-                            console.error('Failed to copy: ', err);
+                            if (DELICE_DEBUG) console.error('Failed to copy: ', err);
                             // Fallback
                             RecipeCard.fallbackCopyTextToClipboard(ingredientsText);
                         });
@@ -96,13 +88,10 @@
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
-                    console.log('Fallback: Ingredients copied to clipboard');
                     RecipeCard.showCopyMessage();
-                } else {
-                    console.error('Fallback: Copy command was unsuccessful');
                 }
             } catch (err) {
-                console.error('Fallback: Could not copy text: ', err);
+                if (DELICE_DEBUG) console.error('Fallback: Could not copy text: ', err);
             }
             
             document.body.removeChild(textArea);
@@ -174,7 +163,6 @@
          */
         initializeLanguageSupport() {
             if (typeof window.deliceRecipe === 'undefined') {
-                console.log('deliceRecipe global variable not found');
                 return;
             }
             
@@ -223,7 +211,6 @@
 
     // Initialize when document is ready
     $(document).ready(() => {
-        console.log('Document ready, initializing RecipeCard');
         new RecipeCard();
     });
 

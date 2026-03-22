@@ -5,15 +5,10 @@
 (function ($) {
     'use strict';
 
-    console.log('Delice Recipe Public JS loaded');
-
     // Wait for document to be fully ready
     $(document).ready(function () {
-        console.log('Public JS DOM ready');
-        
         // Enhanced recipe detection for both custom post type and migrated recipes
         if (isRecipePage()) {
-            console.log('Recipe detected on page - initializing recipe components');
             
             // Add classes to meta items for styling
             $('.delice-recipe-meta-item').each(function() {
@@ -80,7 +75,6 @@
      */
     function initializeLanguageText() {
         if (typeof deliceRecipe === 'undefined' || !deliceRecipe.texts) {
-            console.log('deliceRecipe language data not available');
             return;
         }
         

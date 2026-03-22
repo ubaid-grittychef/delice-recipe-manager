@@ -11,19 +11,16 @@
     }
     window.deliceRecipeRatingLoaded = true;
     
-    console.log('Delice Recipe Rating JS loaded - Fixed version');
-    
+    var DELICE_DEBUG = (typeof deliceRecipeData !== 'undefined' && deliceRecipeData.debug);
+    var previousFocusElement = null;
+
     $(document).ready(function() {
-        console.log('Initializing fixed rating system...');
-        
         // Initialize rating system
         initRatingModal();
         initScrollToReviews();
         initReviewForm();
         initImagePreview();
         loadExistingReviews();
-        
-        console.log('Fixed rating system initialized');
     });
     
     /**
@@ -40,8 +37,37 @@
         // Close rating modal
         $(document).on('click', '.delice-recipe-rating-cancel, .delice-recipe-rating-modal', function(e) {
             if (e.target === this) {
-                $('.delice-recipe-rating-modal').removeClass('active');
-                $('body').removeClass('modal-open');
+                closeRatingModal();
+            }
+        });
+
+        // Keyboard: Escape to close, Tab trap within modal
+        $(document).on('keydown', '.delice-recipe-rating-modal', function(e) {
+            if (!$(this).hasClass('active')) return;
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeRatingModal();
+                return;
+            }
+
+            if (e.key === 'Tab') {
+                var $focusable = $(this).find('button, [tabindex="0"], input, textarea, select, a[href]').filter(':visible');
+                if (!$focusable.length) return;
+                var first = $focusable.first()[0];
+                var last  = $focusable.last()[0];
+
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
             }
         });
         
@@ -100,22 +126,25 @@
      * Open rating modal
      */
     function openRatingModal(recipeId) {
+        // Store the element that triggered the modal for focus restoration
+        previousFocusElement = document.activeElement;
+
         let $modal = $('.delice-recipe-rating-modal');
-        
+
         if (!$modal.length) {
             // Create modal if it doesn't exist
             const modalHtml = `
-                <div class="delice-recipe-rating-modal" data-recipe-id="${recipeId}">
+                <div class="delice-recipe-rating-modal" role="dialog" aria-modal="true" aria-labelledby="delice-rating-modal-title" data-recipe-id="${recipeId}">
                     <div class="delice-recipe-rating-modal-content">
                         <div class="delice-modal-message"></div>
-                        <h3>Rate this Recipe</h3>
+                        <h3 id="delice-rating-modal-title">Rate this Recipe</h3>
                         <p>Please rate this recipe from 1 to 5 stars</p>
                         <div class="delice-recipe-rating-stars" data-recipe-id="${recipeId}">
-                            <span class="delice-rating-star" data-rating="1"><i class="fas fa-star"></i></span>
-                            <span class="delice-rating-star" data-rating="2"><i class="fas fa-star"></i></span>
-                            <span class="delice-rating-star" data-rating="3"><i class="fas fa-star"></i></span>
-                            <span class="delice-rating-star" data-rating="4"><i class="fas fa-star"></i></span>
-                            <span class="delice-rating-star" data-rating="5"><i class="fas fa-star"></i></span>
+                            <span class="delice-rating-star" data-rating="1" tabindex="0" role="button" aria-label="1 star"><i class="fas fa-star"></i></span>
+                            <span class="delice-rating-star" data-rating="2" tabindex="0" role="button" aria-label="2 stars"><i class="fas fa-star"></i></span>
+                            <span class="delice-rating-star" data-rating="3" tabindex="0" role="button" aria-label="3 stars"><i class="fas fa-star"></i></span>
+                            <span class="delice-rating-star" data-rating="4" tabindex="0" role="button" aria-label="4 stars"><i class="fas fa-star"></i></span>
+                            <span class="delice-rating-star" data-rating="5" tabindex="0" role="button" aria-label="5 stars"><i class="fas fa-star"></i></span>
                         </div>
                         <div class="delice-recipe-rating-buttons">
                             <button type="button" class="delice-recipe-rating-cancel">Cancel</button>
@@ -129,27 +158,43 @@
             $modal.attr('data-recipe-id', recipeId);
             $modal.find('.delice-recipe-rating-stars').attr('data-recipe-id', recipeId);
         }
-        
+
         // Show modal
         $modal.addClass('active');
         $('body').addClass('modal-open');
-        
+
         // Reset modal state
         $modal.find('.delice-rating-star').removeClass('selected hover');
         $modal.find('.delice-recipe-rating-submit').remove();
         $modal.removeData('selected-rating');
         hideModalMessage();
+
+        // Focus the first star for keyboard accessibility
+        setTimeout(function() {
+            $modal.find('.delice-rating-star').first().trigger('focus');
+        }, 100);
     }
     
+    /**
+     * Close rating modal and restore focus to the triggering element
+     */
+    function closeRatingModal() {
+        $('.delice-recipe-rating-modal').removeClass('active');
+        $('body').removeClass('modal-open');
+        if (previousFocusElement && typeof previousFocusElement.focus === 'function') {
+            previousFocusElement.focus();
+        }
+        previousFocusElement = null;
+    }
+
     /**
      * Submit rating from modal - FIXED: proper timing and error handling
      */
     function submitModalRating(recipeId, rating, $btn, originalText) {
-        console.log('Submitting modal rating:', rating, 'for recipe:', recipeId);
-        
         $.ajax({
             url: deliceRecipeData.ajaxurl,
             type: 'POST',
+            timeout: 15000,
             data: {
                 action: 'delice_save_rating',
                 recipe_id: recipeId,
@@ -157,8 +202,6 @@
                 nonce: deliceRecipeData.nonce
             },
             success: function(response) {
-                console.log('Modal rating response:', response);
-                
                 if (response.success) {
                     // Store rating for comment section
                     sessionStorage.setItem('delice_rating_' + recipeId, rating);
@@ -169,10 +212,11 @@
                     // NOW scroll to comment section
                     scrollToCommentSection(recipeId);
                     
-                    // Close modal after scroll starts
+                    // Close modal after scroll starts (don't restore focus since we scrolled)
                     setTimeout(function() {
                         $('.delice-recipe-rating-modal').removeClass('active');
                         $('body').removeClass('modal-open');
+                        previousFocusElement = null;
                     }, 300);
                     
                 } else {
@@ -182,7 +226,7 @@
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Modal rating error:', error);
+                if (DELICE_DEBUG) console.error('Modal rating error:', error);
                 showModalMessage('An error occurred. Please try again.', 'error');
                 $btn.text(originalText).prop('disabled', false);
             }
@@ -328,7 +372,6 @@
     function initReviewForm() {
         $(document).on('submit', '.delice-recipe-review-form', function(e) {
             e.preventDefault();
-            console.log('Review form submitted');
             
             const $form = $(this);
             const recipeId = $form.data('recipe-id');
@@ -370,12 +413,11 @@
             $.ajax({
                 url: deliceRecipeData.ajaxurl,
                 type: 'POST',
+                timeout: 15000,
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    console.log('Review submission response:', response);
-                    
                     if (response.success) {
                         // Show success message
                         showSuccessMessage(recipeId);
@@ -396,7 +438,7 @@
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Review submission error:', error);
+                    if (DELICE_DEBUG) console.error('Review submission error:', error);
                     showMessage(recipeId, 'An error occurred. Please try again.', 'error');
                 },
                 complete: function() {
@@ -451,12 +493,23 @@
         });
     }
     
-    function loadReviewsForRecipe(recipeId) {
-        console.log('Loading reviews for recipe:', recipeId);
-        
+    function loadReviewsForRecipe(recipeId, retryCount) {
+        retryCount = retryCount || 0;
+
+        // Show loading state on first attempt
+        var $display = $('#reviewsDisplay-' + recipeId);
+        if ($display.length && retryCount === 0) {
+            $display.html(
+                '<div class="delice-reviews-loading">' +
+                '<span class="delice-spinner"></span> Loading reviews&hellip;' +
+                '</div>'
+            ).show();
+        }
+
         $.ajax({
             url: deliceRecipeData.ajaxurl,
             type: 'POST',
+            timeout: 15000,
             data: {
                 action: 'delice_get_reviews',
                 recipe_id: recipeId
@@ -464,10 +517,22 @@
             success: function(response) {
                 if (response.success && response.data.reviews.length > 0) {
                     displayReviews(recipeId, response.data.reviews);
+                } else if ($display.length) {
+                    $display.empty().hide();
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Error loading reviews:', error);
+                if (DELICE_DEBUG) console.error('Error loading reviews:', error);
+                // Retry once after 2 seconds
+                if (retryCount < 1) {
+                    setTimeout(function() {
+                        loadReviewsForRecipe(recipeId, retryCount + 1);
+                    }, 2000);
+                } else if ($display.length) {
+                    $display.html(
+                        '<p class="delice-reviews-error">Could not load reviews. Please refresh to try again.</p>'
+                    ).show();
+                }
             }
         });
     }
@@ -488,7 +553,6 @@
         const $reviewsDisplay = $('#reviewsDisplay-' + recipeId);
 
         if (!$reviewsDisplay.length) {
-            console.error('Reviews display container not found');
             return;
         }
 
@@ -521,7 +585,6 @@
         reviewsHtml += '</div>';
 
         $reviewsDisplay.html(reviewsHtml).show();
-        console.log('Reviews displayed for recipe:', recipeId);
     }
     
 })(jQuery);
