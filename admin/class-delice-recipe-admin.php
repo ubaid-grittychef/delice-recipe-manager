@@ -129,6 +129,9 @@ class Delice_Recipe_Admin {
      * Register the JavaScript for the admin area
      */
     public function enqueue_scripts() {
+        // Required for the image gallery meta box media picker (v4.1.0)
+        wp_enqueue_media();
+
         wp_enqueue_script('delice-recipe-admin', DELICE_RECIPE_PLUGIN_URL . 'admin/js/delice-recipe-admin.js', array('jquery'), DELICE_RECIPE_VERSION, false);
         
         // Enqueue accessibility enhancements
@@ -793,15 +796,17 @@ class Delice_Recipe_Admin {
             );
         }
 
-        // Image Gallery meta box (v4.1.0)
-        add_meta_box(
-            'delice_recipe_gallery',
-            __( 'Recipe Gallery', 'delice-recipe-manager' ),
-            array( $this, 'render_gallery_meta_box' ),
-            'delice_recipe',
-            'normal',
-            'default'
-        );
+        // Image Gallery meta box (v4.1.0) — register for all recipe post types
+        foreach ( $post_types as $pt ) {
+            add_meta_box(
+                'delice_recipe_gallery' . ( $pt === 'post' ? '_post' : '' ),
+                __( 'Recipe Gallery', 'delice-recipe-manager' ),
+                array( $this, 'render_gallery_meta_box' ),
+                $pt,
+                'normal',
+                'default'
+            );
+        }
     }
 
     /**

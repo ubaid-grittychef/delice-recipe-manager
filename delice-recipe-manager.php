@@ -391,6 +391,10 @@ function delice_recipe_plugin_activate() {
         $eeat->create_tables();
     }
     
+    // Create meal planner table (v4.1.0)
+    require_once DELICE_RECIPE_PLUGIN_DIR . 'includes/class-delice-recipe-meal-planner.php';
+    Delice_Recipe_Meal_Planner::create_table();
+
     // Flush rewrite rules
     flush_rewrite_rules();
 }
